@@ -5,6 +5,7 @@ import { HoldSelector } from './components/HoldSelector';
 import { DrawingTools } from './components/DrawingTools';
 import { ExportImport } from './components/ExportImport';
 import { Header } from './components/Header';
+import { RouteDescription } from './components/RouteDescription';
 import './index.css';
 
 export interface Photo {
@@ -12,6 +13,7 @@ export interface Photo {
   file: File;
   url: string;
   name: string;
+  description?: string;
 }
 
 export interface Annotation {
@@ -24,7 +26,7 @@ export interface Annotation {
 }
 
 export interface HoldType {
-  id: string;
+  id:string;
   name: string;
   icon: string;
   category: 'hand' | 'foot';
@@ -84,6 +86,18 @@ function App() {
       const newPhotos = [...prev.photos];
       const [removed] = newPhotos.splice(startIndex, 1);
       newPhotos.splice(endIndex, 0, removed);
+      return { ...prev, photos: newPhotos };
+    });
+  }, []);
+
+  const handleDescriptionChange = useCallback((newDescription: string) => {
+    setState(prev => {
+      const newPhotos = prev.photos.map((photo, index) => {
+        if (index === prev.currentPhotoIndex) {
+          return { ...photo, description: newDescription };
+        }
+        return photo;
+      });
       return { ...prev, photos: newPhotos };
     });
   }, []);
@@ -212,16 +226,38 @@ function App() {
                 </div>
 
                 <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+                  <h2 className="text-lg font-semibold mb-4 text-orange-400">Route Description</h2>
+                  <RouteDescription
+                    photo={currentPhoto}
+                    onDescriptionChange={handleDescriptionChange}
+                  />
+                </div>
+
+                <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
                   <h2 className="text-lg font-semibold mb-4 text-orange-400">Export / Import</h2>
                   <ExportImport
                     photos={state.photos}
                     annotations={state.annotations}
                     currentPhoto={currentPhoto}
-                    onImport={(importedAnnotations) => {
+                    onImport={(data) => {
+                      const { annotations: importedAnnotations, photos: importedPhotos } = data;
                       const newHistory = state.history.slice(0, state.historyIndex + 1);
                       newHistory.push(importedAnnotations);
+
+                      let newPhotos = state.photos;
+                      if (importedPhotos) {
+                        newPhotos = state.photos.map(p => {
+                          const importedPhoto = importedPhotos.find(ip => ip.id === p.id || ip.name === p.name);
+                          if (importedPhoto) {
+                            return { ...p, description: importedPhoto.description };
+                          }
+                          return p;
+                        });
+                      }
+
                       updateState({
                         annotations: importedAnnotations,
+                        photos: newPhotos,
                         history: newHistory,
                         historyIndex: newHistory.length - 1,
                       });
