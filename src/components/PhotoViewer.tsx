@@ -95,18 +95,25 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
 
   // Gesture handling for zoom and pan
   const bind = useGesture({
-    onPinch: ({ offset: [scale], delta: [deltaScale], memo }) => {
+    onPinch: ({ offset: [scale], origin: [ox, oy] }) => {
       const stage = stageRef.current;
-      if (!stage) return memo;
+      if (!stage) return;
 
       const newScale = Math.max(0.1, Math.min(5, scale));
-      
-      setStageConfig(prev => ({
-        ...prev,
-        scale: newScale,
-      }));
 
-      return newScale;
+      setStageConfig(prev => {
+        const mousePointTo = {
+          x: (ox - prev.x) / prev.scale,
+          y: (oy - prev.y) / prev.scale,
+        };
+
+        return {
+          ...prev,
+          scale: newScale,
+          x: ox - mousePointTo.x * newScale,
+          y: oy - mousePointTo.y * newScale,
+        };
+      });
     },
     onDrag: ({ delta: [dx, dy], pinching, touches }) => {
       if (pinching || touches > 1) return;
@@ -123,16 +130,31 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       const stage = stageRef.current;
       if (!stage) return;
 
-      const scaleBy = 1.1;
-      const oldScale = stageConfig.scale;
-      const newScale = dy > 0 ? oldScale / scaleBy : oldScale * scaleBy;
+      const pointer = stage.getPointerPosition();
+      if (!pointer) return;
 
-      if (newScale >= 0.1 && newScale <= 5) {
-        setStageConfig(prev => ({
+      const scaleBy = 1.1;
+      
+      setStageConfig(prev => {
+        const oldScale = prev.scale;
+        const newScale = dy > 0 ? oldScale / scaleBy : oldScale * scaleBy;
+
+        if (newScale < 0.1 || newScale > 5) {
+          return prev;
+        }
+
+        const mousePointTo = {
+          x: (pointer.x - prev.x) / oldScale,
+          y: (pointer.y - prev.y) / oldScale,
+        };
+
+        return {
           ...prev,
-          scale: Math.max(0.1, Math.min(5, newScale)),
-        }));
-      }
+          scale: newScale,
+          x: pointer.x - mousePointTo.x * newScale,
+          y: pointer.y - mousePointTo.y * newScale,
+        };
+      });
     },
   }, {
     pinch: { scaleBounds: { min: 0.1, max: 5 } },
