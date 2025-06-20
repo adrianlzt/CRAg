@@ -274,41 +274,36 @@ function App() {
       for (let i = 0; i < state.photos.length; i++) {
         const photo = state.photos[i];
         const img = loadedImages[i];
+        const offsetX = (maxWidth - img.width) / 2 + PADDING;
 
-        // Create a temporary canvas for this photo and its annotations
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = img.width;
-        tempCanvas.height = img.height;
-        const tempCtx = tempCanvas.getContext('2d');
-        
-        if (!tempCtx) {
-            console.error("Could not get temporary canvas context for a photo.");
-            continue;
-        }
-
-        // Draw the image on the temp canvas
-        tempCtx.drawImage(img, 0, 0);
+        // Draw the image
+        ctx.drawImage(img, offsetX, currentY);
 
         // Filter annotations for this photo
         const photoAnnotations = state.annotations.filter(a => a.photoId === photo.id);
 
-        // Draw annotations on the temp canvas
+        // Draw annotations on the main canvas
+        ctx.fillStyle = 'black';
         for (const annotation of photoAnnotations) {
           if (annotation.type === 'hold') {
-            // Coordinates are now relative to the image itself
-            const x = annotation.x * img.width;
-            const y = annotation.y * img.height;
+            const x = offsetX + annotation.x * img.width;
+            const y = currentY + annotation.y * img.height;
             
-            tempCtx.beginPath();
-            tempCtx.arc(x, y, 10, 0, 2 * Math.PI); // 10px radius circle
-            tempCtx.fillStyle = 'black';
-            tempCtx.fill();
+            ctx.beginPath();
+            ctx.arc(x, y, 10, 0, 2 * Math.PI); // 10px radius circle
+            ctx.fill();
           }
         }
 
-        // Draw the composed temp canvas onto the main canvas
-        const offsetX = (maxWidth - img.width) / 2 + PADDING;
-        ctx.drawImage(tempCanvas, offsetX, currentY);
+        // --- VISUAL DEBUGGING ---
+        // Draw a semi-transparent overlay with debug info
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.fillRect(offsetX, currentY, 250, 50);
+        ctx.fillStyle = 'black';
+        ctx.font = '14px sans-serif';
+        ctx.fillText(`Debug: Photo ${i + 1}`, offsetX + 10, currentY + 20);
+        ctx.fillText(`Annotations found: ${photoAnnotations.length} / ${state.annotations.length}`, offsetX + 10, currentY + 40);
+        // --- END VISUAL DEBUGGING ---
 
         currentY += img.height;
       }
