@@ -10,6 +10,7 @@ interface PhotoViewerProps {
   selectedTool: 'select' | 'hold' | 'line' | 'text';
   selectedHoldType: HoldType | null;
   selectedHandColor: 'red' | 'green';
+  selectedFootColor: 'blue' | 'yellow';
   onAnnotationAdd: (annotation: Annotation) => void;
   onAnnotationUpdate: (annotationId: string, updates: Partial<Annotation>) => void;
   onAnnotationRemove: (annotationId: string) => void;
@@ -21,6 +22,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   selectedTool,
   selectedHoldType,
   selectedHandColor,
+  selectedFootColor,
   onAnnotationAdd,
   onAnnotationUpdate,
   onAnnotationRemove,
@@ -160,7 +162,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
           holdType: selectedHoldType.id,
           holdName: selectedHoldType.name,
           icon: selectedHoldType.icon,
-          handColor: selectedHoldType.category === 'foot' ? 'blue' : selectedHandColor,
+          handColor: selectedHoldType.category === 'foot' ? selectedFootColor : selectedHandColor,
           category: selectedHoldType.category,
         },
       };
@@ -279,6 +281,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       case 'red': return '#ef4444';
       case 'green': return '#10b981';
       case 'blue': return '#3b82f6';
+      case 'yellow': return '#eab308';
       default: return '#f97316';
     }
   };

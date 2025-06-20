@@ -4,8 +4,10 @@ import { HoldType } from '../App';
 interface HoldSelectorProps {
   selectedHoldType: HoldType | null;
   selectedHandColor: 'red' | 'green';
+  selectedFootColor: 'blue' | 'yellow';
   onHoldTypeSelect: (holdType: HoldType) => void;
   onHandColorSelect: (color: 'red' | 'green') => void;
+  onFootColorSelect: (color: 'blue' | 'yellow') => void;
 }
 
 // Define climbing hold types with their visual representations
@@ -23,8 +25,10 @@ const HOLD_TYPES: HoldType[] = [
 export const HoldSelector: React.FC<HoldSelectorProps> = ({
   selectedHoldType,
   selectedHandColor,
+  selectedFootColor,
   onHoldTypeSelect,
   onHandColorSelect,
+  onFootColorSelect,
 }) => {
   const handHolds = HOLD_TYPES.filter(hold => hold.category === 'hand');
   const footHolds = HOLD_TYPES.filter(hold => hold.category === 'foot');
@@ -85,6 +89,39 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
         </div>
       </div>
 
+      {/* Foot Color Selection */}
+      <div>
+        <h3 className="text-sm font-medium text-slate-300 mb-3">Foot Color</h3>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => onFootColorSelect('blue')}
+            className={`flex-1 p-3 rounded-lg border transition-all duration-200 ${
+              selectedFootColor === 'blue'
+                ? 'border-blue-400 bg-blue-400/20 text-blue-300'
+                : 'border-slate-600 hover:border-blue-400/50 text-slate-400 hover:text-blue-300'
+            }`}
+          >
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+              <span className="text-sm font-medium">Right Foot</span>
+            </div>
+          </button>
+          <button
+            onClick={() => onFootColorSelect('yellow')}
+            className={`flex-1 p-3 rounded-lg border transition-all duration-200 ${
+              selectedFootColor === 'yellow'
+                ? 'border-yellow-400 bg-yellow-400/20 text-yellow-300'
+                : 'border-slate-600 hover:border-yellow-400/50 text-slate-400 hover:text-yellow-300'
+            }`}
+          >
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-4 h-4 bg-yellow-500 rounded-full"></div>
+              <span className="text-sm font-medium">Left Foot</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
       {/* Foot Holds */}
       <div>
         <h3 className="text-sm font-medium text-slate-300 mb-3">Foot Holds</h3>
@@ -95,7 +132,7 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
               onClick={() => onHoldTypeSelect(hold)}
               className={`p-3 rounded-lg border transition-all duration-200 text-center group ${
                 selectedHoldType?.id === hold.id
-                  ? 'border-blue-400 bg-blue-400/20'
+                  ? `border-${selectedFootColor}-400 bg-${selectedFootColor}-400/20`
                   : 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30'
               }`}
             >
@@ -123,7 +160,9 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
                     {selectedHandColor === 'red' ? 'Right Hand' : 'Left Hand'}
                   </span>
                 ) : (
-                  <span className="text-blue-400">Foot Hold</span>
+                  <span className={`text-${selectedFootColor}-400`}>
+                    {selectedFootColor === 'blue' ? 'Right Foot' : 'Left Foot'}
+                  </span>
                 )}
               </div>
             </div>
