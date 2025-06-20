@@ -170,6 +170,25 @@ function App() {
     });
   }, []);
 
+  const handleProjectImport = useCallback((data: { photos: Photo[]; annotations: Annotation[] }) => {
+    setState(prev => {
+      // Clean up old photo URLs to prevent memory leaks
+      prev.photos.forEach(p => URL.revokeObjectURL(p.url));
+
+      const { photos: importedPhotos, annotations: importedAnnotations } = data;
+      
+      return {
+        ...prev,
+        photos: importedPhotos,
+        annotations: importedAnnotations,
+        currentPhotoIndex: importedPhotos.length > 0 ? 0 : 0,
+        history: [importedAnnotations],
+        historyIndex: 0,
+        selectedTool: 'select',
+      };
+    });
+  }, []);
+
   const currentPhoto = state.photos[state.currentPhotoIndex];
   const currentPhotoAnnotations = state.annotations.filter(
     a => a.photoId === currentPhoto?.id
@@ -238,30 +257,7 @@ function App() {
                   <ExportImport
                     photos={state.photos}
                     annotations={state.annotations}
-                    currentPhoto={currentPhoto}
-                    onImport={(data) => {
-                      const { annotations: importedAnnotations, photos: importedPhotos } = data;
-                      const newHistory = state.history.slice(0, state.historyIndex + 1);
-                      newHistory.push(importedAnnotations);
-
-                      let newPhotos = state.photos;
-                      if (importedPhotos) {
-                        newPhotos = state.photos.map(p => {
-                          const importedPhoto = importedPhotos.find(ip => ip.id === p.id || ip.name === p.name);
-                          if (importedPhoto) {
-                            return { ...p, description: importedPhoto.description };
-                          }
-                          return p;
-                        });
-                      }
-
-                      updateState({
-                        annotations: importedAnnotations,
-                        photos: newPhotos,
-                        history: newHistory,
-                        historyIndex: newHistory.length - 1,
-                      });
-                    }}
+                    onProjectImport={handleProjectImport}
                   />
                 </div>
               </>
