@@ -9,6 +9,8 @@ import { RouteDescription } from './components/RouteDescription';
 import { ProjectImporter } from './components/ProjectImporter';
 import { Button } from './components/ui/button';
 import { Upload } from 'lucide-react';
+import { useToast } from './hooks/use-toast';
+import { saveAs } from 'file-saver';
 import './index.css';
 
 export interface Photo {
@@ -49,6 +51,34 @@ export interface AppState {
   historyIndex: number;
 }
 
+function wrapText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number
+): number {
+  const words = text.split(' ');
+  let line = '';
+  let currentY = y;
+
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    const metrics = context.measureText(testLine);
+    const testWidth = metrics.width;
+    if (testWidth > maxWidth && n > 0) {
+      context.fillText(line, x, currentY);
+      line = words[n] + ' ';
+      currentY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  context.fillText(line, x, currentY);
+  return currentY + lineHeight;
+}
+
 function App() {
   const [state, setState] = useState<AppState>({
     photos: [],
@@ -63,6 +93,7 @@ function App() {
     history: [[]],
     historyIndex: 0,
   });
+  const { toast } = useToast();
 
   const updateState = useCallback((updates: Partial<AppState>) => {
     setState(prev => ({ ...prev, ...updates }));
@@ -192,6 +223,136 @@ function App() {
     });
   }, []);
 
+  const handleExportAsImage = useCallback(async () => {
+    if (state.photos.length === 0) {
+      toast({ title: "Cannot export", description: "There are no photos to export.", variant: "destructive" });
+      return;
+    }
+
+    const { id: toastId } = toast({
+      title: 'Exporting as Image',
+      description: 'Please wait while the image is being generated...',
+    });
+
+    try {
+      const PADDING = 50;
+      const TEXT_AREA_HEIGHT = 400;
+      const LINE_HEIGHT = 24;
+      const FONT_SIZE_TITLE = 20;
+      const FONT_SIZE_BODY = 16;
+
+      // 1. Load all images to get their dimensions
+      const loadedImages = await Promise.all(
+        state.photos.map(p => new Promise<HTMLImageElement>((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = p.url;
+        }))
+      );
+
+      // 2. Calculate canvas dimensions
+      const maxWidth = Math.max(...loadedImages.map(img => img.width));
+      const totalImageHeight = loadedImages.reduce((sum, img) => sum + img.height, 0);
+      const canvasWidth = maxWidth + PADDING * 2;
+      const canvasHeight = totalImageHeight + TEXT_AREA_HEIGHT + PADDING * 2;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        throw new Error("Could not get canvas context");
+      }
+
+      // 3. Draw background and images with annotations
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+      let currentY = PADDING;
+      for (let i = 0; i < state.photos.length; i++) {
+        const photo = state.photos[i];
+        const img = loadedImages[i];
+        const offsetX = (maxWidth - img.width) / 2 + PADDING;
+
+        ctx.drawImage(img, offsetX, currentY);
+
+        const photoAnnotations = state.annotations.filter(a => a.photoId === photo.id);
+        for (const annotation of photoAnnotations) {
+          const canvasX = annotation.x + offsetX;
+          const canvasY = annotation.y + currentY;
+
+          if (annotation.type === 'hold') {
+            ctx.beginPath();
+            ctx.arc(canvasX, canvasY, annotation.data.radius, 0, 2 * Math.PI);
+            ctx.fillStyle = annotation.data.color;
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          } else if (annotation.type === 'line') {
+            ctx.beginPath();
+            const points = annotation.data.points;
+            ctx.moveTo(points[0] + offsetX, points[1] + currentY);
+            for (let j = 2; j < points.length; j += 2) {
+              ctx.lineTo(points[j] + offsetX, points[j + 1] + currentY);
+            }
+            ctx.strokeStyle = annotation.data.color;
+            ctx.lineWidth = annotation.data.strokeWidth || 5;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+          } else if (annotation.type === 'text') {
+            ctx.fillStyle = annotation.data.color;
+            ctx.font = `${annotation.data.fontSize || 32}px sans-serif`;
+            ctx.fillText(annotation.data.text, canvasX, canvasY);
+          }
+        }
+        currentY += img.height;
+      }
+
+      // 4. Draw descriptions
+      let textY = currentY + PADDING;
+      ctx.fillStyle = 'black';
+
+      for (const photo of state.photos) {
+        if (textY > canvasHeight - PADDING) break; // Stop if out of space
+        ctx.font = `bold ${FONT_SIZE_TITLE}px sans-serif`;
+        ctx.fillText(photo.name, PADDING, textY);
+        textY += LINE_HEIGHT * 1.5;
+
+        if (photo.description) {
+          ctx.font = `${FONT_SIZE_BODY}px sans-serif`;
+          textY = wrapText(ctx, photo.description, PADDING, textY, maxWidth, LINE_HEIGHT);
+          textY += LINE_HEIGHT;
+        }
+      }
+
+      // 5. Trigger download
+      canvas.toBlob((blob) => {
+        if (blob) {
+          saveAs(blob, 'climbing-route.png');
+          toast({
+            id: toastId,
+            title: 'Export Successful',
+            description: 'Your image has been downloaded.',
+          });
+        } else {
+          throw new Error("Canvas to Blob conversion failed");
+        }
+      }, 'image/png');
+
+    } catch (error) {
+      console.error("Failed to export as image:", error);
+      toast({
+        id: toastId,
+        title: 'Export Failed',
+        description: (error as Error).message || 'An unknown error occurred.',
+        variant: 'destructive',
+      });
+    }
+  }, [state.photos, state.annotations, toast]);
+
   const currentPhoto = state.photos[state.currentPhotoIndex];
   const currentPhotoAnnotations = state.annotations.filter(
     a => a.photoId === currentPhoto?.id
@@ -261,6 +422,7 @@ function App() {
                     photos={state.photos}
                     annotations={state.annotations}
                     onProjectImport={handleProjectImport}
+                    onExportAsImage={handleExportAsImage}
                   />
                 </div>
               </>

@@ -1,7 +1,7 @@
 import React from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { Download, Upload } from 'lucide-react';
+import { Download, Upload, Image as ImageIcon } from 'lucide-react';
 
 import { Button } from './ui/button';
 import { useToast } from '../hooks/use-toast';
@@ -12,6 +12,7 @@ interface ExportImportProps {
   photos: Photo[];
   annotations: Annotation[];
   onProjectImport: (data: { photos: Photo[]; annotations: Annotation[] }) => void;
+  onExportAsImage: () => void;
 }
 
 type PhotoMetadata = Omit<Photo, 'file' | 'url'> & {
@@ -22,6 +23,7 @@ export const ExportImport: React.FC<ExportImportProps> = ({
   photos,
   annotations,
   onProjectImport,
+  onExportAsImage,
 }) => {
   const { toast } = useToast();
 
@@ -89,6 +91,15 @@ export const ExportImport: React.FC<ExportImportProps> = ({
         <Download className="mr-2 h-4 w-4" />
         Export Project
       </Button>
+      <Button
+        onClick={onExportAsImage}
+        variant="secondary"
+        className="w-full"
+        disabled={photos.length === 0}
+      >
+        <ImageIcon className="mr-2 h-4 w-4" />
+        Export as Image
+      </Button>
       <ProjectImporter onProjectImport={onProjectImport}>
         {(importProject) => (
           <Button
@@ -102,7 +113,7 @@ export const ExportImport: React.FC<ExportImportProps> = ({
         )}
       </ProjectImporter>
       <p className="text-xs text-slate-500 pt-2 text-center">
-        Save or load project as a .zip file.
+        Save project or export a shareable image.
       </p>
     </div>
   );
