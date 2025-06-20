@@ -138,7 +138,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     wheel: { preventDefault: true },
   });
 
-  const handleStageClick = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+  const handleStageClick = useCallback(() => {
     const stage = stageRef.current;
     if (!stage) return;
 
@@ -315,6 +315,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
         scaleY={stageConfig.scale}
         x={stageConfig.x}
         y={stageConfig.y}
+        onTap={handleStageClick}
         onClick={handleStageClick}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -343,6 +344,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   y={annotation.y}
                   onClick={() => handleAnnotationClick(annotation)}
                   onDblClick={() => handleAnnotationDoubleClick(annotation)}
+                  onDblTap={() => handleAnnotationDoubleClick(annotation)}
                   draggable={selectedTool === 'select'}
                   onDragEnd={(e) => {
                     onAnnotationUpdate(annotation.id, {
@@ -384,6 +386,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   lineJoin="round"
                   onClick={() => handleAnnotationClick(annotation)}
                   onDblClick={() => handleAnnotationDoubleClick(annotation)}
+                  onDblTap={() => handleAnnotationDoubleClick(annotation)}
                 />
               );
             } else if (annotation.type === 'text') {
@@ -398,6 +401,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   fontWeight="bold"
                   onClick={() => handleAnnotationClick(annotation)}
                   onDblClick={() => handleAnnotationDoubleClick(annotation)}
+                  onDblTap={() => handleAnnotationDoubleClick(annotation)}
                   draggable={selectedTool === 'select'}
                   onDragEnd={(e) => {
                     onAnnotationUpdate(annotation.id, {
