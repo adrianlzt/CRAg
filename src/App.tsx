@@ -6,6 +6,9 @@ import { DrawingTools } from './components/DrawingTools';
 import { ExportImport } from './components/ExportImport';
 import { Header } from './components/Header';
 import { RouteDescription } from './components/RouteDescription';
+import { ProjectImporter } from './components/ProjectImporter';
+import { Button } from './components/ui/button';
+import { Upload } from 'lucide-react';
 import './index.css';
 
 export interface Photo {
@@ -285,7 +288,15 @@ function App() {
               <div className="text-center p-8">
                 <div className="text-6xl mb-4">🧗‍♂️</div>
                 <h2 className="text-2xl font-bold mb-2 text-slate-300">Ready to Annotate Routes</h2>
-                <p className="text-slate-400">Upload photos to start marking your climbing routes</p>
+                <p className="text-slate-400 mb-6">Upload photos or import an existing project to get started.</p>
+                <ProjectImporter onProjectImport={handleProjectImport}>
+                  {(importProject) => (
+                    <Button onClick={importProject} variant="secondary">
+                      <Upload className="mr-2 h-4 w-4" />
+                      Import Project
+                    </Button>
+                  )}
+                </ProjectImporter>
               </div>
             </div>
           )}

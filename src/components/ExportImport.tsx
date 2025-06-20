@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Download, Upload } from 'lucide-react';
@@ -6,6 +6,7 @@ import { Download, Upload } from 'lucide-react';
 import { Button } from './ui/button';
 import { useToast } from '../hooks/use-toast';
 import type { Photo, Annotation } from '../App';
+import { ProjectImporter } from './ProjectImporter';
 
 interface ExportImportProps {
   photos: Photo[];
@@ -22,7 +23,6 @@ export const ExportImport: React.FC<ExportImportProps> = ({
   annotations,
   onProjectImport,
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const handleExportProject = async () => {
@@ -78,78 +78,8 @@ export const ExportImport: React.FC<ExportImportProps> = ({
     }
   };
 
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const zip = await JSZip.loadAsync(file);
-      const projectFile = zip.file('project.json');
-      if (!projectFile) {
-        throw new Error('project.json not found in the zip file.');
-      }
-
-      const projectDataStr = await projectFile.async('string');
-      const projectData: { photos: PhotoMetadata[], annotations: Annotation[] } = JSON.parse(projectDataStr);
-
-      const imagesFolder = zip.folder('images');
-      if (!imagesFolder) {
-        throw new Error('images folder not found in the zip file.');
-      }
-
-      const importedPhotos: Photo[] = await Promise.all(
-        projectData.photos.map(async (photoMeta) => {
-          const imageFileInZip = imagesFolder.file(photoMeta.fileName);
-          if (!imageFileInZip) {
-            throw new Error(`Image file ${photoMeta.fileName} not found in zip.`);
-          }
-          const imageBlob = await imageFileInZip.async('blob');
-          const newImageFile = new File([imageBlob], photoMeta.fileName, { type: imageBlob.type });
-
-          return {
-            id: photoMeta.id,
-            name: photoMeta.name,
-            description: photoMeta.description,
-            file: newImageFile,
-            url: URL.createObjectURL(newImageFile),
-          };
-        })
-      );
-
-      onProjectImport({ photos: importedPhotos, annotations: projectData.annotations });
-      
-      toast({
-        title: 'Import Successful',
-        description: 'Your project has been loaded.',
-      });
-
-    } catch (error) {
-      console.error('Failed to import project:', error);
-      toast({
-        title: 'Import Failed',
-        description: (error as Error).message || 'An unknown error occurred.',
-        variant: 'destructive',
-      });
-    } finally {
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
   return (
     <div className="space-y-2">
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".zip"
-        onChange={handleFileChange}
-        className="hidden"
-      />
       <Button
         onClick={handleExportProject}
         variant="outline"
@@ -159,14 +89,18 @@ export const ExportImport: React.FC<ExportImportProps> = ({
         <Download className="mr-2 h-4 w-4" />
         Export Project
       </Button>
-      <Button
-        onClick={handleImportClick}
-        variant="outline"
-        className="w-full"
-      >
-        <Upload className="mr-2 h-4 w-4" />
-        Import Project
-      </Button>
+      <ProjectImporter onProjectImport={onProjectImport}>
+        {(importProject) => (
+          <Button
+            onClick={importProject}
+            variant="outline"
+            className="w-full"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Import Project
+          </Button>
+        )}
+      </ProjectImporter>
       <p className="text-xs text-slate-500 pt-2 text-center">
         Save or load project as a .zip file.
       </p>
