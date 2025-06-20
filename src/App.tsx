@@ -278,13 +278,19 @@ function App() {
 
         ctx.drawImage(img, offsetX, currentY);
 
-        // Draw a big black circle in the middle for debugging
-        const centerX = offsetX + img.width / 2;
-        const centerY = currentY + img.height / 2;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 50, 0, 2 * Math.PI); // 50px radius circle
-        ctx.fillStyle = 'black';
-        ctx.fill();
+        const photoAnnotations = state.annotations.filter(a => a.photoId === photo.id);
+
+        for (const annotation of photoAnnotations) {
+          if (annotation.type === 'hold') {
+            const absoluteX = offsetX + annotation.x * img.width;
+            const absoluteY = currentY + annotation.y * img.height;
+            
+            ctx.beginPath();
+            ctx.arc(absoluteX, absoluteY, 10, 0, 2 * Math.PI); // 10px radius circle
+            ctx.fillStyle = 'black';
+            ctx.fill();
+          }
+        }
 
         currentY += img.height;
       }
