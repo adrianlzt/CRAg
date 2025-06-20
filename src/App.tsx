@@ -229,7 +229,7 @@ function App() {
       return;
     }
 
-    const { id: toastId } = toast({
+    const { id: toastId, update } = toast({
       title: 'Exporting as Image',
       description: 'Please wait while the image is being generated...',
     });
@@ -329,7 +329,7 @@ function App() {
       canvas.toBlob((blob) => {
         if (blob) {
           saveAs(blob, 'climbing-route.png');
-          toast({
+          update({
             id: toastId,
             title: 'Export Successful',
             description: 'Your image has been downloaded.',
@@ -341,7 +341,7 @@ function App() {
 
     } catch (error) {
       console.error("Failed to export as image:", error);
-      toast({
+      update({
         id: toastId,
         title: 'Export Failed',
         description: (error as Error).message || 'An unknown error occurred.',
