@@ -43,6 +43,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentLine, setCurrentLine] = useState<number[]>([]);
   const [selectedAnnotation, setSelectedAnnotation] = useState<string | null>(null);
+  const [isDraggingAnnotation, setIsDraggingAnnotation] = useState(false);
 
   // Load image
   useEffect(() => {
@@ -118,7 +119,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       });
     },
     onDrag: ({ delta: [dx, dy], pinching, touches }) => {
-      if (pinching || touches > 1) return;
+      if (pinching || touches > 1 || isDraggingAnnotation) return;
       
       if (selectedTool === 'select' || touches === 2) {
         setStageConfig(prev => ({
@@ -373,7 +374,14 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   onDblClick={() => handleAnnotationDoubleClick(annotation)}
                   onDblTap={() => handleAnnotationDoubleClick(annotation)}
                   draggable={selectedTool === 'select'}
+                  dragDistance={5}
+                  onDragStart={() => {
+                    if (selectedTool === 'select') {
+                      setIsDraggingAnnotation(true);
+                    }
+                  }}
                   onDragEnd={(e) => {
+                    setIsDraggingAnnotation(false);
                     onAnnotationUpdate(annotation.id, {
                       x: e.target.x(),
                       y: e.target.y(),
@@ -430,7 +438,14 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   onDblClick={() => handleAnnotationDoubleClick(annotation)}
                   onDblTap={() => handleAnnotationDoubleClick(annotation)}
                   draggable={selectedTool === 'select'}
+                  dragDistance={5}
+                  onDragStart={() => {
+                    if (selectedTool === 'select') {
+                      setIsDraggingAnnotation(true);
+                    }
+                  }}
                   onDragEnd={(e) => {
+                    setIsDraggingAnnotation(false);
                     onAnnotationUpdate(annotation.id, {
                       x: e.target.x(),
                       y: e.target.y(),
