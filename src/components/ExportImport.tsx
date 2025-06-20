@@ -82,7 +82,7 @@ export const ExportImport: React.FC<ExportImportProps> = ({
     <div className="space-y-2">
       <Button
         onClick={handleExportProject}
-        variant="outline"
+        variant="secondary"
         className="w-full"
         disabled={photos.length === 0}
       >
@@ -93,7 +93,7 @@ export const ExportImport: React.FC<ExportImportProps> = ({
         {(importProject) => (
           <Button
             onClick={importProject}
-            variant="outline"
+            variant="secondary"
             className="w-full"
           >
             <Upload className="mr-2 h-4 w-4" />
