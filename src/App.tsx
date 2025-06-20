@@ -274,23 +274,41 @@ function App() {
       for (let i = 0; i < state.photos.length; i++) {
         const photo = state.photos[i];
         const img = loadedImages[i];
-        const offsetX = (maxWidth - img.width) / 2 + PADDING;
 
-        ctx.drawImage(img, offsetX, currentY);
+        // Create a temporary canvas for this photo and its annotations
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = img.width;
+        tempCanvas.height = img.height;
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        if (!tempCtx) {
+            console.error("Could not get temporary canvas context for a photo.");
+            continue;
+        }
 
+        // Draw the image on the temp canvas
+        tempCtx.drawImage(img, 0, 0);
+
+        // Filter annotations for this photo
         const photoAnnotations = state.annotations.filter(a => a.photoId === photo.id);
 
+        // Draw annotations on the temp canvas
         for (const annotation of photoAnnotations) {
           if (annotation.type === 'hold') {
-            const absoluteX = offsetX + annotation.x * img.width;
-            const absoluteY = currentY + annotation.y * img.height;
+            // Coordinates are now relative to the image itself
+            const x = annotation.x * img.width;
+            const y = annotation.y * img.height;
             
-            ctx.beginPath();
-            ctx.arc(absoluteX, absoluteY, 10, 0, 2 * Math.PI); // 10px radius circle
-            ctx.fillStyle = 'black';
-            ctx.fill();
+            tempCtx.beginPath();
+            tempCtx.arc(x, y, 10, 0, 2 * Math.PI); // 10px radius circle
+            tempCtx.fillStyle = 'black';
+            tempCtx.fill();
           }
         }
+
+        // Draw the composed temp canvas onto the main canvas
+        const offsetX = (maxWidth - img.width) / 2 + PADDING;
+        ctx.drawImage(tempCanvas, offsetX, currentY);
 
         currentY += img.height;
       }
