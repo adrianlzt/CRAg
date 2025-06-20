@@ -278,36 +278,14 @@ function App() {
 
         ctx.drawImage(img, offsetX, currentY);
 
-        const photoAnnotations = state.annotations.filter(a => a.photoId === photo.id);
-        for (const annotation of photoAnnotations) {
-          const canvasX = annotation.x + offsetX;
-          const canvasY = annotation.y + currentY;
+        // Draw a big black circle in the middle for debugging
+        const centerX = offsetX + img.width / 2;
+        const centerY = currentY + img.height / 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 50, 0, 2 * Math.PI); // 50px radius circle
+        ctx.fillStyle = 'black';
+        ctx.fill();
 
-          if (annotation.type === 'hold') {
-            ctx.beginPath();
-            ctx.arc(canvasX, canvasY, annotation.data.radius, 0, 2 * Math.PI);
-            ctx.fillStyle = annotation.data.color;
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(0,0,0,0.7)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-          } else if (annotation.type === 'line') {
-            ctx.beginPath();
-            const points = annotation.data.points;
-            ctx.moveTo(points[0] + offsetX, points[1] + currentY);
-            for (let j = 2; j < points.length; j += 2) {
-              ctx.lineTo(points[j] + offsetX, points[j + 1] + currentY);
-            }
-            ctx.strokeStyle = annotation.data.color;
-            ctx.lineWidth = annotation.data.strokeWidth || 5;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-          } else if (annotation.type === 'text') {
-            ctx.fillStyle = annotation.data.color;
-            ctx.font = `${annotation.data.fontSize || 32}px sans-serif`;
-            ctx.fillText(annotation.data.text, canvasX, canvasY);
-          }
-        }
         currentY += img.height;
       }
 
