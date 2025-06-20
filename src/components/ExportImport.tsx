@@ -7,7 +7,7 @@ interface ExportImportProps {
   photos: Photo[];
   annotations: Annotation[];
   currentPhoto: Photo | null;
-  onImport: (annotations: Annotation[]) => void;
+  onImport: (data: { annotations: Annotation[]; photos?: any[] }) => void;
 }
 
 export const ExportImport: React.FC<ExportImportProps> = ({
@@ -39,6 +39,7 @@ export const ExportImport: React.FC<ExportImportProps> = ({
         id: p.id,
         name: p.name,
         size: p.file.size,
+        description: p.description || '',
       })),
       annotations: annotations,
     };
@@ -65,12 +66,12 @@ export const ExportImport: React.FC<ExportImportProps> = ({
         if (file.name.endsWith('.json')) {
           const data = JSON.parse(content);
           if (data.annotations && Array.isArray(data.annotations)) {
-            onImport(data.annotations);
+            onImport({ annotations: data.annotations, photos: data.photos });
           }
         } else if (file.name.endsWith('.svg')) {
           // Parse SVG and extract annotations (simplified implementation)
           const annotations = parseSVGAnnotations(content);
-          onImport(annotations);
+          onImport({ annotations });
         }
       } catch (error) {
         console.error('Error importing file:', error);
