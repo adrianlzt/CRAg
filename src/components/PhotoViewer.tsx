@@ -11,6 +11,7 @@ interface PhotoViewerProps {
   selectedHoldType: HoldType | null;
   selectedHandColor: 'red' | 'green';
   selectedFootColor: 'blue' | 'yellow';
+  selectedLineColor: string;
   onAnnotationAdd: (annotation: Annotation) => void;
   onAnnotationUpdate: (annotationId: string, updates: Partial<Annotation>) => void;
   onAnnotationRemove: (annotationId: string) => void;
@@ -23,6 +24,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   selectedHoldType,
   selectedHandColor,
   selectedFootColor,
+  selectedLineColor,
   onAnnotationAdd,
   onAnnotationUpdate,
   onAnnotationRemove,
@@ -277,14 +279,14 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
         photoId: photo.id,
         x: 0,
         y: 0,
-        data: { points: currentLine },
+        data: { points: currentLine, color: selectedLineColor },
       };
       onAnnotationAdd(annotation);
     }
 
     setIsDrawing(false);
     setCurrentLine([]);
-  }, [isDrawing, selectedTool, currentLine, photo.id, onAnnotationAdd]);
+  }, [isDrawing, selectedTool, currentLine, photo.id, onAnnotationAdd, selectedLineColor]);
 
   const handleAnnotationClick = useCallback((annotation: Annotation) => {
     if (selectedTool === 'select') {
@@ -405,7 +407,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                 <Line
                   key={annotation.id}
                   points={annotation.data.points}
-                  stroke="#f97316"
+                  stroke={annotation.data.color || "#f97316"}
                   strokeWidth={3}
                   lineCap="round"
                   lineJoin="round"
@@ -444,7 +446,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
           {isDrawing && currentLine.length > 2 && (
             <Line
               points={currentLine}
-              stroke="#f97316"
+              stroke={selectedLineColor}
               strokeWidth={3}
               lineCap="round"
               lineJoin="round"

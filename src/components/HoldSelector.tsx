@@ -5,9 +5,11 @@ interface HoldSelectorProps {
   selectedHoldType: HoldType | null;
   selectedHandColor: 'red' | 'green';
   selectedFootColor: 'blue' | 'yellow';
+  selectedLineColor: string;
   onHoldTypeSelect: (holdType: HoldType) => void;
   onHandColorSelect: (color: 'red' | 'green') => void;
   onFootColorSelect: (color: 'blue' | 'yellow') => void;
+  onLineColorSelect: (color: string) => void;
 }
 
 // Define climbing hold types with their visual representations
@@ -26,9 +28,11 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
   selectedHoldType,
   selectedHandColor,
   selectedFootColor,
+  selectedLineColor,
   onHoldTypeSelect,
   onHandColorSelect,
   onFootColorSelect,
+  onLineColorSelect,
 }) => {
   const handHolds = HOLD_TYPES.filter(hold => hold.category === 'hand');
   const footHolds = HOLD_TYPES.filter(hold => hold.category === 'foot');
@@ -141,6 +145,32 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
                 <div className="text-sm text-slate-300 font-medium">{hold.name}</div>
               </div>
             </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Line Color Selection */}
+      <div>
+        <h3 className="text-sm font-medium text-slate-300 mb-3">Line Color</h3>
+        <div className="flex flex-wrap gap-2">
+          {[
+            '#f97316', // orange
+            '#ef4444', // red
+            '#10b981', // green
+            '#3b82f6', // blue
+            '#eab308', // yellow
+            '#ec4899', // pink
+          ].map(color => (
+            <button
+              key={color}
+              onClick={() => onLineColorSelect(color)}
+              className={`w-8 h-8 rounded-md border-2 transition-all ${
+                selectedLineColor === color
+                  ? `border-white`
+                  : 'border-slate-600 hover:border-slate-400'
+              }`}
+              style={{ backgroundColor: color }}
+            />
           ))}
         </div>
       </div>
