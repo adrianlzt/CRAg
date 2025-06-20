@@ -40,19 +40,6 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
         <h3 className="text-sm font-medium text-slate-300 mb-3">Hand Color</h3>
         <div className="flex space-x-2">
           <button
-            onClick={() => onHandColorSelect('red')}
-            className={`flex-1 p-3 rounded-lg border transition-all duration-200 ${
-              selectedHandColor === 'red'
-                ? 'border-red-400 bg-red-400/20 text-red-300'
-                : 'border-slate-600 hover:border-red-400/50 text-slate-400 hover:text-red-300'
-            }`}
-          >
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-4 h-4 bg-red-500 rounded-full"></div>
-              <span className="text-sm font-medium">Right Hand</span>
-            </div>
-          </button>
-          <button
             onClick={() => onHandColorSelect('green')}
             className={`flex-1 p-3 rounded-lg border transition-all duration-200 ${
               selectedHandColor === 'green'
@@ -63,6 +50,19 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
             <div className="flex items-center justify-center space-x-2">
               <div className="w-4 h-4 bg-green-500 rounded-full"></div>
               <span className="text-sm font-medium">Left Hand</span>
+            </div>
+          </button>
+          <button
+            onClick={() => onHandColorSelect('red')}
+            className={`flex-1 p-3 rounded-lg border transition-all duration-200 ${
+              selectedHandColor === 'red'
+                ? 'border-red-400 bg-red-400/20 text-red-300'
+                : 'border-slate-600 hover:border-red-400/50 text-slate-400 hover:text-red-300'
+            }`}
+          >
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-4 h-4 bg-red-500 rounded-full"></div>
+              <span className="text-sm font-medium">Right Hand</span>
             </div>
           </button>
         </div>
@@ -94,19 +94,6 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
         <h3 className="text-sm font-medium text-slate-300 mb-3">Foot Color</h3>
         <div className="flex space-x-2">
           <button
-            onClick={() => onFootColorSelect('blue')}
-            className={`flex-1 p-3 rounded-lg border transition-all duration-200 ${
-              selectedFootColor === 'blue'
-                ? 'border-blue-400 bg-blue-400/20 text-blue-300'
-                : 'border-slate-600 hover:border-blue-400/50 text-slate-400 hover:text-blue-300'
-            }`}
-          >
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-              <span className="text-sm font-medium">Right Foot</span>
-            </div>
-          </button>
-          <button
             onClick={() => onFootColorSelect('yellow')}
             className={`flex-1 p-3 rounded-lg border transition-all duration-200 ${
               selectedFootColor === 'yellow'
@@ -117,6 +104,19 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
             <div className="flex items-center justify-center space-x-2">
               <div className="w-4 h-4 bg-yellow-500 rounded-full"></div>
               <span className="text-sm font-medium">Left Foot</span>
+            </div>
+          </button>
+          <button
+            onClick={() => onFootColorSelect('blue')}
+            className={`flex-1 p-3 rounded-lg border transition-all duration-200 ${
+              selectedFootColor === 'blue'
+                ? 'border-blue-400 bg-blue-400/20 text-blue-300'
+                : 'border-slate-600 hover:border-blue-400/50 text-slate-400 hover:text-blue-300'
+            }`}
+          >
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+              <span className="text-sm font-medium">Right Foot</span>
             </div>
           </button>
         </div>

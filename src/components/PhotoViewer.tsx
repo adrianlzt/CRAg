@@ -181,7 +181,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
         onAnnotationAdd(annotation);
       }
     }
-  }, [selectedTool, selectedHoldType, selectedHandColor, photo.id, stageConfig, onAnnotationAdd]);
+  }, [selectedTool, selectedHoldType, selectedHandColor, selectedFootColor, photo.id, stageConfig, onAnnotationAdd]);
 
   const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
     if (selectedTool !== 'line') return;
