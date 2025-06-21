@@ -315,11 +315,11 @@ function App() {
             const y = currentY + annotation.y;
             const rotation = annotation.data.rotation || 0;
             
-            // Draw background circle (rotated)
             ctx.save();
             ctx.translate(x, y);
             ctx.rotate(rotation);
 
+            // Draw background circle
             ctx.fillStyle = getHoldColor(annotation);
             ctx.globalAlpha = 0.8;
             ctx.beginPath();
@@ -329,9 +329,8 @@ function App() {
             ctx.strokeStyle = getHoldColor(annotation);
             ctx.lineWidth = 2;
             ctx.stroke();
-            ctx.restore();
 
-            // Draw Hold type emoji (not rotated)
+            // Draw Hold type emoji
             ctx.globalAlpha = 1.0;
             ctx.font = '24px Arial, sans-serif';
             ctx.textAlign = 'center';
@@ -339,8 +338,10 @@ function App() {
             ctx.fillStyle = 'white';
             ctx.shadowColor = "black";
             ctx.shadowBlur = 2;
-            ctx.fillText(getHoldIcon(annotation), x, y);
+            ctx.fillText(getHoldIcon(annotation), 0, 0);
             ctx.shadowBlur = 0; // reset shadow
+            
+            ctx.restore();
           }
         }
 
