@@ -342,6 +342,35 @@ function App() {
             ctx.shadowBlur = 0; // reset shadow
             
             ctx.restore();
+          } else if (annotation.type === 'line') {
+            const points = annotation.data.points as number[];
+            if (points && points.length >= 4) {
+              ctx.save();
+              ctx.globalAlpha = 0.8;
+              ctx.strokeStyle = annotation.data.color || '#f97316';
+              ctx.lineWidth = 4;
+              ctx.lineCap = 'round';
+              ctx.lineJoin = 'round';
+              ctx.beginPath();
+              ctx.moveTo(offsetX + points[0], currentY + points[1]);
+              for (let i = 2; i < points.length; i += 2) {
+                ctx.lineTo(offsetX + points[i], currentY + points[i + 1]);
+              }
+              ctx.stroke();
+              ctx.restore();
+            }
+          } else if (annotation.type === 'text' && annotation.data.text) {
+            const x = offsetX + annotation.x;
+            const y = currentY + annotation.y;
+            ctx.save();
+            ctx.font = `bold ${annotation.data.fontSize || 24}px sans-serif`;
+            ctx.fillStyle = annotation.data.color || 'white';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.shadowColor = 'black';
+            ctx.shadowBlur = 2;
+            ctx.fillText(annotation.data.text, x, y);
+            ctx.restore();
           }
         }
 
