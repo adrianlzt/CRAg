@@ -364,14 +364,35 @@ function App() {
           } else if (annotation.type === 'text' && annotation.data.text) {
             const x = offsetX + annotation.x;
             const y = currentY + annotation.y;
+            const rotation = annotation.data.rotation || 0;
+
             ctx.save();
-            ctx.font = `bold ${annotation.data.fontSize || 24}px sans-serif`;
-            ctx.fillStyle = annotation.data.color || 'white';
+            ctx.translate(x, y);
+            ctx.rotate(rotation);
+
+            const fontSize = annotation.data.fontSize || 16;
+            ctx.font = `bold ${fontSize}px sans-serif`;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
+            
+            const PADDING = 5;
+            const text = annotation.data.text;
+            const metrics = ctx.measureText(text);
+            const textWidth = metrics.width;
+            
+            const rectWidth = textWidth + PADDING * 2;
+            const rectHeight = fontSize + PADDING * 2;
+
+            // Draw background
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.fillRect(0, 0, rectWidth, rectHeight);
+
+            // Draw text
             ctx.shadowColor = 'black';
             ctx.shadowBlur = 2;
-            ctx.fillText(annotation.data.text, x, y);
+            ctx.fillStyle = annotation.data.color || 'white';
+            ctx.fillText(text, PADDING, PADDING);
+            
             ctx.restore();
           }
         }

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Stage, Layer, Image as KonvaImage, Circle, Line, Text, Group, Transformer } from 'react-konva';
+import { Stage, Layer, Image as KonvaImage, Circle, Line, Text, Group, Transformer, Label, Tag } from 'react-konva';
 import { useGesture } from '@use-gesture/react';
 import Konva from 'konva';
 import { Photo, Annotation, HoldType } from '../App';
@@ -508,7 +508,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
               );
             } else if (annotation.type === 'text') {
               return (
-                <Group
+                <Label
                   key={annotation.id}
                   ref={node => {
                     if (node) {
@@ -559,13 +559,19 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                     });
                   }}
                 >
+                  <Tag
+                    fill="white"
+                    opacity={0.7}
+                    cornerRadius={5}
+                  />
                   <Text
                     text={annotation.data.text}
                     fontSize={annotation.data.fontSize || 16}
                     fill={annotation.data.color || "#f1f5f9"}
                     fontWeight="bold"
+                    padding={5}
                   />
-                </Group>
+                </Label>
               );
             }
             return null;
