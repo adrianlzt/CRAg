@@ -338,16 +338,6 @@ function App() {
           }
         }
 
-        // --- VISUAL DEBUGGING ---
-        // Draw a semi-transparent overlay with debug info
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        ctx.fillRect(offsetX, currentY, 250, 50);
-        ctx.fillStyle = 'black';
-        ctx.font = '14px sans-serif';
-        ctx.fillText(`Debug: Photo ${i + 1}`, offsetX + 10, currentY + 20);
-        ctx.fillText(`Annotations found: ${photoAnnotations.length} / ${state.annotations.length}`, offsetX + 10, currentY + 40);
-        // --- END VISUAL DEBUGGING ---
-
         currentY += img.height;
       }
 
