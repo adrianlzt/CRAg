@@ -328,7 +328,7 @@ function App() {
       // 5. Trigger download
       canvas.toBlob((blob) => {
         if (blob) {
-          saveAs(blob, 'climbing-route.png');
+          saveAs(blob, 'climbing-route.jpg');
           update({
             id: toastId,
             title: 'Export Successful',
@@ -337,7 +337,7 @@ function App() {
         } else {
           throw new Error("Canvas to Blob conversion failed");
         }
-      }, 'image/png');
+      }, 'image/jpeg');
 
     } catch (error) {
       console.error("Failed to export as image:", error);
