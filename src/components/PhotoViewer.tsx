@@ -48,6 +48,15 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   const [isDraggingAnnotation, setIsDraggingAnnotation] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
   const longPressTimeout = useRef<number | null>(null);
+  const [editingText, setEditingText] = useState<{ x: number; y: number; value: string } | null>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Focus textarea when it appears
+  useEffect(() => {
+    if (editingText) {
+      textAreaRef.current?.focus();
+    }
+  }, [editingText]);
 
   // Attach transformer to selected annotation
   useEffect(() => {
@@ -212,20 +221,10 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       };
       onAnnotationAdd(annotation);
     } else if (selectedTool === 'text') {
-      const text = prompt('Enter text annotation:');
-      if (text) {
-        const annotation: Annotation = {
-          id: `annotation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          type: 'text',
-          photoId: photo.id,
-          x: imageX,
-          y: imageY,
-          data: { text, color: '#000000', fontSize: 16, rotation: 0 },
-        };
-        onAnnotationAdd(annotation);
-      }
+      if (isDraggingAnnotation) return;
+      setEditingText({ x: imageX, y: imageY, value: '' });
     }
-  }, [selectedTool, selectedHoldType, selectedHandColor, selectedFootColor, photo.id, stageConfig, onAnnotationAdd]);
+  }, [selectedTool, selectedHoldType, photo.id, stageConfig, onAnnotationAdd, isDraggingAnnotation]);
 
   const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
     // Deselect when clicked on empty area
@@ -312,6 +311,23 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     setIsDrawing(false);
     setCurrentLine([]);
   }, [isDrawing, selectedTool, currentLine, photo.id, onAnnotationAdd, selectedLineColor]);
+
+  const handleTextEditEnd = (value: string) => {
+    if (editingText) {
+      if (value.trim()) {
+        const annotation: Annotation = {
+          id: `annotation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          type: 'text',
+          photoId: photo.id,
+          x: editingText.x,
+          y: editingText.y,
+          data: { text: value, color: '#000000', fontSize: 16, rotation: 0 },
+        };
+        onAnnotationAdd(annotation);
+      }
+      setEditingText(null);
+    }
+  };
 
   const handleAnnotationClick = useCallback((annotation: Annotation) => {
     if (selectedTool === 'select') {
@@ -610,6 +626,38 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
           <div>• Use tools in the sidebar to annotate holds and routes</div>
         </div>
       </div>
+
+      {editingText && (
+        <textarea
+          ref={textAreaRef}
+          style={{
+            position: 'absolute',
+            top: `${editingText.y * stageConfig.scale + stageConfig.y}px`,
+            left: `${editingText.x * stageConfig.scale + stageConfig.x}px`,
+            background: 'white',
+            border: '2px solid #f97316',
+            borderRadius: '4px',
+            color: 'black',
+            fontSize: '16px',
+            padding: '5px',
+            minWidth: '150px',
+            minHeight: '50px',
+            zIndex: 1000,
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          }}
+          defaultValue={editingText.value}
+          onBlur={(e) => handleTextEditEnd(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              setEditingText(null);
+            }
+            // `metaKey` for Command on Mac, `ctrlKey` for Ctrl on Windows/Linux
+            if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+              handleTextEditEnd(e.currentTarget.value);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

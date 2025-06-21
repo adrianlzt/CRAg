@@ -59,24 +59,29 @@ function wrapText(
   maxWidth: number,
   lineHeight: number
 ): number {
-  const words = text.split(' ');
-  let line = '';
+  const textLines = text.split('\n');
   let currentY = y;
 
-  for (let n = 0; n < words.length; n++) {
-    const testLine = line + words[n] + ' ';
-    const metrics = context.measureText(testLine);
-    const testWidth = metrics.width;
-    if (testWidth > maxWidth && n > 0) {
-      context.fillText(line, x, currentY);
-      line = words[n] + ' ';
-      currentY += lineHeight;
-    } else {
-      line = testLine;
+  for (const textLine of textLines) {
+    const words = textLine.split(' ');
+    let line = '';
+
+    for (let n = 0; n < words.length; n++) {
+      const testLine = line + words[n] + ' ';
+      const metrics = context.measureText(testLine);
+      const testWidth = metrics.width;
+      if (testWidth > maxWidth && n > 0) {
+        context.fillText(line, x, currentY);
+        line = words[n] + ' ';
+        currentY += lineHeight;
+      } else {
+        line = testLine;
+      }
     }
+    context.fillText(line, x, currentY);
+    currentY += lineHeight;
   }
-  context.fillText(line, x, currentY);
-  return currentY + lineHeight;
+  return currentY;
 }
 
 function App() {
@@ -372,14 +377,14 @@ function App() {
             ctx.font = `bold ${fontSize}px sans-serif`;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
+
+            const TEXT_PADDING = 5;
+            const textLines = annotation.data.text.split('\n');
+            const lineHeight = fontSize * 1.2;
+            const textWidth = Math.max(...textLines.map(line => ctx.measureText(line).width));
             
-            const PADDING = 5;
-            const text = annotation.data.text;
-            const metrics = ctx.measureText(text);
-            const textWidth = metrics.width;
-            
-            const rectWidth = textWidth + PADDING * 2;
-            const rectHeight = fontSize + PADDING * 2;
+            const rectWidth = textWidth + TEXT_PADDING * 2;
+            const rectHeight = (textLines.length * lineHeight) - (lineHeight - fontSize) + TEXT_PADDING * 2;
 
             // Draw background
             ctx.fillStyle = 'rgba(255, 255, 255, 1)';
@@ -389,7 +394,9 @@ function App() {
             ctx.shadowColor = 'black';
             ctx.shadowBlur = 2;
             ctx.fillStyle = '#000000';
-            ctx.fillText(text, PADDING, PADDING);
+            textLines.forEach((line, index) => {
+              ctx.fillText(line, TEXT_PADDING, TEXT_PADDING + (index * lineHeight));
+            });
             
             ctx.restore();
           }
