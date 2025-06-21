@@ -484,7 +484,7 @@ function App() {
     <div className="h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden flex flex-col">
       <Header isVisible={isHeaderVisible} />
   
-      <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
+      <div className={`flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden transition-all duration-300 ease-in-out ${isHeaderVisible ? 'pt-[73px]' : 'pt-0'} lg:pt-0`}>
         {/* Sidebar - Tools and Controls */}
         <div ref={sidebarRef} className="w-full lg:w-80 bg-slate-900/95 backdrop-blur-md border-r border-slate-700/50 p-4 overflow-y-auto">
           <div className="space-y-6">
