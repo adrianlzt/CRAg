@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useRef } from 'react';
-import { Upload, X, GripVertical, Image as ImageIcon, Plus } from 'lucide-react';
+import { Upload, X, GripVertical, Image as ImageIcon, Plus, Camera } from 'lucide-react';
 import { Photo } from '../App';
 
 interface PhotoUploadProps {
@@ -22,6 +22,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
   const [isDragOver, setIsDragOver] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const processFiles = useCallback((files: FileList) => {
     const newPhotos: Photo[] = [];
@@ -70,6 +71,10 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleCameraClick = () => {
+    cameraInputRef.current?.click();
   };
 
   const loadSamplePhotos = useCallback(async () => {
@@ -178,14 +183,23 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
   return (
     <div className="space-y-4">
       {/* Sample Photos Button */}
-      <div className="mb-4">
+      <div className="flex space-x-2 mb-4">
         <button
           onClick={loadSamplePhotos}
           className="w-full p-3 rounded-lg border border-blue-600 hover:border-blue-500 hover:bg-blue-600/10 text-blue-300 transition-all duration-200"
         >
           <div className="flex items-center justify-center space-x-2">
             <ImageIcon className="h-4 w-4" />
-            <span className="text-sm font-medium">Load Sample Climbing Photos</span>
+            <span className="text-sm font-medium">Load Samples</span>
+          </div>
+        </button>
+        <button
+          onClick={handleCameraClick}
+          className="w-full p-3 rounded-lg border border-purple-600 hover:border-purple-500 hover:bg-purple-600/10 text-purple-300 transition-all duration-200"
+        >
+          <div className="flex items-center justify-center space-x-2">
+            <Camera className="h-4 w-4" />
+            <span className="text-sm font-medium">Use Camera</span>
           </div>
         </button>
       </div>
@@ -207,6 +221,14 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
           type="file"
           multiple
           accept="image/*"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
           onChange={handleFileSelect}
           className="hidden"
         />
