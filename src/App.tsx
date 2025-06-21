@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { PhotoUpload } from './components/PhotoUpload';
 import { PhotoViewer } from './components/PhotoViewer';
 import { HoldSelector } from './components/HoldSelector';
@@ -99,6 +99,9 @@ function App() {
     historyIndex: 0,
   });
   const { toast } = useToast();
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const lastScrollTop = useRef(0);
 
   const updateState = useCallback((updates: Partial<AppState>) => {
     setState(prev => ({ ...prev, ...updates }));
@@ -449,6 +452,29 @@ function App() {
     }
   }, [state.photos, state.annotations, toast]);
 
+  useEffect(() => {
+    const sidebar = sidebarRef.current;
+    if (!sidebar) return;
+
+    const handleScroll = () => {
+      // lg breakpoint from tailwind is 1024px
+      if (window.innerWidth >= 1024) {
+        if (!isHeaderVisible) setIsHeaderVisible(true);
+        return;
+      }
+      const scrollTop = sidebar.scrollTop;
+      if (scrollTop > lastScrollTop.current && scrollTop > 80) { // Hide header
+        if (isHeaderVisible) setIsHeaderVisible(false);
+      } else if (scrollTop < lastScrollTop.current) { // Show header
+        if (!isHeaderVisible) setIsHeaderVisible(true);
+      }
+      lastScrollTop.current = scrollTop <= 0 ? 0 : scrollTop;
+    };
+
+    sidebar.addEventListener('scroll', handleScroll);
+    return () => sidebar.removeEventListener('scroll', handleScroll);
+  }, [isHeaderVisible]);
+
   const currentPhoto = state.photos[state.currentPhotoIndex];
   const currentPhotoAnnotations = state.annotations.filter(
     a => a.photoId === currentPhoto?.id
@@ -456,11 +482,11 @@ function App() {
 
   return (
     <div className="h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden flex flex-col">
-      <Header />
+      <Header isVisible={isHeaderVisible} />
   
       <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
         {/* Sidebar - Tools and Controls */}
-        <div className="w-full lg:w-80 bg-slate-900/95 backdrop-blur-md border-r border-slate-700/50 p-4 overflow-y-auto">
+        <div ref={sidebarRef} className="w-full lg:w-80 bg-slate-900/95 backdrop-blur-md border-r border-slate-700/50 p-4 overflow-y-auto">
           <div className="space-y-6">
             {/* Photo Upload Section */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
