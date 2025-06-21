@@ -46,6 +46,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   const [currentLine, setCurrentLine] = useState<number[]>([]);
   const [selectedAnnotation, setSelectedAnnotation] = useState<string | null>(null);
   const [isDraggingAnnotation, setIsDraggingAnnotation] = useState(false);
+  const longPressTimeout = useRef<number | null>(null);
 
   // Attach transformer to selected annotation
   useEffect(() => {
@@ -323,6 +324,22 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     }
   }, [onAnnotationRemove]);
 
+  const handleHoldTouchStart = useCallback((annotation: Annotation) => {
+    if (selectedTool !== 'select') return;
+
+    longPressTimeout.current = window.setTimeout(() => {
+      setSelectedAnnotation(annotation.id);
+      longPressTimeout.current = null;
+    }, 500);
+  }, [selectedTool]);
+
+  const handleHoldTouchEnd = useCallback(() => {
+    if (longPressTimeout.current) {
+      clearTimeout(longPressTimeout.current);
+      longPressTimeout.current = null;
+    }
+  }, []);
+
   const getHoldColor = (annotation: Annotation) => {
     switch (annotation.data.handColor) {
       case 'red': return '#ef4444';
@@ -416,11 +433,14 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   onClick={() => handleAnnotationClick(annotation)}
                   onDblClick={() => handleAnnotationDoubleClick(annotation)}
                   onDblTap={() => handleAnnotationDoubleClick(annotation)}
+                  onTouchStart={() => handleHoldTouchStart(annotation)}
+                  onTouchEnd={handleHoldTouchEnd}
                   draggable={selectedTool === 'select'}
                   dragDistance={5}
                   onDragStart={() => {
                     if (selectedTool === 'select') {
                       setIsDraggingAnnotation(true);
+                      handleHoldTouchEnd();
                     }
                   }}
                   onDragEnd={(e) => {
