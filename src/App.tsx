@@ -242,6 +242,7 @@ function App() {
     const HOLD_TYPES_MAP: { [key: string]: { icon: string, name: 'string' } } = {
       'jug': { icon: '🤲', name: 'Jug' },
       'pinch': { icon: '🤏', name: 'Pinch' },
+      'sloper': { icon: '🫴', name: 'Sloper' },
       'crimp': { icon: '✊', name: 'Crimp' },
       'sidepull': { icon: '👋', name: 'Side Pull' },
       'undercling': { icon: '🙌', name: 'Undercling' },

@@ -16,6 +16,7 @@ interface HoldSelectorProps {
 const HOLD_TYPES: HoldType[] = [
   { id: 'jug', name: 'Jug', icon: '🤲', category: 'hand' },
   { id: 'pinch', name: 'Pinch', icon: '🤏', category: 'hand' },
+  { id: 'sloper', name: 'Sloper', icon: '🫴', category: 'hand' },
   { id: 'crimp', name: 'Crimp', icon: '✊', category: 'hand' },
   { id: 'sidepull', name: 'Side Pull', icon: '👋', category: 'hand' },
   { id: 'undercling', name: 'Undercling', icon: '🙌', category: 'hand' },
