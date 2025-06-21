@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Stage, Layer, Image as KonvaImage, Circle, Line, Text, Group } from 'react-konva';
+import { Stage, Layer, Image as KonvaImage, Circle, Line, Text, Group, Transformer } from 'react-konva';
 import { useGesture } from '@use-gesture/react';
 import Konva from 'konva';
 import { Photo, Annotation, HoldType } from '../App';
@@ -32,6 +32,8 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<Konva.Stage>(null);
   const imageRef = useRef<Konva.Image>(null);
+  const trRef = useRef<Konva.Transformer>(null);
+  const shapeRefs = useRef(new Map<string, Konva.Group>());
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [stageConfig, setStageConfig] = useState({
     scale: 1,
@@ -44,6 +46,21 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   const [currentLine, setCurrentLine] = useState<number[]>([]);
   const [selectedAnnotation, setSelectedAnnotation] = useState<string | null>(null);
   const [isDraggingAnnotation, setIsDraggingAnnotation] = useState(false);
+
+  // Attach transformer to selected annotation
+  useEffect(() => {
+    if (selectedTool === 'select' && selectedAnnotation && trRef.current) {
+      const node = shapeRefs.current.get(selectedAnnotation);
+      if (node) {
+        trRef.current.nodes([node]);
+        trRef.current.getLayer()?.batchDraw();
+      } else {
+        trRef.current.nodes([]);
+      }
+    } else if (trRef.current) {
+      trRef.current.nodes([]);
+    }
+  }, [selectedAnnotation, selectedTool]);
 
   // Load image
   useEffect(() => {
@@ -209,6 +226,11 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   }, [selectedTool, selectedHoldType, selectedHandColor, selectedFootColor, photo.id, stageConfig, onAnnotationAdd]);
 
   const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+    // Deselect when clicked on empty area
+    if (e.target === e.target.getStage()) {
+      setSelectedAnnotation(null);
+    }
+    
     if (selectedTool !== 'line') return;
 
     const stage = stageRef.current;
@@ -362,14 +384,32 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
             />
           )}
 
+          <Transformer
+            ref={trRef}
+            rotateEnabled={true}
+            enabledAnchors={[]}
+            anchorSize={10}
+            borderStroke="#f97316"
+            anchorStroke="#f97316"
+            anchorFill="#f97316"
+          />
+
           {/* Render existing annotations */}
           {annotations.map((annotation) => {
             if (annotation.type === 'hold') {
               return (
                 <Group
                   key={annotation.id}
+                  ref={node => {
+                    if (node) {
+                      shapeRefs.current.set(annotation.id, node);
+                    } else {
+                      shapeRefs.current.delete(annotation.id);
+                    }
+                  }}
                   x={annotation.x}
                   y={annotation.y}
+                  rotation={(annotation.data.rotation || 0) * 180 / Math.PI}
                   onClick={() => handleAnnotationClick(annotation)}
                   onDblClick={() => handleAnnotationDoubleClick(annotation)}
                   onDblTap={() => handleAnnotationDoubleClick(annotation)}
@@ -385,6 +425,15 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                     onAnnotationUpdate(annotation.id, {
                       x: e.target.x(),
                       y: e.target.y(),
+                    });
+                  }}
+                  onTransformEnd={(e) => {
+                    const node = e.target;
+                    onAnnotationUpdate(annotation.id, {
+                      data: {
+                        ...annotation.data,
+                        rotation: node.rotation() * Math.PI / 180,
+                      },
                     });
                   }}
                 >
