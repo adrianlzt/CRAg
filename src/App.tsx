@@ -395,10 +395,10 @@ function App() {
   );
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden flex flex-col">
       <Header />
-      
-      <div className="flex flex-col lg:flex-row h-full">
+  
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Sidebar - Tools and Controls */}
         <div className="w-full lg:w-80 bg-slate-900/95 backdrop-blur-md border-r border-slate-700/50 p-4 overflow-y-auto">
           <div className="space-y-6">
