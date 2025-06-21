@@ -234,6 +234,32 @@ function App() {
       description: 'Please wait while the image is being generated...',
     });
 
+    const HOLD_TYPES_MAP: { [key: string]: { icon: string, name: string } } = {
+      'jug': { icon: '🤲', name: 'Jug' },
+      'crimp': { icon: '✊', name: 'Crimp' },
+      'sidepull': { icon: '👋', name: 'Side Pull' },
+      'undercling': { icon: '🙌', name: 'Undercling' },
+      'one_finger': { icon: '☝️', name: '1-Finger Pocket' },
+      'two_finger': { icon: '✌️', name: '2-Finger Pocket' },
+      'three_finger': { icon: '🤟', name: '3-Finger Pocket' },
+      'foothold': { icon: '🦶', name: 'Foot Hold' },
+    };
+
+    const getHoldIcon = (annotation: Annotation) => {
+      const holdTypeId = annotation.data.holdType || annotation.data.holdTypeId;
+      return HOLD_TYPES_MAP[holdTypeId]?.icon || '⚫';
+    };
+
+    const getHoldColor = (annotation: Annotation) => {
+      switch (annotation.data.handColor) {
+        case 'red': return '#ef4444';
+        case 'green': return '#10b981';
+        case 'blue': return '#3b82f6';
+        case 'yellow': return '#eab308';
+        default: return '#f97316';
+      }
+    };
+
     try {
       const PADDING = 50;
       const TEXT_AREA_HEIGHT = 400;
@@ -283,15 +309,32 @@ function App() {
         const photoAnnotations = state.annotations.filter(a => a.photoId === photo.id);
 
         // Draw annotations on the main canvas
-        ctx.fillStyle = 'black';
         for (const annotation of photoAnnotations) {
           if (annotation.type === 'hold') {
             const x = offsetX + annotation.x;
             const y = currentY + annotation.y;
             
+            // Draw background circle
+            ctx.fillStyle = getHoldColor(annotation);
+            ctx.globalAlpha = 0.8;
             ctx.beginPath();
-            ctx.arc(x, y, 10, 0, 2 * Math.PI); // 10px radius circle
+            ctx.arc(x, y, 18, 0, 2 * Math.PI);
             ctx.fill();
+            
+            ctx.strokeStyle = getHoldColor(annotation);
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.globalAlpha = 1.0;
+
+            // Draw Hold type emoji
+            ctx.font = '24px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'white';
+            ctx.shadowColor = "black";
+            ctx.shadowBlur = 2;
+            ctx.fillText(getHoldIcon(annotation), x, y);
+            ctx.shadowBlur = 0; // reset shadow
           }
         }
 
