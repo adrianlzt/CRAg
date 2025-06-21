@@ -6,12 +6,10 @@ interface HoldSelectorProps {
   selectedHandColor: 'red' | 'green';
   selectedFootColor: 'blue' | 'yellow';
   selectedLineColor: string;
-  selectedTextColor: string;
   onHoldTypeSelect: (holdType: HoldType) => void;
   onHandColorSelect: (color: 'red' | 'green') => void;
   onFootColorSelect: (color: 'blue' | 'yellow') => void;
   onLineColorSelect: (color: string) => void;
-  onTextColorSelect: (color: string) => void;
 }
 
 // Define climbing hold types with their visual representations
@@ -31,12 +29,10 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
   selectedHandColor,
   selectedFootColor,
   selectedLineColor,
-  selectedTextColor,
   onHoldTypeSelect,
   onHandColorSelect,
   onFootColorSelect,
   onLineColorSelect,
-  onTextColorSelect,
 }) => {
   const handHolds = HOLD_TYPES.filter(hold => hold.category === 'hand');
   const footHolds = HOLD_TYPES.filter(hold => hold.category === 'foot');
@@ -179,33 +175,6 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
         </div>
       </div>
 
-      {/* Text Color Selection */}
-      <div>
-        <h3 className="text-sm font-medium text-slate-300 mb-3">Text Color</h3>
-        <div className="flex flex-wrap gap-2">
-          {[
-            '#ffffff', // white
-            '#000000', // black
-            '#f97316', // orange
-            '#ef4444', // red
-            '#10b981', // green
-            '#3b82f6', // blue
-            '#eab308', // yellow
-            '#ec4899', // pink
-          ].map(color => (
-            <button
-              key={color}
-              onClick={() => onTextColorSelect(color)}
-              className={`w-8 h-8 rounded-md border-2 transition-all ${
-                selectedTextColor === color
-                  ? `border-white`
-                  : 'border-slate-600 hover:border-slate-400'
-              }`}
-              style={{ backgroundColor: color }}
-            />
-          ))}
-        </div>
-      </div>
 
       {/* Selected Hold Info */}
       {selectedHoldType && (
