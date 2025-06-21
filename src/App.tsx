@@ -384,7 +384,7 @@ function App() {
             const rectHeight = fontSize + PADDING * 2;
 
             // Draw background
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.fillStyle = 'rgba(255, 255, 255, 1)';
             ctx.fillRect(0, 0, rectWidth, rectHeight);
 
             // Draw text

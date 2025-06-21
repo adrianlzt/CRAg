@@ -561,7 +561,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                 >
                   <Tag
                     fill="white"
-                    opacity={0.7}
+                    opacity={1}
                     cornerRadius={5}
                   />
                   <Text
