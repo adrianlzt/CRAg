@@ -12,6 +12,7 @@ interface PhotoViewerProps {
   selectedHandColor: 'red' | 'green';
   selectedFootColor: 'blue' | 'yellow';
   selectedLineColor: string;
+  selectedTextColor: string;
   onAnnotationAdd: (annotation: Annotation) => void;
   onAnnotationUpdate: (annotationId: string, updates: Partial<Annotation>) => void;
   onAnnotationRemove: (annotationId: string) => void;
@@ -25,6 +26,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   selectedHandColor,
   selectedFootColor,
   selectedLineColor,
+  selectedTextColor,
   onAnnotationAdd,
   onAnnotationUpdate,
   onAnnotationRemove,
@@ -220,12 +222,12 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
           photoId: photo.id,
           x: imageX,
           y: imageY,
-          data: { text },
+          data: { text, color: selectedTextColor },
         };
         onAnnotationAdd(annotation);
       }
     }
-  }, [selectedTool, selectedHoldType, selectedHandColor, selectedFootColor, photo.id, stageConfig, onAnnotationAdd]);
+  }, [selectedTool, selectedHoldType, selectedHandColor, selectedFootColor, photo.id, stageConfig, onAnnotationAdd, selectedTextColor]);
 
   const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
     // Deselect when clicked on empty area
@@ -507,7 +509,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   y={annotation.y}
                   text={annotation.data.text}
                   fontSize={16}
-                  fill="#f1f5f9"
+                  fill={annotation.data.color || "#f1f5f9"}
                   fontWeight="bold"
                   onClick={() => handleAnnotationClick(annotation)}
                   onDblClick={() => handleAnnotationDoubleClick(annotation)}
