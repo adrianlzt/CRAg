@@ -222,7 +222,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
           photoId: photo.id,
           x: imageX,
           y: imageY,
-          data: { text, color: selectedTextColor },
+          data: { text, color: selectedTextColor, fontSize: 16, rotation: 0 },
         };
         onAnnotationAdd(annotation);
       }
@@ -407,7 +407,6 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
           <Transformer
             ref={trRef}
             rotateEnabled={true}
-            enabledAnchors={[]}
             anchorSize={12}
             rotateAnchorOffset={30}
             borderStroke="#f97316"
@@ -432,6 +431,8 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   }}
                   x={annotation.x}
                   y={annotation.y}
+                  scaleX={annotation.data.scale || 1}
+                  scaleY={annotation.data.scale || 1}
                   rotation={(annotation.data.rotation || 0) * 180 / Math.PI}
                   onClick={() => handleAnnotationClick(annotation)}
                   onDblClick={() => handleAnnotationDoubleClick(annotation)}
@@ -457,10 +458,14 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   onTransformEnd={(e) => {
                     setIsTransforming(false);
                     const node = e.target;
+                    const scale = node.scaleX();
                     onAnnotationUpdate(annotation.id, {
+                      x: node.x(),
+                      y: node.y(),
                       data: {
                         ...annotation.data,
                         rotation: node.rotation() * Math.PI / 180,
+                        scale: scale,
                       },
                     });
                   }}
@@ -503,22 +508,29 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
               );
             } else if (annotation.type === 'text') {
               return (
-                <Text
+                <Group
                   key={annotation.id}
+                  ref={node => {
+                    if (node) {
+                      shapeRefs.current.set(annotation.id, node);
+                    } else {
+                      shapeRefs.current.delete(annotation.id);
+                    }
+                  }}
                   x={annotation.x}
                   y={annotation.y}
-                  text={annotation.data.text}
-                  fontSize={16}
-                  fill={annotation.data.color || "#f1f5f9"}
-                  fontWeight="bold"
+                  rotation={(annotation.data.rotation || 0) * 180 / Math.PI}
                   onClick={() => handleAnnotationClick(annotation)}
                   onDblClick={() => handleAnnotationDoubleClick(annotation)}
                   onDblTap={() => handleAnnotationDoubleClick(annotation)}
+                  onTouchStart={() => handleHoldTouchStart(annotation)}
+                  onTouchEnd={handleHoldTouchEnd}
                   draggable={selectedTool === 'select'}
                   dragDistance={5}
                   onDragStart={() => {
                     if (selectedTool === 'select') {
                       setIsDraggingAnnotation(true);
+                      handleHoldTouchEnd();
                     }
                   }}
                   onDragEnd={(e) => {
@@ -528,7 +540,32 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                       y: e.target.y(),
                     });
                   }}
-                />
+                  onTransformStart={() => setIsTransforming(true)}
+                  onTransformEnd={(e) => {
+                    setIsTransforming(false);
+                    const node = e.target;
+                    const scale = node.scaleX();
+                    // reset scale
+                    node.scaleX(1);
+                    node.scaleY(1);
+                    onAnnotationUpdate(annotation.id, {
+                      x: node.x(),
+                      y: node.y(),
+                      data: {
+                        ...annotation.data,
+                        rotation: node.rotation() * Math.PI / 180,
+                        fontSize: (annotation.data.fontSize || 16) * scale,
+                      },
+                    });
+                  }}
+                >
+                  <Text
+                    text={annotation.data.text}
+                    fontSize={annotation.data.fontSize || 16}
+                    fill={annotation.data.color || "#f1f5f9"}
+                    fontWeight="bold"
+                  />
+                </Group>
               );
             }
             return null;
