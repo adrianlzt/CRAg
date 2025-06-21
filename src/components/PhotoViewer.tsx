@@ -46,6 +46,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   const [currentLine, setCurrentLine] = useState<number[]>([]);
   const [selectedAnnotation, setSelectedAnnotation] = useState<string | null>(null);
   const [isDraggingAnnotation, setIsDraggingAnnotation] = useState(false);
+  const [isTransforming, setIsTransforming] = useState(false);
   const longPressTimeout = useRef<number | null>(null);
 
   // Attach transformer to selected annotation
@@ -137,7 +138,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       });
     },
     onDrag: ({ delta: [dx, dy], pinching, touches }) => {
-      if (pinching || touches > 1 || isDraggingAnnotation) return;
+      if (pinching || touches > 1 || isDraggingAnnotation || isTransforming) return;
       
       if (selectedTool === 'select' || touches === 2) {
         setStageConfig(prev => ({
@@ -450,7 +451,9 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                       y: e.target.y(),
                     });
                   }}
+                  onTransformStart={() => setIsTransforming(true)}
                   onTransformEnd={(e) => {
+                    setIsTransforming(false);
                     const node = e.target;
                     onAnnotationUpdate(annotation.id, {
                       data: {
