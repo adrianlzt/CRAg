@@ -388,10 +388,13 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
             ref={trRef}
             rotateEnabled={true}
             enabledAnchors={[]}
-            anchorSize={10}
+            anchorSize={12}
+            rotateAnchorOffset={30}
             borderStroke="#f97316"
             anchorStroke="#f97316"
             anchorFill="#f97316"
+            borderDash={[6, 2]}
+            rotationSnaps={[0, 45, 90, 135, 180, 225, 270, 315]}
           />
 
           {/* Render existing annotations */}
