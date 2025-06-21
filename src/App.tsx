@@ -46,6 +46,7 @@ export interface AppState {
   selectedHandColor: 'red' | 'green';
   selectedFootColor: 'blue' | 'yellow';
   selectedLineColor: string;
+  selectedTextColor: string;
   isDrawing: boolean;
   history: Annotation[][];
   historyIndex: number;
@@ -89,6 +90,7 @@ function App() {
     selectedHandColor: 'red',
     selectedFootColor: 'blue',
     selectedLineColor: '#f97316',
+    selectedTextColor: '#ffffff',
     isDrawing: false,
     history: [[]],
     historyIndex: 0,
@@ -467,10 +469,12 @@ function App() {
                     selectedHandColor={state.selectedHandColor}
                     selectedFootColor={state.selectedFootColor}
                     selectedLineColor={state.selectedLineColor}
+                    selectedTextColor={state.selectedTextColor}
                     onHoldTypeSelect={(holdType) => updateState({ selectedHoldType: holdType, selectedTool: 'hold' })}
                     onHandColorSelect={(color) => updateState({ selectedHandColor: color })}
                     onFootColorSelect={(color) => updateState({ selectedFootColor: color })}
                     onLineColorSelect={(color) => updateState({ selectedLineColor: color })}
+                    onTextColorSelect={(color) => updateState({ selectedTextColor: color })}
                   />
                 </div>
 
@@ -507,6 +511,7 @@ function App() {
               selectedHandColor={state.selectedHandColor}
               selectedFootColor={state.selectedFootColor}
               selectedLineColor={state.selectedLineColor}
+              selectedTextColor={state.selectedTextColor}
               onAnnotationAdd={addAnnotation}
               onAnnotationUpdate={updateAnnotation}
               onAnnotationRemove={removeAnnotation}
