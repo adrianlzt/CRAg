@@ -286,8 +286,8 @@ function App() {
         ctx.fillStyle = 'black';
         for (const annotation of photoAnnotations) {
           if (annotation.type === 'hold') {
-            const x = offsetX + annotation.x * img.width;
-            const y = currentY + annotation.y * img.height;
+            const x = offsetX + annotation.x;
+            const y = currentY + annotation.y;
             
             ctx.beginPath();
             ctx.arc(x, y, 10, 0, 2 * Math.PI); // 10px radius circle
