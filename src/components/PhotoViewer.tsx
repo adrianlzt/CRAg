@@ -226,7 +226,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       if (isDraggingAnnotation) return;
       setEditingText({ x: imageX, y: imageY, value: '' });
     }
-  }, [selectedTool, selectedHoldType, photo.id, stageConfig, onAnnotationAdd, isDraggingAnnotation]);
+  }, [selectedTool, selectedHoldType, photo.id, stageConfig, onAnnotationAdd, isDraggingAnnotation, selectedHandColor, selectedFootColor]);
 
   const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
     // Deselect when clicked on empty area
