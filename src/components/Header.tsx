@@ -1,7 +1,13 @@
 import React from 'react';
 import { Mountain, Route } from 'lucide-react';
 
-export const Header: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
+interface HeaderProps {
+  isVisible: boolean;
+  projectName: string;
+  onProjectNameChange: (name: string) => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ isVisible, projectName, onProjectNameChange }) => {
   return (
     <header className={`fixed lg:static top-0 w-full z-10 bg-slate-900/95 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 transition-transform duration-300 ease-in-out ${!isVisible ? '-translate-y-full' : ''}`}>
       <div className="flex items-center justify-between">
@@ -11,7 +17,13 @@ export const Header: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
             <Route className="h-6 w-6 text-orange-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">Climbing Route Annotator</h1>
+            <input
+              type="text"
+              value={projectName}
+              onChange={(e) => onProjectNameChange(e.target.value)}
+              placeholder="Project Name"
+              className="bg-transparent text-xl font-bold text-white outline-none border-none p-0 focus:ring-0"
+            />
             <p className="text-sm text-slate-400">Mark holds, draw routes, share beta</p>
           </div>
         </div>

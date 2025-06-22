@@ -38,6 +38,7 @@ export interface HoldType {
 }
 
 export interface AppState {
+  projectName: string;
   photos: Photo[];
   currentPhotoIndex: number;
   annotations: Annotation[];
@@ -87,6 +88,7 @@ function wrapText(
 
 function App() {
   const [state, setState] = useState<AppState>({
+    projectName: 'Climbing Route Project',
     photos: [],
     currentPhotoIndex: 0,
     annotations: [],
@@ -432,7 +434,8 @@ function App() {
       // 5. Trigger download
       canvas.toBlob((blob) => {
         if (blob) {
-          saveAs(blob, 'climbing-route.jpg');
+          const safeProjectName = (state.projectName || 'climbing-route').replace(/[\s/\\?%*:|"<>]/g, '_');
+          saveAs(blob, `${safeProjectName}.jpg`);
           update({
             id: toastId,
             title: 'Export Successful',
@@ -484,7 +487,11 @@ function App() {
 
   return (
     <div className="h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden flex flex-col">
-      <Header isVisible={isHeaderVisible} />
+      <Header
+        isVisible={isHeaderVisible}
+        projectName={state.projectName}
+        onProjectNameChange={(name) => updateState({ projectName: name })}
+      />
   
       <div className={`flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden transition-all duration-300 ease-in-out ${isHeaderVisible ? 'pt-[73px]' : 'pt-0'} lg:pt-0`}>
         {/* Sidebar - Tools and Controls */}
@@ -545,6 +552,7 @@ function App() {
                 <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
                   <h2 className="text-lg font-semibold mb-4 text-orange-400">Export / Import</h2>
                   <ExportImport
+                    projectName={state.projectName}
                     photos={state.photos}
                     annotations={state.annotations}
                     onProjectImport={handleProjectImport}

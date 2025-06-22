@@ -9,6 +9,7 @@ import type { Photo, Annotation } from '../App';
 import { ProjectImporter } from './ProjectImporter';
 
 interface ExportImportProps {
+  projectName: string;
   photos: Photo[];
   annotations: Annotation[];
   onProjectImport: (data: { photos: Photo[]; annotations: Annotation[] }) => void;
@@ -20,6 +21,7 @@ type PhotoMetadata = Omit<Photo, 'file' | 'url'> & {
 };
 
 export const ExportImport: React.FC<ExportImportProps> = ({
+  projectName,
   photos,
   annotations,
   onProjectImport,
@@ -64,7 +66,8 @@ export const ExportImport: React.FC<ExportImportProps> = ({
       }
 
       const zipBlob = await zip.generateAsync({ type: 'blob' });
-      saveAs(zipBlob, 'climb-route-project.zip');
+      const safeProjectName = (projectName || 'climb-route-project').replace(/[\s/\\?%*:|"<>]/g, '_');
+      saveAs(zipBlob, `${safeProjectName}.zip`);
       
       toast({
         title: 'Export Successful',
