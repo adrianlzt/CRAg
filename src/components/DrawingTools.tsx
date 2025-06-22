@@ -1,13 +1,9 @@
 import React from 'react';
-import { MousePointer, Circle, Minus, Type, Undo, Redo, Hand } from 'lucide-react';
+import { MousePointer, Circle, Minus, Type, Hand } from 'lucide-react';
 
 interface DrawingToolsProps {
   selectedTool: 'select' | 'hold' | 'line' | 'text';
   onToolSelect: (tool: 'select' | 'hold' | 'line' | 'text') => void;
-  canUndo: boolean;
-  canRedo: boolean;
-  onUndo: () => void;
-  onRedo: () => void;
   selectedLineColor: string;
   onLineColorSelect: (color: string) => void;
   selectedLineWidth: number;
@@ -51,10 +47,6 @@ const TOOLS: Tool[] = [
 export const DrawingTools: React.FC<DrawingToolsProps> = ({
   selectedTool,
   onToolSelect,
-  canUndo,
-  canRedo,
-  onUndo,
-  onRedo,
   selectedLineColor,
   onLineColorSelect,
   selectedLineWidth,
@@ -135,39 +127,6 @@ export const DrawingTools: React.FC<DrawingToolsProps> = ({
         </div>
       )}
 
-      {/* History Controls */}
-      <div>
-        <h3 className="text-sm font-medium text-slate-300 mb-3">History</h3>
-        <div className="flex space-x-2">
-          <button
-            onClick={onUndo}
-            disabled={!canUndo}
-            className={`flex-1 p-3 rounded-lg border transition-all duration-200 flex items-center justify-center space-x-2 ${
-              canUndo
-                ? 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30 text-slate-300'
-                : 'border-slate-700 text-slate-600 cursor-not-allowed'
-            }`}
-            title="Undo last action"
-          >
-            <Undo className="h-4 w-4" />
-            <span className="text-sm">Undo</span>
-          </button>
-          
-          <button
-            onClick={onRedo}
-            disabled={!canRedo}
-            className={`flex-1 p-3 rounded-lg border transition-all duration-200 flex items-center justify-center space-x-2 ${
-              canRedo
-                ? 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30 text-slate-300'
-                : 'border-slate-700 text-slate-600 cursor-not-allowed'
-            }`}
-            title="Redo last action"
-          >
-            <Redo className="h-4 w-4" />
-            <span className="text-sm">Redo</span>
-          </button>
-        </div>
-      </div>
     </div>
   );
 };

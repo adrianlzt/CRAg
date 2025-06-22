@@ -8,7 +8,7 @@ import { Header } from './components/Header';
 import { RouteDescription } from './components/RouteDescription';
 import { ProjectImporter } from './components/ProjectImporter';
 import { Button } from './components/ui/button';
-import { Upload } from 'lucide-react';
+import { Upload, Redo, Undo } from 'lucide-react';
 import { useToast } from './hooks/use-toast';
 import { saveAs } from 'file-saver';
 import './index.css';
@@ -518,10 +518,6 @@ function App() {
                   <DrawingTools
                     selectedTool={state.selectedTool}
                     onToolSelect={(tool) => updateState({ selectedTool: tool })}
-                    canUndo={state.historyIndex > 0}
-                    canRedo={state.historyIndex < state.history.length - 1}
-                    onUndo={undo}
-                    onRedo={redo}
                     selectedLineColor={state.selectedLineColor}
                     onLineColorSelect={(color) => updateState({ selectedLineColor: color })}
                     selectedLineWidth={state.selectedLineWidth}
@@ -558,6 +554,39 @@ function App() {
                     onProjectImport={handleProjectImport}
                     onExportAsImage={handleExportAsImage}
                   />
+                </div>
+
+                <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+                  <h2 className="text-lg font-semibold mb-4 text-orange-400">History</h2>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={undo}
+                      disabled={!(state.historyIndex > 0)}
+                      className={`flex-1 p-3 rounded-lg border transition-all duration-200 flex items-center justify-center space-x-2 ${
+                        state.historyIndex > 0
+                          ? 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30 text-slate-300'
+                          : 'border-slate-700 text-slate-600 cursor-not-allowed'
+                      }`}
+                      title="Undo last action"
+                    >
+                      <Undo className="h-4 w-4" />
+                      <span className="text-sm">Undo</span>
+                    </button>
+                    
+                    <button
+                      onClick={redo}
+                      disabled={!(state.historyIndex < state.history.length - 1)}
+                      className={`flex-1 p-3 rounded-lg border transition-all duration-200 flex items-center justify-center space-x-2 ${
+                        state.historyIndex < state.history.length - 1
+                          ? 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30 text-slate-300'
+                          : 'border-slate-700 text-slate-600 cursor-not-allowed'
+                      }`}
+                      title="Redo last action"
+                    >
+                      <Redo className="h-4 w-4" />
+                      <span className="text-sm">Redo</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
