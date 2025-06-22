@@ -328,6 +328,7 @@ function App() {
             const x = offsetX + annotation.x;
             const y = currentY + annotation.y;
             const rotation = annotation.data.rotation || 0;
+            const scale = annotation.data.scale || 1;
             
             ctx.save();
             ctx.translate(x, y);
@@ -337,16 +338,16 @@ function App() {
             ctx.fillStyle = getHoldColor(annotation);
             ctx.globalAlpha = 0.8;
             ctx.beginPath();
-            ctx.arc(0, 0, 18, 0, 2 * Math.PI);
+            ctx.arc(0, 0, 18 * scale, 0, 2 * Math.PI);
             ctx.fill();
             
             ctx.strokeStyle = getHoldColor(annotation);
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 2 * scale;
             ctx.stroke();
 
             // Draw Hold type emoji
             ctx.globalAlpha = 1.0;
-            ctx.font = '24px Arial, sans-serif';
+            ctx.font = `${24 * scale}px Arial, sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillStyle = 'white';
