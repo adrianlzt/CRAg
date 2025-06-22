@@ -56,14 +56,14 @@ export const RouteDescription: React.FC<RouteDescriptionProps> = ({ photo, onDes
                 value={photo.description || ''}
                 onChange={(e) => onDescriptionChange(e.target.value)}
                 placeholder="Describe the route, beta, or sequence..."
-                className="min-h-[calc(100vh-10rem)] resize-none"
+                className="min-h-[calc(100vh-10rem)] resize-none text-white"
                 autoFocus
               />
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleToggleMaximize}
-                className="absolute right-2 top-2 h-7 w-7"
+                className="absolute right-2 top-2 h-7 w-7 text-white"
               >
                 <Minimize className="h-4 w-4" />
                 <span className="sr-only">Minimize</span>
