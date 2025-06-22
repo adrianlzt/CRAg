@@ -139,7 +139,13 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
               }`}
             >
               <div className="flex items-center justify-center space-x-3">
-                <div className="text-2xl">{hold.icon}</div>
+                <div className="text-2xl">
+                  {selectedFootColor === 'yellow' ? (
+                    <span className="inline-block -scale-x-100">{hold.icon}</span>
+                  ) : (
+                    hold.icon
+                  )}
+                </div>
                 <div className="text-sm text-slate-300 font-medium">{hold.name}</div>
               </div>
             </button>
@@ -151,7 +157,13 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
       {selectedHoldType && (
         <div className="p-3 rounded-lg bg-slate-700/50 border border-slate-600">
           <div className="flex items-center space-x-3">
-            <div className="text-2xl">{selectedHoldType.icon}</div>
+            <div className="text-2xl">
+              {selectedHoldType.category === 'foot' && selectedFootColor === 'yellow' ? (
+                <span className="inline-block -scale-x-100">{selectedHoldType.icon}</span>
+              ) : (
+                selectedHoldType.icon
+              )}
+            </div>
             <div>
               <div className="text-sm font-medium text-slate-300">
                 {selectedHoldType.name}
