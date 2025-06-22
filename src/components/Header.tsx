@@ -19,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({ isVisible, projectName, onProjec
             <Route className="h-6 w-6 text-orange-400" />
           </div>
           <div>
-            <div className="flex items-center space-x-2 group">
+            <div className="flex items-center space-x-2">
               <input
                 ref={inputRef}
                 type="text"
@@ -29,7 +29,7 @@ export const Header: React.FC<HeaderProps> = ({ isVisible, projectName, onProjec
                 className="bg-transparent text-xl font-bold text-white outline-none border-none rounded-md transition-colors hover:bg-slate-800/75 focus:bg-slate-800 focus:ring-2 focus:ring-orange-500 px-2 py-1 -mx-2 -my-1"
               />
               <Pencil 
-                className="h-4 w-4 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                className="h-4 w-4 text-slate-400 cursor-pointer"
                 onClick={() => inputRef.current?.focus()}
               />
             </div>
