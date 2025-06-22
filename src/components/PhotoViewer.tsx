@@ -12,6 +12,7 @@ interface PhotoViewerProps {
   selectedHandColor: 'red' | 'green';
   selectedFootColor: 'blue' | 'yellow';
   selectedLineColor: string;
+  selectedLineWidth: number;
   onAnnotationAdd: (annotation: Annotation) => void;
   onAnnotationUpdate: (annotationId: string, updates: Partial<Annotation>) => void;
   onAnnotationRemove: (annotationId: string) => void;
@@ -25,6 +26,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   selectedHandColor,
   selectedFootColor,
   selectedLineColor,
+  selectedLineWidth,
   onAnnotationAdd,
   onAnnotationUpdate,
   onAnnotationRemove,
@@ -303,14 +305,14 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
         photoId: photo.id,
         x: 0,
         y: 0,
-        data: { points: currentLine, color: selectedLineColor },
+        data: { points: currentLine, color: selectedLineColor, width: selectedLineWidth },
       };
       onAnnotationAdd(annotation);
     }
 
     setIsDrawing(false);
     setCurrentLine([]);
-  }, [isDrawing, selectedTool, currentLine, photo.id, onAnnotationAdd, selectedLineColor]);
+  }, [isDrawing, selectedTool, currentLine, photo.id, onAnnotationAdd, selectedLineColor, selectedLineWidth]);
 
   const handleTextEditEnd = (value: string) => {
     if (editingText) {
@@ -512,7 +514,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   key={annotation.id}
                   points={annotation.data.points}
                   stroke={annotation.data.color || "#f97316"}
-                  strokeWidth={3}
+                  strokeWidth={annotation.data.width || 3}
                   lineCap="round"
                   lineJoin="round"
                   onClick={() => handleAnnotationClick(annotation)}
@@ -596,7 +598,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
             <Line
               points={currentLine}
               stroke={selectedLineColor}
-              strokeWidth={3}
+              strokeWidth={selectedLineWidth}
               lineCap="round"
               lineJoin="round"
               opacity={0.7}

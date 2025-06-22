@@ -10,6 +10,8 @@ interface DrawingToolsProps {
   onRedo: () => void;
   selectedLineColor: string;
   onLineColorSelect: (color: string) => void;
+  selectedLineWidth: number;
+  onLineWidthSelect: (width: number) => void;
 }
 
 interface Tool {
@@ -55,6 +57,8 @@ export const DrawingTools: React.FC<DrawingToolsProps> = ({
   onRedo,
   selectedLineColor,
   onLineColorSelect,
+  selectedLineWidth,
+  onLineWidthSelect,
 }) => {
   return (
     <div className="space-y-4">
@@ -105,6 +109,27 @@ export const DrawingTools: React.FC<DrawingToolsProps> = ({
                 }`}
                 style={{ backgroundColor: color }}
               />
+            ))}
+          </div>
+
+          <h3 className="text-sm font-medium text-slate-300 mt-4 mb-3">Line Width</h3>
+          <div className="flex items-center gap-2">
+            {[3, 5, 8, 12].map((width) => (
+              <button
+                key={width}
+                onClick={() => onLineWidthSelect(width)}
+                title={`${width}px`}
+                className={`w-8 h-8 rounded-md border-2 flex items-center justify-center transition-all ${
+                  selectedLineWidth === width
+                    ? "border-white"
+                    : "border-slate-600 hover:border-slate-400"
+                }`}
+              >
+                <div
+                  className="bg-white rounded-full"
+                  style={{ width: `${width}px`, height: `${width}px` }}
+                ></div>
+              </button>
             ))}
           </div>
         </div>

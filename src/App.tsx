@@ -46,6 +46,7 @@ export interface AppState {
   selectedHandColor: 'red' | 'green';
   selectedFootColor: 'blue' | 'yellow';
   selectedLineColor: string;
+  selectedLineWidth: number;
   isDrawing: boolean;
   history: Annotation[][];
   historyIndex: number;
@@ -94,6 +95,7 @@ function App() {
     selectedHandColor: 'red',
     selectedFootColor: 'blue',
     selectedLineColor: '#f97316',
+    selectedLineWidth: 3,
     isDrawing: false,
     history: [[]],
     historyIndex: 0,
@@ -358,7 +360,7 @@ function App() {
               ctx.save();
               ctx.globalAlpha = 0.8;
               ctx.strokeStyle = annotation.data.color || '#f97316';
-              ctx.lineWidth = 4;
+              ctx.lineWidth = annotation.data.width || 3;
               ctx.lineCap = 'round';
               ctx.lineJoin = 'round';
               ctx.beginPath();
@@ -515,6 +517,8 @@ function App() {
                     onRedo={redo}
                     selectedLineColor={state.selectedLineColor}
                     onLineColorSelect={(color) => updateState({ selectedLineColor: color })}
+                    selectedLineWidth={state.selectedLineWidth}
+                    onLineWidthSelect={(width) => updateState({ selectedLineWidth: width })}
                   />
                 </div>
 
@@ -563,6 +567,7 @@ function App() {
               selectedHandColor={state.selectedHandColor}
               selectedFootColor={state.selectedFootColor}
               selectedLineColor={state.selectedLineColor}
+              selectedLineWidth={state.selectedLineWidth}
               onAnnotationAdd={addAnnotation}
               onAnnotationUpdate={updateAnnotation}
               onAnnotationRemove={removeAnnotation}
