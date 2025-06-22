@@ -168,27 +168,6 @@ export const DrawingTools: React.FC<DrawingToolsProps> = ({
           </button>
         </div>
       </div>
-
-      {/* Tool Instructions */}
-      <div className="p-3 rounded-lg bg-slate-700/30 border border-slate-700">
-        <h4 className="text-xs font-medium text-slate-400 mb-2">Instructions</h4>
-        <div className="text-xs text-slate-500">
-          {selectedTool === 'select' && "Click and drag to move annotations. Tap to select."}
-          {selectedTool === 'hold' && "Choose a hold type above, then tap on the image to place it."}
-          {selectedTool === 'line' && "Drag to draw route lines. Use for marking climbing paths."}
-          {selectedTool === 'text' && "Tap on the image to add text annotations."}
-        </div>
-      </div>
-
-      {/* Mobile Gesture Hints */}
-      <div className="p-3 rounded-lg bg-blue-900/20 border border-blue-700/50">
-        <h4 className="text-xs font-medium text-blue-300 mb-2">Touch Gestures</h4>
-        <div className="space-y-1 text-xs text-blue-200">
-          <div>• Pinch to zoom in/out</div>
-          <div>• Drag with two fingers to pan</div>
-          <div>• Long press to delete annotation</div>
-        </div>
-      </div>
     </div>
   );
 };

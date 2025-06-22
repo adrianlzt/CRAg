@@ -559,6 +559,21 @@ function App() {
                     onExportAsImage={handleExportAsImage}
                   />
                 </div>
+
+                <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+                  <h2 className="text-lg font-semibold mb-4 text-orange-400">Instructions</h2>
+                  <div className="text-sm text-slate-300 space-y-2">
+                    <p>Click and drag to move annotations. Tap to select.</p>
+                    <div>
+                      <p className="font-semibold text-slate-100">Touch Gestures</p>
+                      <ul className="list-disc list-inside pl-2">
+                        <li>Pinch to zoom in/out</li>
+                        <li>Drag with two fingers to pan</li>
+                        <li>Long press to delete annotation</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
           </div>
