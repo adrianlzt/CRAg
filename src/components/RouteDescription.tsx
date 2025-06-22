@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Textarea } from './ui/textarea';
 import { Photo } from '../App';
 import { Button } from './ui/button';
@@ -22,35 +23,14 @@ export const RouteDescription: React.FC<RouteDescriptionProps> = ({ photo, onDes
   };
 
   return (
-    <div
-      className={cn(
-        'relative',
-        isMaximized &&
-          'fixed inset-0 z-50 bg-background/80 p-4 flex items-center justify-center backdrop-blur-sm'
-      )}
-      onClick={() => {
-        if (isMaximized) {
-          setIsMaximized(false);
-        }
-      }}
-    >
-      <div
-        className={cn('relative w-full', isMaximized && 'max-w-2xl')}
-        onClick={(e) => {
-          if (isMaximized) {
-            e.stopPropagation();
-          }
-        }}
-      >
+    <>
+      <div className={cn('relative', isMaximized ? 'invisible' : '')}>
         <Textarea
           id="route-description"
           value={photo.description || ''}
           onChange={(e) => onDescriptionChange(e.target.value)}
           placeholder="Describe the route, beta, or sequence..."
-          className={cn(
-            'min-h-[120px]',
-            isMaximized && 'min-h-[calc(100vh-10rem)] resize-none'
-          )}
+          className="min-h-[120px]"
         />
         <Button
           variant="ghost"
@@ -58,16 +38,40 @@ export const RouteDescription: React.FC<RouteDescriptionProps> = ({ photo, onDes
           onClick={handleToggleMaximize}
           className="absolute top-2 right-2 h-7 w-7"
         >
-          {isMaximized ? (
-            <Minimize className="h-4 w-4" />
-          ) : (
-            <Maximize className="h-4 w-4" />
-          )}
-          <span className="sr-only">
-            {isMaximized ? 'Minimize' : 'Maximize'}
-          </span>
+          <Maximize className="h-4 w-4" />
+          <span className="sr-only">Maximize</span>
         </Button>
       </div>
-    </div>
+      {isMaximized &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm"
+            onClick={handleToggleMaximize}
+          >
+            <div
+              className="relative w-full max-w-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Textarea
+                value={photo.description || ''}
+                onChange={(e) => onDescriptionChange(e.target.value)}
+                placeholder="Describe the route, beta, or sequence..."
+                className="min-h-[calc(100vh-10rem)] resize-none"
+                autoFocus
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleToggleMaximize}
+                className="absolute right-2 top-2 h-7 w-7"
+              >
+                <Minimize className="h-4 w-4" />
+                <span className="sr-only">Minimize</span>
+              </Button>
+            </div>
+          </div>,
+          document.body
+        )}
+    </>
   );
 };
