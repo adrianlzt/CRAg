@@ -147,36 +147,6 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
         </div>
       </div>
 
-      {/* Selected Hold Info */}
-      {selectedHoldType && (
-        <div className="p-3 rounded-lg bg-slate-700/50 border border-slate-600">
-          <div className="flex items-center space-x-3">
-            <div className="text-2xl">
-              {selectedHoldType.category === 'foot' && selectedFootColor === 'yellow' ? (
-                <span className="inline-block -scale-x-100">{selectedHoldType.icon}</span>
-              ) : (
-                selectedHoldType.icon
-              )}
-            </div>
-            <div>
-              <div className="text-sm font-medium text-slate-300">
-                {selectedHoldType.name}
-              </div>
-              <div className="text-xs text-slate-500">
-                {selectedHoldType.category === 'hand' ? (
-                  <span className={`text-${selectedHandColor}-400`}>
-                    {selectedHandColor === 'red' ? 'Right Hand' : 'Left Hand'}
-                  </span>
-                ) : (
-                  <span className={`text-${selectedFootColor}-400`}>
-                    {selectedFootColor === 'blue' ? 'Right Foot' : 'Left Foot'}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
