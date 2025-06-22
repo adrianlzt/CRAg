@@ -505,6 +505,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                     shadowColor="black"
                     shadowBlur={2}
                     shadowOpacity={0.8}
+                    scaleX={annotation.data.category === 'foot' && annotation.data.handColor === 'yellow' ? -1 : 1}
                   />
                 </Group>
               );

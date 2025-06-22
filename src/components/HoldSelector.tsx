@@ -139,13 +139,7 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
               }`}
             >
               <div className="flex items-center justify-center space-x-3">
-                <div className="text-2xl">
-                  {selectedFootColor === 'yellow' ? (
-                    <span className="inline-block -scale-x-100">{hold.icon}</span>
-                  ) : (
-                    hold.icon
-                  )}
-                </div>
+                <div className="text-2xl">{hold.icon}</div>
                 <div className="text-sm text-slate-300 font-medium">{hold.name}</div>
               </div>
             </button>
