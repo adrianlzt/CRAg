@@ -8,6 +8,8 @@ interface DrawingToolsProps {
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
+  selectedLineColor: string;
+  onLineColorSelect: (color: string) => void;
 }
 
 interface Tool {
@@ -51,6 +53,8 @@ export const DrawingTools: React.FC<DrawingToolsProps> = ({
   canRedo,
   onUndo,
   onRedo,
+  selectedLineColor,
+  onLineColorSelect,
 }) => {
   return (
     <div className="space-y-4">
@@ -77,6 +81,34 @@ export const DrawingTools: React.FC<DrawingToolsProps> = ({
           ))}
         </div>
       </div>
+
+      {/* Line Color Selection */}
+      {selectedTool === 'line' && (
+        <div>
+          <h3 className="text-sm font-medium text-slate-300 mb-3">Line Color</h3>
+          <div className="flex flex-wrap gap-2">
+            {[
+              '#f97316', // orange
+              '#ef4444', // red
+              '#10b981', // green
+              '#3b82f6', // blue
+              '#eab308', // yellow
+              '#ec4899', // pink
+            ].map(color => (
+              <button
+                key={color}
+                onClick={() => onLineColorSelect(color)}
+                className={`w-8 h-8 rounded-md border-2 transition-all ${
+                  selectedLineColor === color
+                    ? `border-white`
+                    : 'border-slate-600 hover:border-slate-400'
+                }`}
+                style={{ backgroundColor: color }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* History Controls */}
       <div>

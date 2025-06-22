@@ -513,6 +513,8 @@ function App() {
                     canRedo={state.historyIndex < state.history.length - 1}
                     onUndo={undo}
                     onRedo={redo}
+                    selectedLineColor={state.selectedLineColor}
+                    onLineColorSelect={(color) => updateState({ selectedLineColor: color })}
                   />
                 </div>
 
@@ -522,11 +524,9 @@ function App() {
                     selectedHoldType={state.selectedHoldType}
                     selectedHandColor={state.selectedHandColor}
                     selectedFootColor={state.selectedFootColor}
-                    selectedLineColor={state.selectedLineColor}
                     onHoldTypeSelect={(holdType) => updateState({ selectedHoldType: holdType, selectedTool: 'hold' })}
                     onHandColorSelect={(color) => updateState({ selectedHandColor: color })}
                     onFootColorSelect={(color) => updateState({ selectedFootColor: color })}
-                    onLineColorSelect={(color) => updateState({ selectedLineColor: color })}
                   />
                 </div>
 
