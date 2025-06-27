@@ -105,7 +105,6 @@ function App() {
   const { toast } = useToast();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const lastScrollTop = useRef(0);
 
   const updateState = useCallback((updates: Partial<AppState>) => {
     setState(prev => ({ ...prev, ...updates }));
@@ -469,12 +468,11 @@ function App() {
         return;
       }
       const scrollTop = sidebar.scrollTop;
-      if (scrollTop > lastScrollTop.current && scrollTop > 80) { // Hide header
+      if (scrollTop > 0) {
         if (isHeaderVisible) setIsHeaderVisible(false);
-      } else if (scrollTop < lastScrollTop.current) { // Show header
+      } else {
         if (!isHeaderVisible) setIsHeaderVisible(true);
       }
-      lastScrollTop.current = scrollTop <= 0 ? 0 : scrollTop;
     };
 
     sidebar.addEventListener('scroll', handleScroll);
