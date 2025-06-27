@@ -197,7 +197,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
 
   const handleStageClick = useCallback(() => {
     const stage = stageRef.current;
-    if (!stage) return;
+    if (!stage || !image) return;
 
     const pointerPosition = stage.getPointerPosition();
     if (!pointerPosition) return;
@@ -207,6 +207,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     const imageY = (pointerPosition.y - stageConfig.y) / stageConfig.scale;
 
     if (selectedTool === 'hold' && selectedHoldType) {
+      const imageScale = image.width / 1000; // Base width of 1000px
       const annotation: Annotation = {
         id: `annotation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         type: 'hold',
@@ -219,6 +220,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
           icon: selectedHoldType.icon,
           handColor: selectedHoldType.category === 'foot' ? selectedFootColor : selectedHandColor,
           category: selectedHoldType.category,
+          scale: imageScale,
         },
       };
       onAnnotationAdd(annotation);
@@ -226,7 +228,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       if (isDraggingAnnotation) return;
       setEditingText({ x: imageX, y: imageY, value: '' });
     }
-  }, [selectedTool, selectedHoldType, photo.id, stageConfig, onAnnotationAdd, isDraggingAnnotation, selectedHandColor, selectedFootColor]);
+  }, [selectedTool, selectedHoldType, photo.id, stageConfig, onAnnotationAdd, isDraggingAnnotation, selectedHandColor, selectedFootColor, image]);
 
   const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
     // Deselect when clicked on empty area
