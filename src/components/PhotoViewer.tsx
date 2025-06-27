@@ -81,18 +81,18 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       setImage(img);
-      
+
       // Reset stage position and scale when image changes
       if (containerRef.current) {
         const containerWidth = containerRef.current.offsetWidth;
         const containerHeight = containerRef.current.offsetHeight;
-        
+
         const scale = Math.min(
           containerWidth / img.width,
           containerHeight / img.height,
           1
         );
-        
+
         setStageConfig({
           scale,
           x: (containerWidth - img.width * scale) / 2,
@@ -111,7 +111,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       if (containerRef.current) {
         const containerWidth = containerRef.current.offsetWidth;
         const containerHeight = containerRef.current.offsetHeight;
-        
+
         setStageConfig(prev => ({
           ...prev,
           width: containerWidth,
@@ -122,7 +122,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
 
     window.addEventListener('resize', handleResize);
     handleResize();
-    
+
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -150,7 +150,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     },
     onDrag: ({ delta: [dx, dy], pinching, touches }) => {
       if (pinching || touches > 1 || isDraggingAnnotation || isTransforming) return;
-      
+
       if (selectedTool === 'select' || touches === 2) {
         setStageConfig(prev => ({
           ...prev,
@@ -167,7 +167,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       if (!pointer) return;
 
       const scaleBy = 1.1;
-      
+
       setStageConfig(prev => {
         const oldScale = prev.scale;
         const newScale = dy > 0 ? oldScale / scaleBy : oldScale * scaleBy;
@@ -233,7 +233,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     if (e.target === e.target.getStage()) {
       setSelectedAnnotation(null);
     }
-    
+
     if (selectedTool !== 'line') return;
 
     const stage = stageRef.current;
@@ -387,7 +387,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   };
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="w-full h-full relative overflow-hidden bg-slate-800/50"
       {...bind()}
@@ -619,15 +619,6 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
         {selectedTool === 'hold' && selectedHoldType && `${selectedHoldType.icon} ${selectedHoldType.name}`}
         {selectedTool === 'line' && '✏️ Draw'}
         {selectedTool === 'text' && '📝 Text'}
-      </div>
-
-      {/* Instructions overlay */}
-      <div className="absolute bottom-4 left-4 right-4 bg-slate-900/90 backdrop-blur-sm rounded-lg p-3">
-        <div className="text-xs text-slate-400 space-y-1">
-          <div>• Pinch to zoom, drag with two fingers to pan</div>
-          <div>• Double-tap annotations to delete</div>
-          <div>• Use tools in the sidebar to annotate holds and routes</div>
-        </div>
       </div>
 
       {editingText && (
