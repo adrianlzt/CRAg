@@ -57,6 +57,7 @@ export const RouteDescription: React.FC<RouteDescriptionProps> = ({ photo, onDes
                 onChange={(e) => onDescriptionChange(e.target.value)}
                 placeholder="Describe the route, beta, or sequence..."
                 className="min-h-[calc(100vh-10rem)] resize-none text-white"
+                style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
                 autoFocus
               />
               <Button
