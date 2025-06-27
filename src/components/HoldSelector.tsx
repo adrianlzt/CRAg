@@ -12,16 +12,16 @@ interface HoldSelectorProps {
 
 // Define climbing hold types with their visual representations
 const HOLD_TYPES: HoldType[] = [
-  { id: 'jug', name: 'Jug', icon: '🤲', category: 'hand' },
-  { id: 'pinch', name: 'Pinch', icon: '🤏', category: 'hand' },
-  { id: 'sloper', name: 'Sloper', icon: '🫴', category: 'hand' },
-  { id: 'crimp', name: 'Crimp', icon: '✊', category: 'hand' },
-  { id: 'sidepull', name: 'Side Pull', icon: '👋', category: 'hand' },
-  { id: 'undercling', name: 'Undercling', icon: '🙌', category: 'hand' },
-  { id: 'one_finger', name: '1-Finger Pocket', icon: '☝️', category: 'hand' },
-  { id: 'two_finger', name: '2-Finger Pocket', icon: '✌️', category: 'hand' },
-  { id: 'three_finger', name: '3-Finger Pocket', icon: '🤟', category: 'hand' },
-  { id: 'foothold', name: 'Foot Hold', icon: '🦶', category: 'foot' },
+  { id: 'jug', name: 'Jug', icon: '/icons/jug.svg', category: 'hand' },
+  { id: 'pinch', name: 'Pinch', icon: '/icons/pinch.svg', category: 'hand' },
+  { id: 'sloper', name: 'Sloper', icon: '/icons/sloper.svg', category: 'hand' },
+  { id: 'crimp', name: 'Crimp', icon: '/icons/crimp.svg', category: 'hand' },
+  { id: 'sidepull', name: 'Side Pull', icon: '/icons/sidepull.svg', category: 'hand' },
+  { id: 'undercling', name: 'Undercling', icon: '/icons/undercling.svg', category: 'hand' },
+  { id: 'one_finger', name: '1-Finger Pocket', icon: '/icons/one_finger.svg', category: 'hand' },
+  { id: 'two_finger', name: '2-Finger Pocket', icon: '/icons/two_finger.svg', category: 'hand' },
+  { id: 'three_finger', name: '3-Finger Pocket', icon: '/icons/three_finger.svg', category: 'hand' },
+  { id: 'foothold', name: 'Foot Hold', icon: '/icons/foothold.svg', category: 'foot' },
 ];
 
 export const HoldSelector: React.FC<HoldSelectorProps> = ({
@@ -84,7 +84,7 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
                   : 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30'
               }`}
             >
-              <div className="text-2xl mb-1">{hold.icon}</div>
+              <img src={hold.icon} alt={hold.name} className="h-8 w-8 mx-auto mb-1" />
               <div className="text-xs text-slate-300 font-medium">{hold.name}</div>
             </button>
           ))}
@@ -139,7 +139,7 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
               }`}
             >
               <div className="flex items-center justify-center space-x-3">
-                <div className="text-2xl">{hold.icon}</div>
+                <img src={hold.icon} alt={hold.name} className="h-8 w-8" />
                 <div className="text-sm text-slate-300 font-medium">{hold.name}</div>
               </div>
             </button>
