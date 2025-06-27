@@ -45,7 +45,7 @@ export const RouteDescription: React.FC<RouteDescriptionProps> = ({ photo, onDes
       {isMaximized &&
         createPortal(
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 p-4 backdrop-blur-sm"
             onClick={handleToggleMaximize}
           >
             <div
