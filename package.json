@@ -45,6 +45,7 @@
     "date-fns": "^3.0.0",
     "embla-carousel-react": "^8.5.2",
     "file-saver": "^2.0.5",
+    "idb-keyval": "^6.2.2",
     "input-otp": "^1.4.2",
     "jszip": "^3.10.1",
     "konva": "^9.3.20",

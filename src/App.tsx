@@ -8,11 +8,11 @@ import { Header } from './components/Header';
 import { RouteDescription } from './components/RouteDescription';
 import { ProjectImporter } from './components/ProjectImporter';
 import { Button } from './components/ui/button';
-import { Upload, Redo, Undo } from 'lucide-react';
+import { Upload, Redo, Undo, FilePlus } from 'lucide-react';
 import { useToast } from './hooks/use-toast';
 import { saveAs } from 'file-saver';
 import { HOLD_TYPES } from './components/HoldSelector';
-import { get, set } from 'idb-keyval';
+import { get, set, del } from 'idb-keyval';
 import './index.css';
 
 export interface Photo {
@@ -112,22 +112,24 @@ async function drawSvgOnCanvas(
   });
 }
 
+const initialState: AppState = {
+  projectName: 'Climbing Route Project',
+  photos: [],
+  currentPhotoIndex: 0,
+  annotations: [],
+  selectedTool: 'select',
+  selectedHoldType: null,
+  selectedHandColor: 'red',
+  selectedFootColor: 'blue',
+  selectedLineColor: '#f97316',
+  selectedLineWidth: 3,
+  isDrawing: false,
+  history: [[]],
+  historyIndex: 0,
+};
+
 function App() {
-  const [state, setState] = useState<AppState>({
-    projectName: 'Climbing Route Project',
-    photos: [],
-    currentPhotoIndex: 0,
-    annotations: [],
-    selectedTool: 'select',
-    selectedHoldType: null,
-    selectedHandColor: 'red',
-    selectedFootColor: 'blue',
-    selectedLineColor: '#f97316',
-    selectedLineWidth: 3,
-    isDrawing: false,
-    history: [[]],
-    historyIndex: 0,
-  });
+  const [state, setState] = useState<AppState>(initialState);
   const { toast } = useToast();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -319,6 +321,30 @@ function App() {
       };
     });
   }, []);
+
+  const handleNewProject = useCallback(() => {
+    if (window.confirm("Are you sure you want to start a new project? All current progress will be lost and cannot be recovered.")) {
+      // Clean up old photo URLs to prevent memory leaks
+      state.photos.forEach(p => URL.revokeObjectURL(p.url));
+
+      del('app-state')
+        .then(() => {
+          setState(initialState);
+          toast({
+            title: "New Project Started",
+            description: "Your previous project has been cleared.",
+          });
+        })
+        .catch((error) => {
+          console.error("Failed to clear project from IndexedDB", error);
+          toast({
+            title: "Error",
+            description: "Could not clear the project data.",
+            variant: "destructive",
+          });
+        });
+    }
+  }, [state.photos, toast]);
 
   const handleExportAsImage = useCallback(async () => {
     if (state.photos.length === 0) {
@@ -652,6 +678,14 @@ function App() {
                     onProjectImport={handleProjectImport}
                     onExportAsImage={handleExportAsImage}
                   />
+                  <Button
+                    variant="destructive"
+                    className="w-full mt-4"
+                    onClick={handleNewProject}
+                  >
+                    <FilePlus className="mr-2 h-4 w-4" />
+                    New Project
+                  </Button>
                 </div>
 
                 <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
