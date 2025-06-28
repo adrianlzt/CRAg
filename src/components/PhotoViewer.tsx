@@ -623,8 +623,8 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
 
       {/* Tool indicator */}
       <div className="absolute top-4 left-4 bg-slate-900/90 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-slate-300">
-        {selectedTool === 'select' && '👆 Select'}
-        {selectedTool === 'hold' && selectedHoldType && `${selectedHoldType.icon} ${selectedHoldType.name}`}
+        {selectedTool === 'select' && '🔧 Select'}
+        {selectedTool === 'hold' && '✋ Hold'}
         {selectedTool === 'line' && '✏️ Draw'}
         {selectedTool === 'text' && '📝 Text'}
       </div>
