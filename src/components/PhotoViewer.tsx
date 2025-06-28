@@ -375,7 +375,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   const HOLD_TYPES_MAP: { [key: string]: { icon: string, name: string } } = {
     'jug': { icon: '🤲', name: 'Jug' },
     'crimp': { icon: '✊', name: 'Crimp' },
-    'sidepull': { icon: '👋', name: 'Side Pull' },
+    'medium': { icon: '👋', name: 'Medium' },
     'undercling': { icon: '🙌', name: 'Undercling' },
     'one_finger': { icon: '☝️', name: '1-Finger Pocket' },
     'two_finger': { icon: '✌️', name: '2-Finger Pocket' },

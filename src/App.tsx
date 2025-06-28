@@ -250,7 +250,7 @@ function App() {
       'pinch': { icon: '🤏', name: 'Pinch' },
       'sloper': { icon: '🫴', name: 'Sloper' },
       'crimp': { icon: '✊', name: 'Crimp' },
-      'sidepull': { icon: '👋', name: 'Side Pull' },
+      'medium': { icon: '👋', name: 'Medium' },
       'undercling': { icon: '🙌', name: 'Undercling' },
       'one_finger': { icon: '☝️', name: '1-Finger Pocket' },
       'two_finger': { icon: '✌️', name: '2-Finger Pocket' },

@@ -16,7 +16,7 @@ const HOLD_TYPES: HoldType[] = [
   { id: 'pinch', name: 'Pinch', icon: '/icons/pinch.svg', category: 'hand' },
   { id: 'sloper', name: 'Sloper', icon: '/icons/sloper.svg', category: 'hand' },
   { id: 'crimp', name: 'Crimp', icon: '/icons/crimp.svg', category: 'hand' },
-  { id: 'sidepull', name: 'Side Pull', icon: '/icons/sidepull.svg', category: 'hand' },
+  { id: 'medium', name: 'Medium', icon: '/icons/medium.svg', category: 'hand' },
   { id: 'undercling', name: 'Undercling', icon: '/icons/undercling.svg', category: 'hand' },
   { id: 'one_finger', name: '1-Finger Pocket', icon: '/icons/one_finger.svg', category: 'hand' },
   { id: 'two_finger', name: '2-Finger Pocket', icon: '/icons/two_finger.svg', category: 'hand' },
