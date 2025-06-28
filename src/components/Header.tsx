@@ -28,27 +28,12 @@ export const Header: React.FC<HeaderProps> = ({ isVisible, projectName, onProjec
                 placeholder="Project Name"
                 className="bg-transparent text-xl font-bold text-white outline-none border-none rounded-md transition-colors hover:bg-slate-800/75 focus:bg-slate-800 focus:ring-2 focus:ring-orange-500 px-2 py-1 -mx-2 -my-1"
               />
-              <Pencil 
+              <Pencil
                 className="h-4 w-4 text-slate-400 cursor-pointer"
                 onClick={() => inputRef.current?.focus()}
               />
             </div>
             <p className="text-sm text-slate-400">Mark holds, draw routes, share beta</p>
-          </div>
-        </div>
-        
-        <div className="hidden md:flex items-center space-x-4 text-sm text-slate-400">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <span>Right Hand</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span>Left Hand</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-            <span>Feet</span>
           </div>
         </div>
       </div>
