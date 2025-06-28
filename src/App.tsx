@@ -11,6 +11,7 @@ import { Button } from './components/ui/button';
 import { Upload, Redo, Undo } from 'lucide-react';
 import { useToast } from './hooks/use-toast';
 import { saveAs } from 'file-saver';
+import { HOLD_TYPES } from './components/HoldSelector';
 import './index.css';
 
 export interface Photo {
