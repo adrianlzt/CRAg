@@ -12,6 +12,7 @@ import { Upload, Redo, Undo } from 'lucide-react';
 import { useToast } from './hooks/use-toast';
 import { saveAs } from 'file-saver';
 import { HOLD_TYPES } from './components/HoldSelector';
+import { get, set } from 'idb-keyval';
 import './index.css';
 
 export interface Photo {
@@ -130,6 +131,60 @@ function App() {
   const { toast } = useToast();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load state from IndexedDB on startup
+  useEffect(() => {
+    const loadState = async () => {
+      try {
+        const savedState = await get('app-state');
+        if (savedState) {
+          // Recreate photo URLs from stored File objects
+          const photosWithUrls = savedState.photos.map((p: Omit<Photo, 'url'>) => ({
+            ...p,
+            url: URL.createObjectURL(p.file),
+          }));
+          setState({
+            ...savedState,
+            photos: photosWithUrls,
+            // Reset transient state that shouldn't be persisted across reloads
+            selectedTool: 'select',
+            isDrawing: false,
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load state from IndexedDB", error);
+        toast({
+          title: "Could not load project",
+          description: "There was an error loading your saved project. Starting fresh.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadState();
+  }, [toast]);
+
+  // Save state to IndexedDB on change
+  useEffect(() => {
+    if (isLoading) return;
+
+    const saveState = async () => {
+      try {
+        // Create a savable state without photo URLs
+        const savableState = {
+          ...state,
+          photos: state.photos.map(({ url, ...rest }) => rest),
+        };
+        await set('app-state', savableState);
+      } catch (error) {
+        console.error("Failed to save state to IndexedDB", error);
+      }
+    };
+
+    saveState();
+  }, [state, isLoading]);
 
   const updateState = useCallback((updates: Partial<AppState>) => {
     setState(prev => ({ ...prev, ...updates }));
@@ -143,12 +198,18 @@ function App() {
   }, []);
 
   const removePhoto = useCallback((photoId: string) => {
-    setState(prev => ({
-      ...prev,
-      photos: prev.photos.filter(p => p.id !== photoId),
-      annotations: prev.annotations.filter(a => a.photoId !== photoId),
-      currentPhotoIndex: Math.max(0, prev.currentPhotoIndex - 1),
-    }));
+    setState(prev => {
+      const photoToRemove = prev.photos.find(p => p.id === photoId);
+      if (photoToRemove) {
+        URL.revokeObjectURL(photoToRemove.url);
+      }
+      return {
+        ...prev,
+        photos: prev.photos.filter(p => p.id !== photoId),
+        annotations: prev.annotations.filter(a => a.photoId !== photoId),
+        currentPhotoIndex: Math.max(0, prev.currentPhotoIndex - 1),
+      };
+    });
   }, []);
 
   const reorderPhotos = useCallback((startIndex: number, endIndex: number) => {
@@ -510,6 +571,17 @@ function App() {
   const currentPhotoAnnotations = state.annotations.filter(
     a => a.photoId === currentPhoto?.id
   );
+
+  if (isLoading) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+        <div className="text-center">
+          <div className="text-6xl mb-4 animate-spin">🧗‍♂️</div>
+          <h2 className="text-2xl font-bold text-slate-300">Loading Project...</h2>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden flex flex-col">
