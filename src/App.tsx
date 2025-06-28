@@ -87,6 +87,30 @@ function wrapText(
   return currentY;
 }
 
+async function drawSvgOnCanvas(
+  ctx: CanvasRenderingContext2D,
+  svgString: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, x, y, width, height);
+      resolve();
+    };
+    img.onerror = (err) => {
+      console.error("Failed to load SVG for canvas drawing:", err);
+      reject(err);
+    };
+    // Use fill='white' as the original code used white fill for the emoji
+    const coloredSvg = svgString.replace('<svg', `<svg fill='white'`);
+    img.src = `data:image/svg+xml;base64,${btoa(coloredSvg)}`;
+  });
+}
+
 function App() {
   const [state, setState] = useState<AppState>({
     projectName: 'Climbing Route Project',
@@ -246,23 +270,25 @@ function App() {
       description: 'Please wait while the image is being generated...',
     });
 
-    const HOLD_TYPES_MAP: { [key: string]: { icon: string, name: 'string' } } = {
-      'jug': { icon: '🤲', name: 'Jug' },
-      'pinch': { icon: '🤏', name: 'Pinch' },
-      'sloper': { icon: '🫴', name: 'Sloper' },
-      'crimp': { icon: '✊', name: 'Crimp' },
-      'medium': { icon: '👋', name: 'Medium' },
-      'undercling': { icon: '🙌', name: 'Undercling' },
-      'one_finger': { icon: '☝️', name: '1-Finger Pocket' },
-      'two_finger': { icon: '✌️', name: '2-Finger Pocket' },
-      'three_finger': { icon: '🤟', name: '3-Finger Pocket' },
-      'foothold': { icon: '🦶', name: 'Foot Hold' },
-    };
-
-    const getHoldIcon = (annotation: Annotation) => {
-      const holdTypeId = annotation.data.holdType || annotation.data.holdTypeId;
-      return HOLD_TYPES_MAP[holdTypeId]?.icon || '⚫';
-    };
+    const fetchedSvgs: { [key: string]: string } = {};
+    try {
+      await Promise.all(
+        HOLD_TYPES.map(async (holdType) => {
+          const response = await fetch(holdType.icon);
+          if (!response.ok) throw new Error(`Failed to fetch ${holdType.icon}`);
+          fetchedSvgs[holdType.id] = await response.text();
+        })
+      );
+    } catch (error) {
+      console.error("Failed to fetch SVG icons:", error);
+      update({
+        id: toastId,
+        title: 'Export Failed',
+        description: 'Could not load hold icons for export.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     const getHoldColor = (annotation: Annotation) => {
       switch (annotation.data.handColor) {
@@ -345,16 +371,20 @@ function App() {
             ctx.lineWidth = 2 * scale;
             ctx.stroke();
 
-            // Draw Hold type emoji
-            ctx.globalAlpha = 1.0;
-            ctx.font = `${24 * scale}px Arial, sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = 'white';
-            ctx.shadowColor = "black";
-            ctx.shadowBlur = 2;
-            ctx.fillText(getHoldIcon(annotation), 0, 0);
-            ctx.shadowBlur = 0; // reset shadow
+            // Draw Hold type SVG icon
+            const holdTypeId = annotation.data.holdType || annotation.data.holdTypeId;
+            const svgIcon = fetchedSvgs[holdTypeId];
+
+            if (svgIcon) {
+              ctx.globalAlpha = 1.0;
+              ctx.shadowColor = "black";
+              ctx.shadowBlur = 2;
+              
+              const iconSize = 24 * scale;
+              await drawSvgOnCanvas(ctx, svgIcon, -iconSize / 2, -iconSize / 2, iconSize, iconSize);
+              
+              ctx.shadowBlur = 0; // reset shadow
+            }
             
             ctx.restore();
           } else if (annotation.type === 'line') {
