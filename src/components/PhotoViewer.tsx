@@ -3,6 +3,7 @@ import { Stage, Layer, Image as KonvaImage, Circle, Line, Text, Group, Transform
 import { useGesture } from '@use-gesture/react';
 import Konva from 'konva';
 import { Photo, Annotation, HoldType } from '../App';
+import { HOLD_TYPES } from './HoldSelector';
 
 interface PhotoViewerProps {
   photo: Photo;
@@ -52,6 +53,31 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   const longPressTimeout = useRef<number | null>(null);
   const [editingText, setEditingText] = useState<{ x: number; y: number; value: string } | null>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const [holdIcons, setHoldIcons] = useState<Record<string, HTMLImageElement>>({});
+
+  // Load hold icons
+  useEffect(() => {
+    const icons: Record<string, HTMLImageElement> = {};
+    let loadedCount = 0;
+    const totalIcons = HOLD_TYPES.length;
+
+    if (totalIcons === 0) {
+      setHoldIcons({});
+      return;
+    }
+
+    HOLD_TYPES.forEach(holdType => {
+      const img = new window.Image();
+      img.src = holdType.icon;
+      img.onload = () => {
+        icons[holdType.icon] = img;
+        loadedCount++;
+        if (loadedCount === totalIcons) {
+          setHoldIcons(icons);
+        }
+      };
+    });
+  }, []);
 
   // Focus textarea when it appears
   useEffect(() => {
@@ -371,23 +397,6 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     }
   };
 
-  // Define climbing hold types with their visual representations
-  const HOLD_TYPES_MAP: { [key: string]: { icon: string, name: string } } = {
-    'jug': { icon: '🤲', name: 'Jug' },
-    'crimp': { icon: '✊', name: 'Crimp' },
-    'medium': { icon: '👋', name: 'Medium' },
-    'undercling': { icon: '🙌', name: 'Undercling' },
-    'one_finger': { icon: '☝️', name: '1-Finger Pocket' },
-    'two_finger': { icon: '✌️', name: '2-Finger Pocket' },
-    'three_finger': { icon: '🤟', name: '3-Finger Pocket' },
-    'foothold': { icon: '🦶', name: 'Foot Hold' },
-  };
-
-  const getHoldIcon = (annotation: Annotation) => {
-    const holdTypeId = annotation.data.holdType || annotation.data.holdTypeId;
-    return HOLD_TYPES_MAP[holdTypeId]?.icon || '⚫';
-  };
-
   return (
     <div
       ref={containerRef}
@@ -496,19 +505,17 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                     stroke={getHoldColor(annotation)}
                     strokeWidth={2}
                   />
-                  {/* Hold type emoji */}
-                  <Text
-                    text={getHoldIcon(annotation)}
-                    fontSize={24}
-                    fontFamily="Arial, sans-serif"
-                    offsetX={12}
-                    offsetY={12}
-                    fill="white"
-                    shadowColor="black"
-                    shadowBlur={2}
-                    shadowOpacity={0.8}
-                    scaleX={annotation.data.category === 'foot' && annotation.data.handColor === 'yellow' ? -1 : 1}
-                  />
+                  {/* Hold type icon */}
+                  {holdIcons[annotation.data.icon] && (
+                    <KonvaImage
+                      image={holdIcons[annotation.data.icon]}
+                      width={24}
+                      height={24}
+                      offsetX={12}
+                      offsetY={12}
+                      scaleX={annotation.data.category === 'foot' && annotation.data.handColor === 'yellow' ? -1 : 1}
+                    />
+                  )}
                 </Group>
               );
             } else if (annotation.type === 'line') {

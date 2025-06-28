@@ -11,7 +11,7 @@ interface HoldSelectorProps {
 }
 
 // Define climbing hold types with their visual representations
-const HOLD_TYPES: HoldType[] = [
+export const HOLD_TYPES: HoldType[] = [
   { id: 'jug', name: 'Jug', icon: '/icons/jug.svg', category: 'hand' },
   { id: 'pinch', name: 'Pinch', icon: '/icons/pinch.svg', category: 'hand' },
   { id: 'sloper', name: 'Sloper', icon: '/icons/sloper.svg', category: 'hand' },
