@@ -361,14 +361,10 @@ function App() {
             ctx.rotate(rotation);
 
             // Draw background circle
-            ctx.fillStyle = getHoldColor(annotation);
-            ctx.globalAlpha = 0.8;
-            ctx.beginPath();
-            ctx.arc(0, 0, 18 * scale, 0, 2 * Math.PI);
-            ctx.fill();
-            
             ctx.strokeStyle = getHoldColor(annotation);
             ctx.lineWidth = 2 * scale;
+            ctx.beginPath();
+            ctx.arc(0, 0, 18 * scale, 0, 2 * Math.PI);
             ctx.stroke();
 
             // Draw Hold type SVG icon
