@@ -500,8 +500,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   {/* Background circle */}
                   <Circle
                     radius={18}
-                    fill={getHoldColor(annotation)}
-                    fillOpacity={0.8}
+                    fill="transparent"
                     stroke={getHoldColor(annotation)}
                     strokeWidth={2}
                   />
