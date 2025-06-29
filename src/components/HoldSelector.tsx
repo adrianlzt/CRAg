@@ -32,9 +32,6 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
   onHandColorSelect,
   onFootColorSelect,
 }) => {
-  const handHolds = HOLD_TYPES.filter(hold => hold.category === 'hand');
-  const footHolds = HOLD_TYPES.filter(hold => hold.category === 'foot');
-
   return (
     <div className="space-y-6">
       {/* Side Selection */}
@@ -74,45 +71,24 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
         </div>
       </div>
 
-      {/* Hand Holds */}
+      {/* Holds */}
       <div>
-        <h3 className="text-sm font-medium text-slate-300 mb-3">Hand Holds</h3>
+        <h3 className="text-sm font-medium text-slate-300 mb-3">Holds</h3>
         <div className="grid grid-cols-2 gap-2">
-          {handHolds.map((hold) => (
+          {HOLD_TYPES.map((hold) => (
             <button
               key={hold.id}
               onClick={() => onHoldTypeSelect(hold)}
               className={`p-3 rounded-lg border transition-all duration-200 text-center group ${
                 selectedHoldType?.id === hold.id
-                  ? `border-${selectedHandColor}-400 bg-${selectedHandColor}-400/20`
+                  ? hold.category === 'hand'
+                    ? `border-${selectedHandColor}-400 bg-${selectedHandColor}-400/20`
+                    : `border-${selectedFootColor}-400 bg-${selectedFootColor}-400/20`
                   : 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30'
               }`}
             >
               <img src={hold.icon} alt={hold.name} className="h-8 w-8 mx-auto mb-1" />
               <div className="text-xs text-slate-300 font-medium">{hold.name}</div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Foot Holds */}
-      <div>
-        <h3 className="text-sm font-medium text-slate-300 mb-3">Foot Holds</h3>
-        <div className="grid grid-cols-1 gap-2">
-          {footHolds.map((hold) => (
-            <button
-              key={hold.id}
-              onClick={() => onHoldTypeSelect(hold)}
-              className={`p-3 rounded-lg border transition-all duration-200 text-center group ${
-                selectedHoldType?.id === hold.id
-                  ? `border-${selectedFootColor}-400 bg-${selectedFootColor}-400/20`
-                  : 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30'
-              }`}
-            >
-              <div className="flex items-center justify-center space-x-3">
-                <img src={hold.icon} alt={hold.name} className="h-8 w-8" />
-                <div className="text-sm text-slate-300 font-medium">{hold.name}</div>
-              </div>
             </button>
           ))}
         </div>
