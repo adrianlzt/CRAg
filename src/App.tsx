@@ -563,7 +563,7 @@ function App() {
         variant: 'destructive',
       });
     }
-  }, [state.photos, state.annotations, toast]);
+  }, [state.photos, state.annotations, state.projectName, state.projectDescription, toast]);
 
   useEffect(() => {
     const sidebar = sidebarRef.current;
