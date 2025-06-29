@@ -89,7 +89,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
 
   // Attach transformer to selected annotation
   useEffect(() => {
-    if (selectedTool === 'select' && selectedAnnotation && trRef.current) {
+    if ((selectedTool === 'select' || selectedTool === 'hold') && selectedAnnotation && trRef.current) {
       const node = shapeRefs.current.get(selectedAnnotation);
       if (node) {
         trRef.current.nodes([node]);
@@ -255,6 +255,11 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       return;
     }
 
+    if (selectedAnnotation) {
+      setSelectedAnnotation(null);
+      return;
+    }
+
     const stage = stageRef.current;
     if (!stage || !image) return;
 
@@ -290,10 +295,8 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   }, [editingText, handleTextEditEnd, image, isDraggingAnnotation, onAnnotationAdd, photo.id, selectedFootColor, selectedHandColor, selectedHoldType, selectedTool, stageConfig]);
 
   const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
-    // Deselect when clicked on empty area
-    if (e.target === e.target.getStage()) {
-      setSelectedAnnotation(null);
-    }
+    // Deselect when clicked on empty area is handled by handleStageClick for consistency
+    // across desktop and mobile.
 
     if (selectedTool !== 'line') return;
 
@@ -388,7 +391,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   }, [onAnnotationRemove]);
 
   const handleHoldTouchStart = useCallback((annotation: Annotation) => {
-    if (selectedTool !== 'select') return;
+    if (selectedTool !== 'select' && selectedTool !== 'hold') return;
 
     longPressTimeout.current = window.setTimeout(() => {
       setSelectedAnnotation(annotation.id);
