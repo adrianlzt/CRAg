@@ -385,9 +385,6 @@ function App() {
     try {
       const PADDING = 50;
       const TEXT_AREA_HEIGHT = 400;
-      const LINE_HEIGHT = 24;
-      const FONT_SIZE_TITLE = 20;
-      const FONT_SIZE_BODY = 16;
 
       // 1. Load all images to get their dimensions
       const loadedImages = await Promise.all(
@@ -404,6 +401,12 @@ function App() {
       const totalImageHeight = loadedImages.reduce((sum, img) => sum + img.height, 0);
       const canvasWidth = maxWidth + PADDING * 2;
       const canvasHeight = totalImageHeight + TEXT_AREA_HEIGHT + PADDING * 2;
+
+      // Dynamically scale font sizes based on the image width. Reference is 16px for 1000px wide.
+      const scaleFactor = maxWidth > 0 ? maxWidth / 1000 : 1;
+      const FONT_SIZE_TITLE = Math.max(12, Math.round(20 * scaleFactor));
+      const FONT_SIZE_BODY = Math.max(10, Math.round(16 * scaleFactor));
+      const LINE_HEIGHT = Math.max(15, Math.round(24 * scaleFactor));
 
       const canvas = document.createElement('canvas');
       canvas.width = canvasWidth;
