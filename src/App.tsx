@@ -336,7 +336,7 @@ function App() {
 
       return {
         ...prev,
-        projectName: projectName || prev.projectName,
+        projectName: projectName !== undefined ? projectName : prev.projectName,
         photos: importedPhotos,
         annotations: importedAnnotations,
         currentPhotoIndex: importedPhotos.length > 0 ? 0 : 0,
