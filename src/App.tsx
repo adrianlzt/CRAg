@@ -654,10 +654,6 @@ function App() {
                   <DrawingTools
                     selectedTool={state.selectedTool}
                     onToolSelect={(tool) => updateState({ selectedTool: tool })}
-                    selectedLineColor={state.selectedLineColor}
-                    onLineColorSelect={(color) => updateState({ selectedLineColor: color })}
-                    selectedLineWidth={state.selectedLineWidth}
-                    onLineWidthSelect={(width) => updateState({ selectedLineWidth: width })}
                   />
                 </div>
 
@@ -792,6 +788,55 @@ function App() {
                   onHandColorSelect={(color) => updateState({ selectedHandColor: color })}
                   onFootColorSelect={(color) => updateState({ selectedFootColor: color })}
                 />
+              </div>
+            </div>
+          )}
+          {currentPhoto && state.selectedTool === 'line' && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 px-4">
+              <div className="bg-slate-900/80 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50 flex items-center gap-6">
+                {/* Line Color Selection */}
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    '#f97316', // orange
+                    '#ef4444', // red
+                    '#10b981', // green
+                    '#3b82f6', // blue
+                    '#eab308', // yellow
+                    '#ec4899', // pink
+                  ].map(color => (
+                    <button
+                      key={color}
+                      onClick={() => updateState({ selectedLineColor: color })}
+                      className={`w-8 h-8 rounded-md border-2 transition-all ${
+                        state.selectedLineColor === color
+                          ? `border-white`
+                          : 'border-slate-600 hover:border-slate-400'
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+
+                {/* Line Width Selection */}
+                <div className="flex items-center gap-2">
+                  {[3, 5, 8, 12].map((width) => (
+                    <button
+                      key={width}
+                      onClick={() => updateState({ selectedLineWidth: width })}
+                      title={`${width}px`}
+                      className={`w-8 h-8 rounded-md border-2 flex items-center justify-center transition-all ${
+                        state.selectedLineWidth === width
+                          ? "border-white"
+                          : "border-slate-600 hover:border-slate-400"
+                      }`}
+                    >
+                      <div
+                        className="bg-white rounded-full"
+                        style={{ width: `${width}px`, height: `${width}px` }}
+                      ></div>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
