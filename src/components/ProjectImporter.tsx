@@ -4,7 +4,7 @@ import { useToast } from '../hooks/use-toast';
 import type { Photo, Annotation } from '../App';
 
 interface ProjectImporterProps {
-  onProjectImport: (data: { photos: Photo[]; annotations: Annotation[] }) => void;
+  onProjectImport: (data: { projectName?: string; photos: Photo[]; annotations: Annotation[] }) => void;
   children: (importProject: () => void) => React.ReactNode;
 }
 
@@ -32,7 +32,7 @@ export const ProjectImporter: React.FC<ProjectImporterProps> = ({ onProjectImpor
       }
 
       const projectDataStr = await projectFile.async('string');
-      const projectData: { photos: PhotoMetadata[], annotations: Annotation[] } = JSON.parse(projectDataStr);
+      const projectData: { projectName?: string, photos: PhotoMetadata[], annotations: Annotation[] } = JSON.parse(projectDataStr);
 
       const imagesFolder = zip.folder('images');
       if (!imagesFolder) {
@@ -58,7 +58,7 @@ export const ProjectImporter: React.FC<ProjectImporterProps> = ({ onProjectImpor
         })
       );
 
-      onProjectImport({ photos: importedPhotos, annotations: projectData.annotations });
+      onProjectImport({ projectName: projectData.projectName, photos: importedPhotos, annotations: projectData.annotations });
       
       toast({
         title: 'Import Successful',
