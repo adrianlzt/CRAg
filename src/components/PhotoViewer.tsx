@@ -52,6 +52,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   const [isDraggingAnnotation, setIsDraggingAnnotation] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
   const longPressTimeout = useRef<number | null>(null);
+  const longPressOccurred = useRef(false);
   const [editingText, setEditingText] = useState<{ x: number; y: number; value: string } | null>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [holdIcons, setHoldIcons] = useState<Record<string, HTMLImageElement>>({});
@@ -242,6 +243,10 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   }, [editingText, onAnnotationAdd, photo.id, image]);
 
   const handleStageClick = useCallback(() => {
+    if (longPressOccurred.current) {
+      longPressOccurred.current = false;
+      return;
+    }
     if (gestureDidMove.current) {
       gestureDidMove.current = false;
       return;
@@ -393,9 +398,11 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   const handleHoldTouchStart = useCallback((annotation: Annotation) => {
     if (selectedTool !== 'select' && selectedTool !== 'hold') return;
 
+    longPressOccurred.current = false;
     longPressTimeout.current = window.setTimeout(() => {
       setSelectedAnnotation(annotation.id);
       longPressTimeout.current = null;
+      longPressOccurred.current = true;
     }, 500);
   }, [selectedTool]);
 
