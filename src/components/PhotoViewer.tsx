@@ -37,6 +37,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   const imageRef = useRef<Konva.Image>(null);
   const trRef = useRef<Konva.Transformer>(null);
   const shapeRefs = useRef(new Map<string, Konva.Group>());
+  const gestureDidMove = useRef(false);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [stageConfig, setStageConfig] = useState({
     scale: 1,
@@ -154,7 +155,8 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
 
   // Gesture handling for zoom and pan
   const bind = useGesture({
-    onPinch: ({ offset: [scale], origin: [ox, oy] }) => {
+    onPinch: ({ offset: [scale], origin: [ox, oy], first }) => {
+      if (first) gestureDidMove.current = true;
       const stage = stageRef.current;
       if (!stage) return;
 
@@ -174,7 +176,8 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
         };
       });
     },
-    onDrag: ({ delta: [dx, dy], pinching, touches }) => {
+    onDrag: ({ delta: [dx, dy], pinching, touches, first }) => {
+      if (first) gestureDidMove.current = true;
       if (selectedTool === 'select' || selectedTool === 'hold' || touches === 2) {
         setStageConfig(prev => ({
           ...prev,
@@ -184,6 +187,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       }
     },
     onWheel: ({ delta: [, dy] }) => {
+      gestureDidMove.current = true;
       const stage = stageRef.current;
       if (!stage) return;
 
@@ -238,6 +242,10 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   }, [editingText, onAnnotationAdd, photo.id, image]);
 
   const handleStageClick = useCallback(() => {
+    if (gestureDidMove.current) {
+      gestureDidMove.current = false;
+      return;
+    }
     if (editingText) {
       if (textAreaRef.current) {
         handleTextEditEnd(textAreaRef.current.value);
