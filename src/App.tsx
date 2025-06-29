@@ -55,6 +55,35 @@ export interface AppState {
   historyIndex: number;
 }
 
+function calculateWrappedTextHeight(
+  context: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  lineHeight: number
+): number {
+  const textLines = text.split('\n');
+  let currentY = 0;
+
+  for (const textLine of textLines) {
+    const words = textLine.split(' ');
+    let line = '';
+
+    for (let n = 0; n < words.length; n++) {
+      const testLine = line + words[n] + ' ';
+      const metrics = context.measureText(testLine);
+      const testWidth = metrics.width;
+      if (testWidth > maxWidth && n > 0) {
+        line = words[n] + ' ';
+        currentY += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+    currentY += lineHeight;
+  }
+  return currentY;
+}
+
 function wrapText(
   context: CanvasRenderingContext2D,
   text: string,
@@ -384,7 +413,6 @@ function App() {
 
     try {
       const PADDING = 50;
-      const TEXT_AREA_HEIGHT = 400;
 
       // 1. Load all images to get their dimensions
       const loadedImages = await Promise.all(
@@ -399,14 +427,29 @@ function App() {
       // 2. Calculate canvas dimensions
       const maxWidth = Math.max(...loadedImages.map(img => img.width));
       const totalImageHeight = loadedImages.reduce((sum, img) => sum + img.height, 0);
-      const canvasWidth = maxWidth + PADDING * 2;
-      const canvasHeight = totalImageHeight + TEXT_AREA_HEIGHT + PADDING * 2;
 
       // Dynamically scale font sizes based on the image width. Reference is 16px for 1000px wide.
       const scaleFactor = maxWidth > 0 ? maxWidth / 1000 : 1;
       const FONT_SIZE_TITLE = Math.max(12, Math.round(20 * scaleFactor));
       const FONT_SIZE_BODY = Math.max(10, Math.round(16 * scaleFactor));
       const LINE_HEIGHT = Math.max(15, Math.round(24 * scaleFactor));
+
+      // Calculate the height needed for the text area
+      let textAreaHeight = 0;
+      if (state.projectDescription) {
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        if (tempCtx) {
+          tempCtx.font = `${FONT_SIZE_BODY}px sans-serif`;
+          const descriptionHeight = calculateWrappedTextHeight(tempCtx, state.projectDescription, maxWidth, LINE_HEIGHT);
+          textAreaHeight = (LINE_HEIGHT * 1.5) + descriptionHeight + LINE_HEIGHT;
+        } else {
+          textAreaHeight = 400; // Fallback
+        }
+      }
+
+      const canvasWidth = maxWidth + PADDING * 2;
+      const canvasHeight = totalImageHeight + textAreaHeight + PADDING * 2;
 
       const canvas = document.createElement('canvas');
       canvas.width = canvasWidth;
