@@ -33,7 +33,7 @@ export interface Annotation {
 }
 
 export interface HoldType {
-  id:string;
+  id: string;
   name: string;
   icon: string;
   category: 'hand' | 'foot';
@@ -241,7 +241,7 @@ function App() {
       const newAnnotations = [...prev.annotations, annotation];
       const newHistory = prev.history.slice(0, prev.historyIndex + 1);
       newHistory.push(newAnnotations);
-      
+
       return {
         ...prev,
         annotations: newAnnotations,
@@ -256,7 +256,7 @@ function App() {
       const newAnnotations = prev.annotations.map(a =>
         a.id === annotationId ? { ...a, ...updates } : a
       );
-      
+
       return { ...prev, annotations: newAnnotations };
     });
   }, []);
@@ -266,7 +266,7 @@ function App() {
       const newAnnotations = prev.annotations.filter(a => a.id !== annotationId);
       const newHistory = prev.history.slice(0, prev.historyIndex + 1);
       newHistory.push(newAnnotations);
-      
+
       return {
         ...prev,
         annotations: newAnnotations,
@@ -310,7 +310,7 @@ function App() {
       prev.photos.forEach(p => URL.revokeObjectURL(p.url));
 
       const { photos: importedPhotos, annotations: importedAnnotations } = data;
-      
+
       return {
         ...prev,
         photos: importedPhotos,
@@ -443,7 +443,7 @@ function App() {
             const y = currentY + annotation.y;
             const rotation = annotation.data.rotation || 0;
             const scale = annotation.data.scale || 1;
-            
+
             ctx.save();
             ctx.translate(x, y);
             ctx.rotate(rotation);
@@ -463,13 +463,13 @@ function App() {
               ctx.globalAlpha = 1.0;
               ctx.shadowColor = "black";
               ctx.shadowBlur = 2;
-              
+
               const iconSize = 24 * scale;
               await drawSvgOnCanvas(ctx, svgIcon, -iconSize / 2, -iconSize / 2, iconSize, iconSize);
-              
+
               ctx.shadowBlur = 0; // reset shadow
             }
-            
+
             ctx.restore();
           } else if (annotation.type === 'line') {
             const points = annotation.data.points as number[];
@@ -506,7 +506,7 @@ function App() {
             const textLines = annotation.data.text.split('\n');
             const lineHeight = fontSize * 1.2;
             const textWidth = Math.max(...textLines.map(line => ctx.measureText(line).width));
-            
+
             const rectWidth = textWidth + TEXT_PADDING * 2;
             const rectHeight = (textLines.length * lineHeight) - (lineHeight - fontSize) + TEXT_PADDING * 2;
 
@@ -521,7 +521,7 @@ function App() {
             textLines.forEach((line, index) => {
               ctx.fillText(line, TEXT_PADDING, TEXT_PADDING + (index * lineHeight));
             });
-            
+
             ctx.restore();
           }
         }
@@ -617,7 +617,7 @@ function App() {
         projectName={state.projectName}
         onProjectNameChange={(name) => updateState({ projectName: name })}
       />
-  
+
       <div className={`flex-1 flex overflow-hidden transition-all duration-300 ease-in-out ${isHeaderVisible ? 'pt-[73px]' : 'pt-0'} lg:pt-0`}>
         {isMenuOpen && (
           <div
@@ -628,9 +628,8 @@ function App() {
         {/* Sidebar - Tools and Controls */}
         <div
           ref={sidebarRef}
-          className={`fixed lg:static inset-y-0 left-0 z-50 w-80 bg-slate-900/95 backdrop-blur-md border-r border-slate-700/50 p-4 overflow-y-auto transition-transform duration-300 ease-in-out ${
-            isMenuOpen ? 'translate-x-0' : '-translate-x-full'
-          } lg:translate-x-0`}
+          className={`fixed lg:static inset-y-0 left-0 z-50 w-80 bg-slate-900/95 backdrop-blur-md border-r border-slate-700/50 p-4 overflow-y-auto transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+            } lg:translate-x-0`}
         >
           <div className="space-y-6">
             {/* Photo Upload Section */}
@@ -690,25 +689,23 @@ function App() {
                     <button
                       onClick={undo}
                       disabled={!(state.historyIndex > 0)}
-                      className={`flex-1 p-3 rounded-lg border transition-all duration-200 flex items-center justify-center space-x-2 ${
-                        state.historyIndex > 0
+                      className={`flex-1 p-3 rounded-lg border transition-all duration-200 flex items-center justify-center space-x-2 ${state.historyIndex > 0
                           ? 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30 text-slate-300'
                           : 'border-slate-700 text-slate-600 cursor-not-allowed'
-                      }`}
+                        }`}
                       title="Undo last action"
                     >
                       <Undo className="h-4 w-4" />
                       <span className="text-sm">Undo</span>
                     </button>
-                    
+
                     <button
                       onClick={redo}
                       disabled={!(state.historyIndex < state.history.length - 1)}
-                      className={`flex-1 p-3 rounded-lg border transition-all duration-200 flex items-center justify-center space-x-2 ${
-                        state.historyIndex < state.history.length - 1
+                      className={`flex-1 p-3 rounded-lg border transition-all duration-200 flex items-center justify-center space-x-2 ${state.historyIndex < state.history.length - 1
                           ? 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30 text-slate-300'
                           : 'border-slate-700 text-slate-600 cursor-not-allowed'
-                      }`}
+                        }`}
                       title="Redo last action"
                     >
                       <Redo className="h-4 w-4" />
@@ -792,7 +789,7 @@ function App() {
             </div>
           )}
           {currentPhoto && state.selectedTool === 'line' && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 px-4">
+            <div className="absolute bottom-4 left-1/2 -translate-x-full z-20 px-4">
               <div className="bg-slate-900/80 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50 flex items-center gap-6">
                 {/* Line Color Selection */}
                 <div className="flex flex-wrap gap-2">
@@ -807,11 +804,10 @@ function App() {
                     <button
                       key={color}
                       onClick={() => updateState({ selectedLineColor: color })}
-                      className={`w-8 h-8 rounded-md border-2 transition-all ${
-                        state.selectedLineColor === color
+                      className={`w-8 h-8 rounded-md border-2 transition-all ${state.selectedLineColor === color
                           ? `border-white`
                           : 'border-slate-600 hover:border-slate-400'
-                      }`}
+                        }`}
                       style={{ backgroundColor: color }}
                     />
                   ))}
@@ -824,11 +820,10 @@ function App() {
                       key={width}
                       onClick={() => updateState({ selectedLineWidth: width })}
                       title={`${width}px`}
-                      className={`w-8 h-8 rounded-md border-2 flex items-center justify-center transition-all ${
-                        state.selectedLineWidth === width
+                      className={`w-8 h-8 rounded-md border-2 flex items-center justify-center transition-all ${state.selectedLineWidth === width
                           ? "border-white"
                           : "border-slate-600 hover:border-slate-400"
-                      }`}
+                        }`}
                     >
                       <div
                         className="bg-white rounded-full"
