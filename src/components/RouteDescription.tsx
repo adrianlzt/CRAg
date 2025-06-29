@@ -8,10 +8,11 @@ import { cn } from '../lib/utils';
 
 interface RouteDescriptionProps {
   photo: Photo | null;
+  description: string;
   onDescriptionChange: (newDescription: string) => void;
 }
 
-export const RouteDescription: React.FC<RouteDescriptionProps> = ({ photo, onDescriptionChange }) => {
+export const RouteDescription: React.FC<RouteDescriptionProps> = ({ photo, description, onDescriptionChange }) => {
   const [isMaximized, setIsMaximized] = useState(false);
 
   if (!photo) {
@@ -27,7 +28,7 @@ export const RouteDescription: React.FC<RouteDescriptionProps> = ({ photo, onDes
       <div className={cn('relative', isMaximized ? 'invisible' : '')}>
         <Textarea
           id="route-description"
-          value={photo.description || ''}
+          value={description || ''}
           onChange={(e) => onDescriptionChange(e.target.value)}
           placeholder="Describe the route, beta, or sequence..."
           className="min-h-[120px]"
@@ -53,7 +54,7 @@ export const RouteDescription: React.FC<RouteDescriptionProps> = ({ photo, onDes
               onClick={(e) => e.stopPropagation()}
             >
               <Textarea
-                value={photo.description || ''}
+                value={description || ''}
                 onChange={(e) => onDescriptionChange(e.target.value)}
                 placeholder="Describe the route, beta, or sequence..."
                 className="min-h-[calc(100vh-10rem)] resize-none text-white"

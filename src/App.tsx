@@ -20,7 +20,6 @@ export interface Photo {
   file: File;
   url: string;
   name: string;
-  description?: string;
 }
 
 export interface Annotation {
@@ -41,6 +40,7 @@ export interface HoldType {
 
 export interface AppState {
   projectName: string;
+  projectDescription: string;
   photos: Photo[];
   currentPhotoIndex: number;
   annotations: Annotation[];
@@ -114,6 +114,7 @@ async function drawSvgOnCanvas(
 
 const initialState: AppState = {
   projectName: 'Climbing Route Project',
+  projectDescription: '',
   photos: [],
   currentPhotoIndex: 0,
   annotations: [],
@@ -150,6 +151,7 @@ function App() {
           setState({
             ...savedState,
             photos: photosWithUrls,
+            projectDescription: savedState.projectDescription || '',
             // Reset transient state that shouldn't be persisted across reloads
             selectedTool: 'select',
             isDrawing: false,
@@ -533,15 +535,14 @@ function App() {
       let textY = currentY + PADDING;
       ctx.fillStyle = 'black';
 
-      for (const photo of state.photos) {
-        if (textY > canvasHeight - PADDING) break; // Stop if out of space
-        ctx.font = `bold ${FONT_SIZE_TITLE}px sans-serif`;
-        ctx.fillText(photo.name, PADDING, textY);
-        textY += LINE_HEIGHT * 1.5;
+      if (state.projectDescription) {
+        if (textY < canvasHeight - PADDING) {
+          ctx.font = `bold ${FONT_SIZE_TITLE}px sans-serif`;
+          ctx.fillText("Route Description", PADDING, textY);
+          textY += LINE_HEIGHT * 1.5;
 
-        if (photo.description) {
           ctx.font = `${FONT_SIZE_BODY}px sans-serif`;
-          textY = wrapText(ctx, photo.description, PADDING, textY, maxWidth, LINE_HEIGHT);
+          textY = wrapText(ctx, state.projectDescription, PADDING, textY, maxWidth, LINE_HEIGHT);
           textY += LINE_HEIGHT;
         }
       }
@@ -663,7 +664,8 @@ function App() {
                   <h2 className="text-lg font-semibold mb-4 text-orange-400">Route Description</h2>
                   <RouteDescription
                     photo={currentPhoto}
-                    onDescriptionChange={handleDescriptionChange}
+                    description={state.projectDescription}
+                    onDescriptionChange={handleProjectDescriptionChange}
                   />
                 </div>
 
