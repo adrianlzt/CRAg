@@ -652,7 +652,10 @@ function App() {
                   <h2 className="text-lg font-semibold mb-4 text-orange-400">Annotation Tools</h2>
                   <DrawingTools
                     selectedTool={state.selectedTool}
-                    onToolSelect={(tool) => updateState({ selectedTool: tool })}
+                    onToolSelect={(tool) => {
+                      updateState({ selectedTool: tool });
+                      setIsMenuOpen(false);
+                    }}
                   />
                 </div>
 
