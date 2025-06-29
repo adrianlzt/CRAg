@@ -12,7 +12,7 @@ interface ExportImportProps {
   projectName: string;
   photos: Photo[];
   annotations: Annotation[];
-  onProjectImport: (data: { photos: Photo[]; annotations: Annotation[] }) => void;
+  onProjectImport: (data: { projectName?: string; photos: Photo[]; annotations: Annotation[] }) => void;
   onExportAsImage: () => void;
 }
 
@@ -52,6 +52,7 @@ export const ExportImport: React.FC<ExportImportProps> = ({
       const projectData = {
         version: '1.1-zip',
         timestamp: new Date().toISOString(),
+        projectName,
         photos: photosMetadata,
         annotations,
       };

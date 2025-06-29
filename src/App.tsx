@@ -327,15 +327,16 @@ function App() {
     });
   }, []);
 
-  const handleProjectImport = useCallback((data: { photos: Photo[]; annotations: Annotation[] }) => {
+  const handleProjectImport = useCallback((data: { projectName?: string; photos: Photo[]; annotations: Annotation[] }) => {
     setState(prev => {
       // Clean up old photo URLs to prevent memory leaks
       prev.photos.forEach(p => URL.revokeObjectURL(p.url));
 
-      const { photos: importedPhotos, annotations: importedAnnotations } = data;
+      const { projectName, photos: importedPhotos, annotations: importedAnnotations } = data;
 
       return {
         ...prev,
+        projectName: projectName || prev.projectName,
         photos: importedPhotos,
         annotations: importedAnnotations,
         currentPhotoIndex: importedPhotos.length > 0 ? 0 : 0,
