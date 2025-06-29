@@ -12,7 +12,7 @@ import { Upload, Redo, Undo, FilePlus, Menu } from 'lucide-react';
 import { useToast } from './hooks/use-toast';
 import { useAppState } from './hooks/useAppState';
 import { exportAsImage } from './lib/image-export';
-import { Annotation } from './types';
+export type { Photo, Annotation, HoldType } from './types';
 import './index.css';
 
 function App() {
