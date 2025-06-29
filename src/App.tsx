@@ -164,8 +164,8 @@ function App() {
                       onClick={undo}
                       disabled={!(state.historyIndex > 0)}
                       className={`flex-1 p-3 rounded-lg border transition-all duration-200 flex items-center justify-center space-x-2 ${state.historyIndex > 0
-                          ? 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30 text-slate-300'
-                          : 'border-slate-700 text-slate-600 cursor-not-allowed'
+                        ? 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30 text-slate-300'
+                        : 'border-slate-700 text-slate-600 cursor-not-allowed'
                         }`}
                       title="Undo last action"
                     >
@@ -177,8 +177,8 @@ function App() {
                       onClick={redo}
                       disabled={!(state.historyIndex < state.history.length - 1)}
                       className={`flex-1 p-3 rounded-lg border transition-all duration-200 flex items-center justify-center space-x-2 ${state.historyIndex < state.history.length - 1
-                          ? 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30 text-slate-300'
-                          : 'border-slate-700 text-slate-600 cursor-not-allowed'
+                        ? 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30 text-slate-300'
+                        : 'border-slate-700 text-slate-600 cursor-not-allowed'
                         }`}
                       title="Redo last action"
                     >
@@ -249,7 +249,7 @@ function App() {
             </div>
           )}
           {currentPhoto && state.selectedTool === 'hold' && (
-            <div className="absolute bottom-20 lg:bottom-4 left-1/2 -translate-x-1/2 z-20 max-w-sm px-4 lg:max-w-md">
+            <div className="absolute bottom-20 lg:bottom-4 left-1/2 -translate-x-full z-20 max-w-sm px-4 lg:max-w-md">
               <div className="bg-slate-900/80 backdrop-blur-sm rounded-xl p-2 lg:p-4 border border-slate-700/50">
                 <HoldSelector
                   selectedHoldType={state.selectedHoldType}
@@ -279,8 +279,8 @@ function App() {
                       key={color}
                       onClick={() => updateState({ selectedLineColor: color })}
                       className={`w-8 h-8 rounded-md border-2 transition-all ${state.selectedLineColor === color
-                          ? `border-white`
-                          : 'border-slate-600 hover:border-slate-400'
+                        ? `border-white`
+                        : 'border-slate-600 hover:border-slate-400'
                         }`}
                       style={{ backgroundColor: color }}
                     />
@@ -295,8 +295,8 @@ function App() {
                       onClick={() => updateState({ selectedLineWidth: width })}
                       title={`${width}px`}
                       className={`w-8 h-8 rounded-md border-2 flex items-center justify-center transition-all ${state.selectedLineWidth === width
-                          ? "border-white"
-                          : "border-slate-600 hover:border-slate-400"
+                        ? "border-white"
+                        : "border-slate-600 hover:border-slate-400"
                         }`}
                     >
                       <div
