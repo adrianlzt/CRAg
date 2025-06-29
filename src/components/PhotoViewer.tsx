@@ -175,9 +175,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       });
     },
     onDrag: ({ delta: [dx, dy], pinching, touches }) => {
-      if (pinching || touches > 1 || isDraggingAnnotation || isTransforming) return;
-
-      if (selectedTool === 'select' || touches === 2) {
+      if (selectedTool === 'select' || selectedTool === 'hold' || touches === 2) {
         setStageConfig(prev => ({
           ...prev,
           x: prev.x + dx,
