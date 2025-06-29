@@ -33,7 +33,7 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
   onFootColorSelect,
 }) => {
   return (
-    <div className="inline-grid grid-cols-6 gap-2">
+    <div className="grid grid-cols-6 gap-2">
       <button
         onClick={() => {
           onHandColorSelect('green');
