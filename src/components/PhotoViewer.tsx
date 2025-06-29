@@ -616,17 +616,17 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
         </Layer>
       </Stage>
 
-      {/* Zoom indicator */}
-      <div className="absolute top-4 right-4 bg-slate-900/90 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-slate-300">
-        {Math.round(stageConfig.scale * 100)}%
-      </div>
-
-      {/* Tool indicator */}
-      <div className="absolute top-4 left-4 bg-slate-900/90 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-slate-300">
-        {selectedTool === 'select' && '🔧 Select'}
-        {selectedTool === 'hold' && '✋ Hold'}
-        {selectedTool === 'line' && '✏️ Draw'}
-        {selectedTool === 'text' && '📝 Text'}
+      {/* Indicators */}
+      <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+        <div className="bg-slate-900/90 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-slate-300">
+          {selectedTool === 'select' && '🔧 Select'}
+          {selectedTool === 'hold' && '✋ Hold'}
+          {selectedTool === 'line' && '✏️ Draw'}
+          {selectedTool === 'text' && '📝 Text'}
+        </div>
+        <div className="bg-slate-900/90 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-slate-300">
+          {Math.round(stageConfig.scale * 100)}%
+        </div>
       </div>
 
       {editingText && (

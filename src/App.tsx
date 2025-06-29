@@ -8,7 +8,7 @@ import { Header } from './components/Header';
 import { RouteDescription } from './components/RouteDescription';
 import { ProjectImporter } from './components/ProjectImporter';
 import { Button } from './components/ui/button';
-import { Upload, Redo, Undo, FilePlus } from 'lucide-react';
+import { Upload, Redo, Undo, FilePlus, Menu } from 'lucide-react';
 import { useToast } from './hooks/use-toast';
 import { saveAs } from 'file-saver';
 import { HOLD_TYPES } from './components/HoldSelector';
@@ -134,6 +134,7 @@ function App() {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Load state from IndexedDB on startup
   useEffect(() => {
@@ -617,9 +618,20 @@ function App() {
         onProjectNameChange={(name) => updateState({ projectName: name })}
       />
   
-      <div className={`flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden transition-all duration-300 ease-in-out ${isHeaderVisible ? 'pt-[73px]' : 'pt-0'} lg:pt-0`}>
+      <div className={`flex-1 flex overflow-hidden transition-all duration-300 ease-in-out ${isHeaderVisible ? 'pt-[73px]' : 'pt-0'} lg:pt-0`}>
+        {isMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+            onClick={() => setIsMenuOpen(false)}
+          />
+        )}
         {/* Sidebar - Tools and Controls */}
-        <div ref={sidebarRef} className="w-full lg:w-80 bg-slate-900/95 backdrop-blur-md border-r border-slate-700/50 p-4 overflow-y-auto">
+        <div
+          ref={sidebarRef}
+          className={`fixed lg:static inset-y-0 left-0 z-50 w-80 bg-slate-900/95 backdrop-blur-md border-r border-slate-700/50 p-4 overflow-y-auto transition-transform duration-300 ease-in-out ${
+            isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          } lg:translate-x-0`}
+        >
           <div className="space-y-6">
             {/* Photo Upload Section */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
@@ -646,18 +658,6 @@ function App() {
                     onLineColorSelect={(color) => updateState({ selectedLineColor: color })}
                     selectedLineWidth={state.selectedLineWidth}
                     onLineWidthSelect={(width) => updateState({ selectedLineWidth: width })}
-                  />
-                </div>
-
-                <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-                  <h2 className="text-lg font-semibold mb-4 text-orange-400">Climbing Holds</h2>
-                  <HoldSelector
-                    selectedHoldType={state.selectedHoldType}
-                    selectedHandColor={state.selectedHandColor}
-                    selectedFootColor={state.selectedFootColor}
-                    onHoldTypeSelect={(holdType) => updateState({ selectedHoldType: holdType, selectedTool: 'hold' })}
-                    onHandColorSelect={(color) => updateState({ selectedHandColor: color })}
-                    onFootColorSelect={(color) => updateState({ selectedFootColor: color })}
                   />
                 </div>
 
@@ -742,6 +742,14 @@ function App() {
 
         {/* Main Content - Photo Viewer */}
         <div className="flex-1 relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 left-4 z-30 lg:hidden bg-slate-900/70 hover:bg-slate-800/80 text-white rounded-full"
+            onClick={() => setIsMenuOpen(true)}
+          >
+            <Menu className="h-6 w-6" />
+          </Button>
           {currentPhoto ? (
             <PhotoViewer
               photo={currentPhoto}
@@ -770,6 +778,20 @@ function App() {
                     </Button>
                   )}
                 </ProjectImporter>
+              </div>
+            </div>
+          )}
+          {currentPhoto && state.selectedTool === 'hold' && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm px-4 lg:max-w-md">
+              <div className="bg-slate-900/80 backdrop-blur-sm rounded-xl p-2 lg:p-4 border border-slate-700/50">
+                <HoldSelector
+                  selectedHoldType={state.selectedHoldType}
+                  selectedHandColor={state.selectedHandColor}
+                  selectedFootColor={state.selectedFootColor}
+                  onHoldTypeSelect={(holdType) => updateState({ selectedHoldType: holdType, selectedTool: 'hold' })}
+                  onHandColorSelect={(color) => updateState({ selectedHandColor: color })}
+                  onFootColorSelect={(color) => updateState({ selectedFootColor: color })}
+                />
               </div>
             </div>
           )}
