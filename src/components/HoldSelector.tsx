@@ -65,7 +65,7 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
         <button
           key={hold.id}
           onClick={() => onHoldTypeSelect(hold)}
-          className={`group flex aspect-square items-center justify-center rounded-lg border p-1.5 transition-all duration-200 ${
+          className={`group flex flex-col aspect-square items-center justify-center rounded-lg border p-1.5 transition-all duration-200 ${
             selectedHoldType?.id === hold.id
               ? hold.category === 'hand'
                 ? `border-${selectedHandColor}-400 bg-${selectedHandColor}-400/20`
@@ -73,7 +73,10 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
               : 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30'
           }`}
         >
-          <img src={hold.icon} alt={hold.name} className="h-full w-full object-contain" />
+          <div className="flex w-full flex-1 items-center justify-center overflow-hidden">
+            <img src={hold.icon} alt={hold.name} className="max-h-full max-w-full object-contain" />
+          </div>
+          <span className="mt-1 text-center text-[10px] leading-tight">{hold.name}</span>
         </button>
       ))}
     </div>
