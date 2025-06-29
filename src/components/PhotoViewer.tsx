@@ -222,21 +222,22 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   });
 
   const handleTextEditEnd = useCallback((value: string) => {
-    if (editingText) {
+    if (editingText && image) {
       if (value.trim()) {
+        const imageScale = image.width / 1000; // Base width of 1000px
         const annotation: Annotation = {
           id: `annotation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           type: 'text',
           photoId: photo.id,
           x: editingText.x,
           y: editingText.y,
-          data: { text: value, color: '#000000', fontSize: 16, rotation: 0 },
+          data: { text: value, color: '#000000', fontSize: 16 * imageScale, rotation: 0 },
         };
         onAnnotationAdd(annotation);
       }
       setEditingText(null);
     }
-  }, [editingText, onAnnotationAdd, photo.id]);
+  }, [editingText, onAnnotationAdd, photo.id, image]);
 
   const handleStageClick = useCallback(() => {
     if (editingText) {
