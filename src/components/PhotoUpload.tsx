@@ -182,6 +182,22 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
 
   return (
     <div className="space-y-4">
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept="image/*"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
       {/* Sample Photos Button */}
       <div className="flex space-x-2 mb-4">
         <button
@@ -216,23 +232,6 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
         onDragLeave={handleDragLeave}
         onClick={handlePhotoClick}
       >
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={handleFileSelect}
-          className="hidden"
-        />
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={handleFileSelect}
-          className="hidden"
-        />
-        
         <div className="flex flex-col items-center space-y-3">
           <div className={`p-3 rounded-full transition-colors ${
             isDragOver ? 'bg-orange-400/20' : 'bg-slate-700'
