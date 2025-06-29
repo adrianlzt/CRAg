@@ -782,7 +782,7 @@ function App() {
             </div>
           )}
           {currentPhoto && state.selectedTool === 'hold' && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm px-4 lg:max-w-md">
+            <div className="absolute bottom-4 left-1/2 -translate-x-full z-20 w-full max-w-sm px-4 lg:max-w-md">
               <div className="bg-slate-900/80 backdrop-blur-sm rounded-xl p-2 lg:p-4 border border-slate-700/50">
                 <HoldSelector
                   selectedHoldType={state.selectedHoldType}
