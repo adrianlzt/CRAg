@@ -20,6 +20,7 @@ export interface Photo {
   file: File;
   url: string;
   name: string;
+  description?: string;
 }
 
 export interface Annotation {
