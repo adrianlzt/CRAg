@@ -84,8 +84,24 @@ export async function exportAsImage(
       }
     }
 
+    const usedHoldTypeIds = new Set(
+      state.annotations
+        .filter((a) => a.type === 'hold')
+        .map((a) => a.data.holdType || a.data.holdTypeId)
+    );
+    const legendItems = HOLD_TYPES.filter((ht) => usedHoldTypeIds.has(ht.id));
+    const legendIconSize = FONT_SIZE_BODY * 1.5;
+    const legendLineHeight = Math.max(legendIconSize, FONT_SIZE_BODY) * 1.2;
+
+    let legendAreaHeight = 0;
+    if (legendItems.length > 0) {
+      legendAreaHeight += (LINE_HEIGHT * 1.5); // For title and spacing
+      legendAreaHeight += legendItems.length * legendLineHeight;
+      legendAreaHeight += LINE_HEIGHT; // Extra padding at the bottom
+    }
+
     const canvasWidth = maxWidth + PADDING * 2;
-    const canvasHeight = totalImageHeight + textAreaHeight + PADDING * 2;
+    const canvasHeight = totalImageHeight + textAreaHeight + legendAreaHeight + PADDING * 2;
 
     const canvas = document.createElement('canvas');
     canvas.width = canvasWidth;
@@ -218,6 +234,37 @@ export async function exportAsImage(
         ctx.font = `${FONT_SIZE_BODY}px sans-serif`;
         textY = wrapText(ctx, state.projectDescription, PADDING, textY, maxWidth, LINE_HEIGHT);
         textY += LINE_HEIGHT;
+      }
+    }
+
+    // Draw Legend
+    if (legendItems.length > 0) {
+      if (state.projectDescription) {
+        textY += LINE_HEIGHT; // Add space after description
+      }
+      ctx.font = `bold ${FONT_SIZE_TITLE}px sans-serif`;
+      ctx.fillStyle = 'black';
+      ctx.fillText("Legend", PADDING, textY);
+      textY += LINE_HEIGHT * 1.5;
+
+      ctx.font = `${FONT_SIZE_BODY}px sans-serif`;
+      ctx.textBaseline = 'top';
+      const legendIconSpacing = FONT_SIZE_BODY * 0.5;
+
+      for (const item of legendItems) {
+        const svgIcon = fetchedSvgs[item.id];
+        if (svgIcon) {
+          const iconY = textY + (legendLineHeight - legendIconSize) / 2;
+          ctx.save();
+          ctx.fillStyle = 'black';
+          await drawSvgOnCanvas(ctx, svgIcon, PADDING, iconY, legendIconSize, legendIconSize);
+          ctx.restore();
+        }
+        const textX = PADDING + legendIconSize + legendIconSpacing;
+        const textRenderY = textY + (legendLineHeight - FONT_SIZE_BODY) / 2;
+        ctx.fillStyle = 'black';
+        ctx.fillText(item.name, textX, textRenderY);
+        textY += legendLineHeight;
       }
     }
 
