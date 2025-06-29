@@ -221,7 +221,33 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     wheel: { preventDefault: true },
   });
 
+  const handleTextEditEnd = useCallback((value: string) => {
+    if (editingText) {
+      if (value.trim()) {
+        const annotation: Annotation = {
+          id: `annotation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          type: 'text',
+          photoId: photo.id,
+          x: editingText.x,
+          y: editingText.y,
+          data: { text: value, color: '#000000', fontSize: 16, rotation: 0 },
+        };
+        onAnnotationAdd(annotation);
+      }
+      setEditingText(null);
+    }
+  }, [editingText, onAnnotationAdd, photo.id]);
+
   const handleStageClick = useCallback(() => {
+    if (editingText) {
+      if (textAreaRef.current) {
+        handleTextEditEnd(textAreaRef.current.value);
+      } else {
+        setEditingText(null);
+      }
+      return;
+    }
+
     const stage = stageRef.current;
     if (!stage || !image) return;
 
@@ -254,7 +280,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       if (isDraggingAnnotation) return;
       setEditingText({ x: imageX, y: imageY, value: '' });
     }
-  }, [selectedTool, selectedHoldType, photo.id, stageConfig, onAnnotationAdd, isDraggingAnnotation, selectedHandColor, selectedFootColor, image]);
+  }, [editingText, handleTextEditEnd, image, isDraggingAnnotation, onAnnotationAdd, photo.id, selectedFootColor, selectedHandColor, selectedHoldType, selectedTool, stageConfig]);
 
   const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
     // Deselect when clicked on empty area
@@ -341,23 +367,6 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     setIsDrawing(false);
     setCurrentLine([]);
   }, [isDrawing, selectedTool, currentLine, photo.id, onAnnotationAdd, selectedLineColor, selectedLineWidth]);
-
-  const handleTextEditEnd = (value: string) => {
-    if (editingText) {
-      if (value.trim()) {
-        const annotation: Annotation = {
-          id: `annotation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          type: 'text',
-          photoId: photo.id,
-          x: editingText.x,
-          y: editingText.y,
-          data: { text: value, color: '#000000', fontSize: 16, rotation: 0 },
-        };
-        onAnnotationAdd(annotation);
-      }
-      setEditingText(null);
-    }
-  };
 
   const handleAnnotationClick = useCallback((annotation: Annotation) => {
     if (selectedTool === 'select') {
@@ -648,7 +657,6 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
           }}
           defaultValue={editingText.value}
-          onBlur={(e) => handleTextEditEnd(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Escape') {
               setEditingText(null);
