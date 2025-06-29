@@ -327,12 +327,14 @@ function App() {
     });
   }, []);
 
-  const handleProjectImport = useCallback((data: { projectName?: string; photos: Photo[]; annotations: Annotation[] }) => {
+  const handleProjectImport = useCallback((data: { projectName: string; photos: Photo[]; annotations: Annotation[] }) => {
     setState(prev => {
       // Clean up old photo URLs to prevent memory leaks
       prev.photos.forEach(p => URL.revokeObjectURL(p.url));
 
       const { projectName, photos: importedPhotos, annotations: importedAnnotations } = data;
+
+      console.log(`projectName: ${projectName}`); // NOCOMMIT
 
       return {
         ...prev,
