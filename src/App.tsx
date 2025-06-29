@@ -226,17 +226,9 @@ function App() {
     });
   }, []);
 
-  const handleDescriptionChange = useCallback((newDescription: string) => {
-    setState(prev => {
-      const newPhotos = prev.photos.map((photo, index) => {
-        if (index === prev.currentPhotoIndex) {
-          return { ...photo, description: newDescription };
-        }
-        return photo;
-      });
-      return { ...prev, photos: newPhotos };
-    });
-  }, []);
+  const handleProjectDescriptionChange = useCallback((newDescription: string) => {
+    updateState({ projectDescription: newDescription });
+  }, [updateState]);
 
   const addAnnotation = useCallback((annotation: Annotation) => {
     setState(prev => {
