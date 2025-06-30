@@ -65,10 +65,13 @@ export function useAppState() {
 
     const saveState = async () => {
       try {
-        // Create a savable state without photo URLs
+        // Create a savable state without photo URLs and with fresh File objects
         const savableState = {
           ...state,
-          photos: state.photos.map(({ url, ...rest }) => rest),
+          photos: state.photos.map(({ url, file, ...rest }) => ({
+            ...rest,
+            file: new File([file], file.name, { type: file.type, lastModified: file.lastModified }),
+          })),
         };
         await set('app-state', savableState);
       } catch (error) {
