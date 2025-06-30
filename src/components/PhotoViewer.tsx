@@ -157,7 +157,11 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   // Gesture handling for zoom and pan
   const bind = useGesture({
     onPinch: ({ offset: [scale], origin: [ox, oy], first }) => {
-      if (first) gestureDidMove.current = true;
+      if (first) {
+        gestureDidMove.current = true;
+        setIsDrawing(false);
+        setCurrentLine([]);
+      }
       const stage = stageRef.current;
       if (!stage) return;
 
@@ -190,6 +194,8 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     },
     onWheel: ({ delta: [, dy] }) => {
       gestureDidMove.current = true;
+      setIsDrawing(false);
+      setCurrentLine([]);
       const stage = stageRef.current;
       if (!stage) return;
 
@@ -335,6 +341,12 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   }, [isDrawing, selectedTool, stageConfig]);
 
   const handleTouchStart = useCallback((e: Konva.KonvaEventObject<TouchEvent>) => {
+    if (e.evt.touches.length > 1) {
+      setIsDrawing(false);
+      setCurrentLine([]);
+      return;
+    }
+
     if (selectedTool !== 'line') return;
 
     const stage = stageRef.current;
@@ -351,6 +363,12 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   }, [selectedTool, stageConfig]);
 
   const handleTouchMove = useCallback((e: Konva.KonvaEventObject<TouchEvent>) => {
+    if (e.evt.touches.length > 1) {
+      setIsDrawing(false);
+      setCurrentLine([]);
+      return;
+    }
+
     if (!isDrawing || selectedTool !== 'line') return;
 
     const stage = stageRef.current;
