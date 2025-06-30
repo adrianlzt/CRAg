@@ -52,6 +52,7 @@ export function useAppState() {
           description: "There was an error loading your saved project. Starting fresh.",
           variant: "destructive",
         });
+        throw error;
       } finally {
         setIsLoading(false);
       }
@@ -83,6 +84,7 @@ export function useAppState() {
         await set('app-state', savableState);
       } catch (error) {
         console.error("Failed to save state to IndexedDB", error);
+        throw error;
       }
     };
 
@@ -236,6 +238,7 @@ export function useAppState() {
             description: "Could not clear the project data.",
             variant: "destructive",
           });
+          throw error;
         });
     }
   }, [state.photos, toast]);
