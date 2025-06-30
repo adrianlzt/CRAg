@@ -25,23 +25,30 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const processFiles = useCallback((files: FileList) => {
-    const newPhotos: Photo[] = [];
-    
-    Array.from(files).forEach((file) => {
-      if (file.type.startsWith('image/')) {
-        const photo: Photo = {
-          id: `photo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          file,
-          url: URL.createObjectURL(file),
-          name: file.name,
-        };
-        newPhotos.push(photo);
+    const processAsync = async () => {
+      const newPhotos: Photo[] = await Promise.all(
+        Array.from(files)
+          .filter((file) => file.type.startsWith('image/'))
+          .map(async (file): Promise<Photo> => {
+            const buffer = await file.arrayBuffer();
+            const blob = new Blob([buffer], { type: file.type });
+            const newFile = new File([blob], file.name, {
+              type: file.type,
+              lastModified: file.lastModified,
+            });
+            return {
+              id: `photo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+              file: newFile,
+              url: URL.createObjectURL(blob),
+              name: file.name,
+            };
+          })
+      );
+      if (newPhotos.length > 0) {
+        onPhotosAdd(newPhotos);
       }
-    });
-
-    if (newPhotos.length > 0) {
-      onPhotosAdd(newPhotos);
-    }
+    };
+    void processAsync();
   }, [onPhotosAdd]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
