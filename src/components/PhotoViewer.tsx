@@ -493,10 +493,10 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   onDblTap={() => handleAnnotationDoubleClick(annotation)}
                   onTouchStart={() => handleHoldTouchStart(annotation)}
                   onTouchEnd={handleHoldTouchEnd}
-                  draggable={selectedTool === 'select' || (selectedTool === 'hold' && selectedAnnotation === annotation.id)}
+                  draggable={selectedTool === 'select' || ((selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation === annotation.id)}
                   dragDistance={5}
                   onDragStart={() => {
-                    if (selectedTool === 'select' || (selectedTool === 'hold' && selectedAnnotation === annotation.id)) {
+                    if (selectedTool === 'select' || ((selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation === annotation.id)) {
                       setIsDraggingAnnotation(true);
                       handleHoldTouchEnd();
                     }
@@ -577,10 +577,10 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   onDblTap={() => handleAnnotationDoubleClick(annotation)}
                   onTouchStart={() => handleHoldTouchStart(annotation)}
                   onTouchEnd={handleHoldTouchEnd}
-                  draggable={selectedTool === 'select' || (selectedTool === 'text' && selectedAnnotation === annotation.id)}
+                  draggable={selectedTool === 'select' || ((selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation === annotation.id)}
                   dragDistance={5}
                   onDragStart={() => {
-                    if (selectedTool === 'select' || (selectedTool === 'text' && selectedAnnotation === annotation.id)) {
+                    if (selectedTool === 'select' || ((selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation === annotation.id)) {
                       setIsDraggingAnnotation(true);
                       handleHoldTouchEnd();
                     }
