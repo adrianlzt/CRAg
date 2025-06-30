@@ -260,8 +260,8 @@ function App() {
             </div>
           )}
           {currentPhoto && state.selectedTool === 'line' && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 px-4">
-              <div className="bg-slate-900/80 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50 flex items-center gap-6">
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm px-4 lg:max-w-md">
+              <div className="bg-slate-900/80 backdrop-blur-sm rounded-xl p-2 lg:p-4 border border-slate-700/50 flex items-center justify-center gap-6">
                 {/* Line Color Selection */}
                 <div className="flex flex-wrap gap-2">
                   {[
