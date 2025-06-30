@@ -144,6 +144,10 @@ export async function exportAsImage(
           ctx.translate(x, y);
           ctx.rotate(rotation);
 
+          if (annotation.data.handColor === 'green' || annotation.data.handColor === 'yellow') {
+            ctx.scale(-1, 1);
+          }
+
           // Draw background circle
           ctx.strokeStyle = getHoldColor(annotation);
           ctx.lineWidth = 2 * scale;

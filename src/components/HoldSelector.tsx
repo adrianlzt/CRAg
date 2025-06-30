@@ -71,7 +71,13 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
             }`}
         >
           <div className="flex w-full flex-1 items-center justify-center overflow-hidden">
-            <img src={hold.icon} alt={hold.name} className="max-h-full max-w-full object-contain" />
+            <img
+              src={hold.icon}
+              alt={hold.name}
+              className={`max-h-full max-w-full object-contain transform transition-transform duration-200 ${
+                selectedHandColor === 'green' ? '-scale-x-100' : ''
+              }`}
+            />
           </div>
           <span className="mt-1 text-center text-[10px] leading-tight">{hold.name}</span>
         </button>
