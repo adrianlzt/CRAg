@@ -22,7 +22,10 @@ export class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    Sentry.captureException(error, { extra: errorInfo });
+    Sentry.withScope((scope) => {
+      scope.setExtras(errorInfo as any);
+      Sentry.captureException(error);
+    });
   }
 
   render() {
