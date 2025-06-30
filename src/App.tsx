@@ -127,11 +127,7 @@ function App() {
                       setIsMenuOpen(false);
                     }}
                   />
-                </div>
-
-                <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-                  <h2 className="text-lg font-semibold mb-4 text-orange-400">History</h2>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-2 mt-4">
                     <button
                       onClick={undo}
                       disabled={!(state.historyIndex > 0)}
@@ -159,6 +155,7 @@ function App() {
                     </button>
                   </div>
                 </div>
+
 
                 <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
                   <h2 className="text-lg font-semibold mb-4 text-orange-400">Route Description</h2>
