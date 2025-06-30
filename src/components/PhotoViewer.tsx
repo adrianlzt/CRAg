@@ -254,6 +254,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       longPressOccurred.current = false;
       return;
     }
+
     if (gestureDidMove.current) {
       gestureDidMove.current = false;
       return;
