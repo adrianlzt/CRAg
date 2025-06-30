@@ -34,35 +34,12 @@ function App() {
   } = useAppState();
 
   const { toast } = useToast();
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleExportAsImage = useCallback(async () => {
     await exportAsImage(state, toast);
   }, [state, toast]);
-
-  useEffect(() => {
-    const sidebar = sidebarRef.current;
-    if (!sidebar) return;
-
-    const handleScroll = () => {
-      // lg breakpoint from tailwind is 1024px
-      if (window.innerWidth >= 1024) {
-        if (!isHeaderVisible) setIsHeaderVisible(true);
-        return;
-      }
-      const scrollTop = sidebar.scrollTop;
-      if (scrollTop > 0) {
-        if (isHeaderVisible) setIsHeaderVisible(false);
-      } else {
-        if (!isHeaderVisible) setIsHeaderVisible(true);
-      }
-    };
-
-    sidebar.addEventListener('scroll', handleScroll);
-    return () => sidebar.removeEventListener('scroll', handleScroll);
-  }, [isHeaderVisible]);
 
   const currentPhoto = state.photos[state.currentPhotoIndex];
   const currentPhotoAnnotations = state.annotations.filter(
@@ -83,12 +60,12 @@ function App() {
   return (
     <div className="h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden flex flex-col">
       <Header
-        isVisible={isHeaderVisible}
+        isVisible={true}
         projectName={state.projectName}
         onProjectNameChange={(name) => updateState({ projectName: name })}
       />
 
-      <div className={`flex-1 flex overflow-hidden transition-all duration-300 ease-in-out ${isHeaderVisible ? 'pt-[73px]' : 'pt-0'} lg:pt-0`}>
+      <div className={`flex-1 flex overflow-hidden transition-all duration-300 ease-in-out pt-[73px] lg:pt-0`}>
         {isMenuOpen && (
           <div
             className="fixed inset-0 bg-black/60 z-40 lg:hidden"
