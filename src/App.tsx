@@ -165,15 +165,12 @@ function App() {
                 <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
                   <h2 className="text-lg font-semibold mb-4 text-orange-400">Instructions</h2>
                   <div className="text-sm text-slate-300 space-y-2">
-                    <p>Click and drag to move annotations. Tap to select.</p>
-                    <div>
-                      <p className="font-semibold text-slate-100">Touch Gestures</p>
-                      <ul className="list-disc list-inside pl-2">
-                        <li>Pinch to zoom in/out</li>
-                        <li>Drag with two fingers to pan</li>
-                        <li>Long press to delete annotation</li>
-                      </ul>
-                    </div>
+                    <ul className="list-disc list-inside space-y-1 pl-2">
+                      <li>To add a hold, text or draw a line, select the appropiate tool and touch, or drag for lines, in the image.</li>
+                      <li>Long press to select holds or text to move, resize or rotate.</li>
+                      <li>Double tap to delete holds, texts or lines.</li>
+                      <li>Pinch to zoom.</li>
+                    </ul>
                   </div>
                 </div>
               </>
