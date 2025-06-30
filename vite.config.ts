@@ -14,6 +14,7 @@ export default defineConfig({
     port: 8080,
     allowedHosts: [
       '.ts.net',
+      '.ngrok-free.app',
     ],
   },
 
