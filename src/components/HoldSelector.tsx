@@ -12,16 +12,16 @@ interface HoldSelectorProps {
 
 // Define climbing hold types with their visual representations
 export const HOLD_TYPES: HoldType[] = [
-  { id: 'jug', name: 'Jug', icon: '/icons/jug.svg', category: 'hand' },
-  { id: 'pinch', name: 'Pinch', icon: '/icons/pinch.svg', category: 'hand' },
-  { id: 'sloper', name: 'Sloper', icon: '/icons/sloper.svg', category: 'hand' },
-  { id: 'crimp', name: 'Crimp', icon: '/icons/crimp.svg', category: 'hand' },
-  { id: 'medium', name: 'Medium', icon: '/icons/medium.svg', category: 'hand' },
-  { id: 'undercling', name: 'Undercling', icon: '/icons/undercling.svg', category: 'hand' },
-  { id: 'one_finger', name: 'Mono', icon: '/icons/one_finger.svg', category: 'hand' },
-  { id: 'two_finger', name: '2F', icon: '/icons/two_finger.svg', category: 'hand' },
-  { id: 'three_finger', name: '3F', icon: '/icons/three_finger.svg', category: 'hand' },
-  { id: 'foothold', name: 'Foot', icon: '/icons/foothold.svg', category: 'foot' },
+  { id: 'jug', name: 'Jug', icon: '/icons/jug.png', category: 'hand' },
+  { id: 'pinch', name: 'Pinch', icon: '/icons/pinch.png', category: 'hand' },
+  { id: 'sloper', name: 'Sloper', icon: '/icons/sloper.png', category: 'hand' },
+  { id: 'crimp', name: 'Crimp', icon: '/icons/crimp.png', category: 'hand' },
+  { id: 'medium', name: 'Medium', icon: '/icons/medium.png', category: 'hand' },
+  { id: 'undercling', name: 'Undercling', icon: '/icons/undercling.png', category: 'hand' },
+  { id: 'one_finger', name: 'Mono', icon: '/icons/one_finger.png', category: 'hand' },
+  { id: 'two_finger', name: '2F', icon: '/icons/two_finger.png', category: 'hand' },
+  { id: 'three_finger', name: '3F', icon: '/icons/three_finger.png', category: 'hand' },
+  { id: 'foothold', name: 'Foot', icon: '/icons/foothold.png', category: 'foot' },
 ];
 
 export const HoldSelector: React.FC<HoldSelectorProps> = ({

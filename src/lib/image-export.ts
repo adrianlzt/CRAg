@@ -1,7 +1,7 @@
 import { saveAs } from 'file-saver';
 import { AppState, Annotation } from '../types';
 import { HOLD_TYPES } from '../components/HoldSelector';
-import { calculateWrappedTextHeight, wrapText, drawSvgOnCanvas } from './canvas-utils';
+import { calculateWrappedTextHeight, wrapText } from './canvas-utils';
 
 const getHoldColor = (annotation: Annotation) => {
   switch (annotation.data.handColor) {
@@ -27,17 +27,21 @@ export async function exportAsImage(
     description: 'Please wait while the image is being generated...',
   });
 
-  const fetchedSvgs: { [key: string]: string } = {};
+  const fetchedIcons: { [key: string]: HTMLImageElement } = {};
   try {
     await Promise.all(
-      HOLD_TYPES.map(async (holdType) => {
-        const response = await fetch(holdType.icon);
-        if (!response.ok) throw new Error(`Failed to fetch ${holdType.icon}`);
-        fetchedSvgs[holdType.id] = await response.text();
-      })
+      HOLD_TYPES.map(holdType => new Promise<void>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          fetchedIcons[holdType.id] = img;
+          resolve();
+        };
+        img.onerror = () => reject(new Error(`Failed to load icon: ${holdType.icon}`));
+        img.src = holdType.icon;
+      }))
     );
   } catch (error) {
-    console.error("Failed to fetch SVG icons:", error);
+    console.error("Failed to fetch icons:", error);
     update({
       id: toastId,
       title: 'Export Failed',
@@ -147,17 +151,17 @@ export async function exportAsImage(
           ctx.arc(0, 0, 18 * scale, 0, 2 * Math.PI);
           ctx.stroke();
 
-          // Draw Hold type SVG icon
+          // Draw Hold type icon
           const holdTypeId = annotation.data.holdType || annotation.data.holdTypeId;
-          const svgIcon = fetchedSvgs[holdTypeId];
+          const iconImage = fetchedIcons[holdTypeId];
 
-          if (svgIcon) {
+          if (iconImage) {
             ctx.globalAlpha = 1.0;
             ctx.shadowColor = "black";
             ctx.shadowBlur = 2;
 
             const iconSize = 24 * scale;
-            await drawSvgOnCanvas(ctx, svgIcon, -iconSize / 2, -iconSize / 2, iconSize, iconSize);
+            ctx.drawImage(iconImage, -iconSize / 2, -iconSize / 2, iconSize, iconSize);
 
             ctx.shadowBlur = 0; // reset shadow
           }
@@ -252,13 +256,10 @@ export async function exportAsImage(
       const legendIconSpacing = FONT_SIZE_BODY * 0.5;
 
       for (const item of legendItems) {
-        const svgIcon = fetchedSvgs[item.id];
-        if (svgIcon) {
+        const iconImage = fetchedIcons[item.id];
+        if (iconImage) {
           const iconY = textY + (legendLineHeight - legendIconSize) / 2;
-          ctx.save();
-          ctx.fillStyle = 'black';
-          await drawSvgOnCanvas(ctx, svgIcon, PADDING, iconY, legendIconSize, legendIconSize);
-          ctx.restore();
+          ctx.drawImage(iconImage, PADDING, iconY, legendIconSize, legendIconSize);
         }
         const textX = PADDING + legendIconSize + legendIconSpacing;
         const textRenderY = textY + (legendLineHeight - FONT_SIZE_BODY) / 2;
