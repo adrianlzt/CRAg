@@ -2,8 +2,12 @@ import path from "path"
 import { VitePWA } from "vite-plugin-pwa"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
+import { sentryVitePlugin } from "@sentry/vite-plugin"
 
 export default defineConfig({
+  build: {
+    sourcemap: true,
+  },
   plugins: [
     react(),
     VitePWA({
@@ -37,6 +41,11 @@ export default defineConfig({
           },
         ],
       },
+    }),
+    sentryVitePlugin({
+      org: "na-23z",
+      project: "crag-one-vercel",
+      authToken: process.env.SENTRY_AUTH_TOKEN,
     }),
   ],
   resolve: {
