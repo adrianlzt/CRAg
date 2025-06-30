@@ -25,6 +25,7 @@ export const Header: React.FC<HeaderProps> = ({ isVisible, projectName, onProjec
                 type="text"
                 value={projectName}
                 onChange={(e) => onProjectNameChange(e.target.value)}
+                onFocus={(e) => e.target.select()}
                 placeholder="Project Name"
                 className="bg-transparent text-xl font-bold text-white outline-none border-none rounded-md transition-colors hover:bg-slate-800/75 focus:bg-slate-800 focus:ring-2 focus:ring-orange-500 px-2 py-1 -mx-2 -my-1"
               />
