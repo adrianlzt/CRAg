@@ -90,7 +90,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
 
   // Attach transformer to selected annotation
   useEffect(() => {
-    if ((selectedTool === 'select' || selectedTool === 'hold') && selectedAnnotation && trRef.current) {
+    if ((selectedTool === 'select' || selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation && trRef.current) {
       const node = shapeRefs.current.get(selectedAnnotation);
       if (node) {
         trRef.current.nodes([node]);
@@ -180,7 +180,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     onDrag: ({ delta: [dx, dy], pinching, touches, first }) => {
       if (first) gestureDidMove.current = true;
       if (isTransforming || isDraggingAnnotation) return;
-      if (selectedTool === 'select' || selectedTool === 'hold' || touches === 2) {
+      if (selectedTool === 'select' || selectedTool === 'hold' || selectedTool === 'text' || touches === 2) {
         setStageConfig(prev => ({
           ...prev,
           x: prev.x + dx,
@@ -385,7 +385,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   }, [isDrawing, selectedTool, currentLine, photo.id, onAnnotationAdd, selectedLineColor, selectedLineWidth]);
 
   const handleAnnotationClick = useCallback((annotation: Annotation) => {
-    if (selectedTool === 'select') {
+    if (selectedTool === 'select' || selectedTool === 'hold' || selectedTool === 'text') {
       setSelectedAnnotation(annotation.id);
     }
   }, [selectedTool]);
@@ -397,7 +397,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   }, [onAnnotationRemove]);
 
   const handleHoldTouchStart = useCallback((annotation: Annotation) => {
-    if (selectedTool !== 'select' && selectedTool !== 'hold') return;
+    if (selectedTool !== 'select' && selectedTool !== 'hold' && selectedTool !== 'text') return;
 
     longPressOccurred.current = false;
     longPressTimeout.current = window.setTimeout(() => {
@@ -577,10 +577,10 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   onDblTap={() => handleAnnotationDoubleClick(annotation)}
                   onTouchStart={() => handleHoldTouchStart(annotation)}
                   onTouchEnd={handleHoldTouchEnd}
-                  draggable={selectedTool === 'select'}
+                  draggable={selectedTool === 'select' || (selectedTool === 'text' && selectedAnnotation === annotation.id)}
                   dragDistance={5}
                   onDragStart={() => {
-                    if (selectedTool === 'select') {
+                    if (selectedTool === 'select' || (selectedTool === 'text' && selectedAnnotation === annotation.id)) {
                       setIsDraggingAnnotation(true);
                       handleHoldTouchEnd();
                     }
