@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'pwa-192x192.png', 'pwa-512x512.png', 'icons/*.png', 'test-climbing-photo-1.jpg', 'test-climbing-photo-2.jpg'],
+      includeAssets: ['favicon.ico', 'pwa-192x192.png', 'pwa-512x512.png', 'icons/*.png', 'test-climbing-photo-1.jpg', 'test-climbing-photo-2.png'],
       manifest: {
         name: 'CRAg',
         short_name: 'CRAg',
