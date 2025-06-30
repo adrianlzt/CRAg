@@ -88,7 +88,10 @@ function App() {
                 onPhotoRemove={removePhoto}
                 onPhotosReorder={reorderPhotos}
                 currentPhotoIndex={state.currentPhotoIndex}
-                onPhotoSelect={(index) => updateState({ currentPhotoIndex: index })}
+                onPhotoSelect={(index) => {
+                  updateState({ currentPhotoIndex: index });
+                  setIsMenuOpen(false);
+                }}
               />
             </div>
 
