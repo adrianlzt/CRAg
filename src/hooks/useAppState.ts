@@ -68,12 +68,12 @@ export function useAppState() {
       try {
         // Create a savable state without photo URLs and with fresh File objects
         const savablePhotos = await Promise.all(
-          state.photos.map(async ({ url, file, ...rest }) => {
-            const response = await fetch(url);
-            const blob = await response.blob();
+          state.photos.map(async ({ url, file, ...rest }) => { // eslint-disable-line @typescript-eslint/no-unused-vars
+            // Instead of fetching the blob URL, which can become invalid on mobile, read the file directly.
+            const buffer = await file.arrayBuffer();
             return {
               ...rest,
-              file: new File([blob], file.name, { type: file.type, lastModified: file.lastModified }),
+              file: new File([buffer], file.name, { type: file.type, lastModified: file.lastModified }),
             };
           })
         );
