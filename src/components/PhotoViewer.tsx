@@ -179,6 +179,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     },
     onDrag: ({ delta: [dx, dy], pinching, touches, first }) => {
       if (first) gestureDidMove.current = true;
+      if (isTransforming || isDraggingAnnotation) return;
       if (selectedTool === 'select' || selectedTool === 'hold' || touches === 2) {
         setStageConfig(prev => ({
           ...prev,
@@ -492,10 +493,10 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   onDblTap={() => handleAnnotationDoubleClick(annotation)}
                   onTouchStart={() => handleHoldTouchStart(annotation)}
                   onTouchEnd={handleHoldTouchEnd}
-                  draggable={selectedTool === 'select'}
+                  draggable={selectedTool === 'select' || (selectedTool === 'hold' && selectedAnnotation === annotation.id)}
                   dragDistance={5}
                   onDragStart={() => {
-                    if (selectedTool === 'select') {
+                    if (selectedTool === 'select' || (selectedTool === 'hold' && selectedAnnotation === annotation.id)) {
                       setIsDraggingAnnotation(true);
                       handleHoldTouchEnd();
                     }
