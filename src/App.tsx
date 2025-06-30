@@ -130,34 +130,6 @@ function App() {
                 </div>
 
                 <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-                  <h2 className="text-lg font-semibold mb-4 text-orange-400">Route Description</h2>
-                  <RouteDescription
-                    photo={currentPhoto}
-                    description={state.projectDescription}
-                    onDescriptionChange={handleProjectDescriptionChange}
-                  />
-                </div>
-
-                <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-                  <h2 className="text-lg font-semibold mb-4 text-orange-400">Export / Import</h2>
-                  <ExportImport
-                    projectName={state.projectName}
-                    photos={state.photos}
-                    annotations={state.annotations}
-                    onProjectImport={handleProjectImport}
-                    onExportAsImage={handleExportAsImage}
-                  />
-                  <Button
-                    variant="destructive"
-                    className="w-full mt-4"
-                    onClick={handleNewProject}
-                  >
-                    <FilePlus className="mr-2 h-4 w-4" />
-                    New Project
-                  </Button>
-                </div>
-
-                <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
                   <h2 className="text-lg font-semibold mb-4 text-orange-400">History</h2>
                   <div className="flex space-x-2">
                     <button
@@ -186,6 +158,34 @@ function App() {
                       <span className="text-sm">Redo</span>
                     </button>
                   </div>
+                </div>
+
+                <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+                  <h2 className="text-lg font-semibold mb-4 text-orange-400">Route Description</h2>
+                  <RouteDescription
+                    photo={currentPhoto}
+                    description={state.projectDescription}
+                    onDescriptionChange={handleProjectDescriptionChange}
+                  />
+                </div>
+
+                <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+                  <h2 className="text-lg font-semibold mb-4 text-orange-400">Export / Import</h2>
+                  <ExportImport
+                    projectName={state.projectName}
+                    photos={state.photos}
+                    annotations={state.annotations}
+                    onProjectImport={handleProjectImport}
+                    onExportAsImage={handleExportAsImage}
+                  />
+                  <Button
+                    variant="destructive"
+                    className="w-full mt-4"
+                    onClick={handleNewProject}
+                  >
+                    <FilePlus className="mr-2 h-4 w-4" />
+                    New Project
+                  </Button>
                 </div>
 
                 <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
