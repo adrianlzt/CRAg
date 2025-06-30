@@ -62,7 +62,13 @@ export const ExportImport: React.FC<ExportImportProps> = ({
       const imagesFolder = zip.folder('images');
       if (imagesFolder) {
         for (const photo of photos) {
-          imagesFolder.file(photo.file.name, photo.file);
+          const response = await fetch(photo.url);
+          const blob = await response.blob();
+          const readableFile = new File([blob], photo.file.name, {
+            type: photo.file.type,
+            lastModified: photo.file.lastModified,
+          });
+          imagesFolder.file(readableFile.name, readableFile);
         }
       }
 
