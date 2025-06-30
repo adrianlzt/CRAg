@@ -8,7 +8,7 @@ import { HOLD_TYPES } from './HoldSelector';
 interface PhotoViewerProps {
   photo: Photo;
   annotations: Annotation[];
-  selectedTool: 'select' | 'hold' | 'line' | 'text';
+  selectedTool: 'hold' | 'line' | 'text';
   selectedHoldType: HoldType | null;
   selectedHandColor: 'red' | 'green';
   selectedFootColor: 'blue' | 'yellow';
@@ -90,7 +90,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
 
   // Attach transformer to selected annotation
   useEffect(() => {
-    if ((selectedTool === 'select' || selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation && trRef.current) {
+    if ((selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation && trRef.current) {
       const node = shapeRefs.current.get(selectedAnnotation);
       if (node) {
         trRef.current.nodes([node]);
@@ -180,7 +180,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     onDrag: ({ delta: [dx, dy], pinching, touches, first }) => {
       if (first) gestureDidMove.current = true;
       if (isTransforming || isDraggingAnnotation) return;
-      if (selectedTool === 'select' || selectedTool === 'hold' || selectedTool === 'text' || touches === 2) {
+      if (selectedTool === 'hold' || selectedTool === 'text' || touches === 2) {
         setStageConfig(prev => ({
           ...prev,
           x: prev.x + dx,
@@ -385,7 +385,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   }, [isDrawing, selectedTool, currentLine, photo.id, onAnnotationAdd, selectedLineColor, selectedLineWidth]);
 
   const handleAnnotationClick = useCallback((annotation: Annotation) => {
-    if (selectedTool === 'select' || selectedTool === 'hold' || selectedTool === 'text') {
+    if (selectedTool === 'hold' || selectedTool === 'text') {
       setSelectedAnnotation(annotation.id);
     }
   }, [selectedTool]);
@@ -397,7 +397,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   }, [onAnnotationRemove]);
 
   const handleHoldTouchStart = useCallback((annotation: Annotation) => {
-    if (selectedTool !== 'select' && selectedTool !== 'hold' && selectedTool !== 'text') return;
+    if (selectedTool !== 'hold' && selectedTool !== 'text') return;
 
     longPressOccurred.current = false;
     longPressTimeout.current = window.setTimeout(() => {
@@ -493,10 +493,10 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   onDblTap={() => handleAnnotationDoubleClick(annotation)}
                   onTouchStart={() => handleHoldTouchStart(annotation)}
                   onTouchEnd={handleHoldTouchEnd}
-                  draggable={selectedTool === 'select' || ((selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation === annotation.id)}
+                  draggable={(selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation === annotation.id}
                   dragDistance={5}
                   onDragStart={() => {
-                    if (selectedTool === 'select' || ((selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation === annotation.id)) {
+                    if ((selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation === annotation.id) {
                       setIsDraggingAnnotation(true);
                       handleHoldTouchEnd();
                     }
@@ -577,10 +577,10 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   onDblTap={() => handleAnnotationDoubleClick(annotation)}
                   onTouchStart={() => handleHoldTouchStart(annotation)}
                   onTouchEnd={handleHoldTouchEnd}
-                  draggable={selectedTool === 'select' || ((selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation === annotation.id)}
+                  draggable={(selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation === annotation.id}
                   dragDistance={5}
                   onDragStart={() => {
-                    if (selectedTool === 'select' || ((selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation === annotation.id)) {
+                    if ((selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation === annotation.id) {
                       setIsDraggingAnnotation(true);
                       handleHoldTouchEnd();
                     }
@@ -646,7 +646,6 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       {/* Indicators */}
       <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
         <div className="bg-slate-900/90 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-slate-300">
-          {selectedTool === 'select' && '🔧 Select'}
           {selectedTool === 'hold' && '✋ Hold'}
           {selectedTool === 'line' && '✏️ Draw'}
           {selectedTool === 'text' && '📝 Text'}

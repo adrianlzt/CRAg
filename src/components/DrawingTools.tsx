@@ -1,25 +1,19 @@
 import React from 'react';
-import { MousePointer, Circle, Minus, Type, Hand } from 'lucide-react';
+import { Circle, Minus, Type, Hand } from 'lucide-react';
 
 interface DrawingToolsProps {
-  selectedTool: 'select' | 'hold' | 'line' | 'text';
-  onToolSelect: (tool: 'select' | 'hold' | 'line' | 'text') => void;
+  selectedTool: 'hold' | 'line' | 'text';
+  onToolSelect: (tool: 'hold' | 'line' | 'text') => void;
 }
 
 interface Tool {
-  id: 'select' | 'hold' | 'line' | 'text';
+  id: 'hold' | 'line' | 'text';
   name: string;
   icon: React.ReactNode;
   description: string;
 }
 
 const TOOLS: Tool[] = [
-  {
-    id: 'select',
-    name: 'Select',
-    icon: <MousePointer className="h-5 w-5" />,
-    description: 'Select and move annotations'
-  },
   {
     id: 'hold',
     name: 'Holds',

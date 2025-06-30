@@ -28,7 +28,7 @@ export interface AppState {
   photos: Photo[];
   currentPhotoIndex: number;
   annotations: Annotation[];
-  selectedTool: 'select' | 'hold' | 'line' | 'text';
+  selectedTool: 'hold' | 'line' | 'text';
   selectedHoldType: HoldType | null;
   selectedHandColor: 'red' | 'green';
   selectedFootColor: 'blue' | 'yellow';

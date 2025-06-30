@@ -9,7 +9,7 @@ const initialState: AppState = {
   photos: [],
   currentPhotoIndex: 0,
   annotations: [],
-  selectedTool: 'select',
+  selectedTool: 'hold',
   selectedHoldType: null,
   selectedHandColor: 'red',
   selectedFootColor: 'blue',
@@ -41,7 +41,7 @@ export function useAppState() {
             photos: photosWithUrls,
             projectDescription: savedState.projectDescription || '',
             // Reset transient state that shouldn't be persisted across reloads
-            selectedTool: 'select',
+            selectedTool: 'hold',
             isDrawing: false,
           });
         }
@@ -201,7 +201,7 @@ export function useAppState() {
         currentPhotoIndex: importedPhotos.length > 0 ? 0 : 0,
         history: [importedAnnotations],
         historyIndex: 0,
-        selectedTool: 'select',
+        selectedTool: 'hold',
       };
     });
   }, []);
