@@ -70,6 +70,7 @@ export async function exportAsImage(
 
     // Dynamically scale font sizes based on the image width. Reference is 16px for 1000px wide.
     const scaleFactor = maxWidth > 0 ? maxWidth / 1000 : 1;
+    const FONT_SIZE_PROJECT_TITLE = Math.max(24, Math.round(32 * scaleFactor));
     const FONT_SIZE_TITLE = Math.max(12, Math.round(20 * scaleFactor));
     const FONT_SIZE_BODY = Math.max(10, Math.round(16 * scaleFactor));
     const LINE_HEIGHT = Math.max(15, Math.round(24 * scaleFactor));
@@ -104,8 +105,10 @@ export async function exportAsImage(
       legendAreaHeight += LINE_HEIGHT; // Extra padding at the bottom
     }
 
+    const projectTitleAreaHeight = state.projectName ? FONT_SIZE_PROJECT_TITLE + PADDING : 0;
+
     const canvasWidth = maxWidth + PADDING * 2;
-    const canvasHeight = totalImageHeight + textAreaHeight + legendAreaHeight + PADDING * 2;
+    const canvasHeight = projectTitleAreaHeight + totalImageHeight + textAreaHeight + legendAreaHeight + PADDING * 2;
 
     const canvas = document.createElement('canvas');
     canvas.width = canvasWidth;
@@ -121,6 +124,19 @@ export async function exportAsImage(
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
     let currentY = PADDING;
+
+    if (state.projectName) {
+      ctx.fillStyle = 'black';
+      ctx.font = `bold ${FONT_SIZE_PROJECT_TITLE}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(state.projectName, canvasWidth / 2, currentY);
+      currentY += FONT_SIZE_PROJECT_TITLE + PADDING;
+    }
+
+    // Restore default alignment
+    ctx.textAlign = 'left';
+
     for (let i = 0; i < state.photos.length; i++) {
       const photo = state.photos[i];
       const img = loadedImages[i];
