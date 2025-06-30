@@ -4,7 +4,12 @@ A comprehensive mobile-first web application for climbers to annotate climbing r
 
 ## 🚀 Live Demo
 
-**[Try the App](https://x9d7kbt54o.space.minimax.io)**
+**[Try the App](https://crag-one.vercel.app/)**
+
+<br/>
+
+<video src="demo.mp4" controls="controls" style="max-width: 720px;">
+</video>
 
 ## 📱 Features
 
@@ -12,7 +17,6 @@ A comprehensive mobile-first web application for climbers to annotate climbing r
 - ✅ **Multiple Photo Upload**: Drag & drop + file picker support
 - ✅ **Vertical Photo Stacking**: Organize photos vertically in sidebar
 - ✅ **Photo Reordering**: Drag to reorder photo sequence
-- ✅ **Sample Photos**: Load sample climbing photos for immediate testing
 - ✅ **Mobile-Optimized Display**: Responsive photo gallery
 
 ### Touch & Gesture Controls
@@ -31,7 +35,7 @@ A comprehensive mobile-first web application for climbers to annotate climbing r
   - ✌️ Two-finger pocket
   - 🤟 Three-finger pocket
   - 🦶 Foot holds
-- ✅ **Color Coding**: Red (right hand), Green (left hand), Blue (feet)
+- ✅ **Color Coding**: Red (right hand), Green (left hand), Blue/Yellow (feet)
 - ✅ **Interactive Placement**: Click/tap to place holds on photos
 - ✅ **Icon Manipulation**: Move, select, and remove holds
 
@@ -42,10 +46,10 @@ A comprehensive mobile-first web application for climbers to annotate climbing r
 - ✅ **Visual Route Mapping**: Clear route visualization
 
 ### Export/Import Features
-- ✅ **SVG Export**: Export current photo with all annotations
-- ✅ **JSON Export**: Export all annotations and metadata
-- ✅ **SVG Import**: Import and continue editing existing routes
-- ✅ **Annotation Preservation**: Maintain all layers and metadata
+- ✅ **Project Export**: Export the entire project (photos, annotations, metadata) as a `.zip` file.
+- ✅ **Image Export**: Export the current view (photo with annotations) as an image.
+- ✅ **Project Import**: Import a `.zip` project file to continue working.
+- ✅ **Annotation Preservation**: All data is preserved during export/import.
 
 ## 🛠️ Technical Stack
 
@@ -77,7 +81,6 @@ A comprehensive mobile-first web application for climbers to annotate climbing r
 
 1. **Upload Photos**: 
    - Drag & drop climbing photos or click to select
-   - Or click "Load Sample Climbing Photos" for demo
 
 2. **Select Tools**:
    - Choose hold types from the climbing holds panel
@@ -95,9 +98,9 @@ A comprehensive mobile-first web application for climbers to annotate climbing r
    - Use photo list to switch between images
 
 5. **Export & Share**:
-   - Export current photo as SVG with annotations
-   - Export all data as JSON for backup
-   - Import previous annotation files to continue work
+   - Export the current photo with annotations as an image.
+   - Export the entire project as a `.zip` file for backup or sharing.
+   - Import a project `.zip` file to continue your work.
 
 ## 🎯 Mobile-First Features
 
@@ -105,7 +108,7 @@ A comprehensive mobile-first web application for climbers to annotate climbing r
 - **Responsive Layout**: Adapts to phone/tablet/desktop
 - **Large Touch Targets**: Easy to use with climbing gloves
 - **Dark Theme**: Better visibility in outdoor conditions
-- **Offline Capable**: Works without internet after loading
+- **PWA Support**: Installable as a Progressive Web App for an app-like experience and offline access.
 
 ## 🔧 Development
 
@@ -145,7 +148,7 @@ src/
 - [x] **Complete hold annotation system with all specified types**
 - [x] **Working icon manipulation (move, select)**
 - [x] **Functional drawing tools**
-- [x] **SVG export/import working correctly**
+- [x] **Project export/import working correctly**
 - [x] **Text annotation system implemented**
 - [x] **Mobile-first responsive design**
 - [x] **Deployed and accessible web application**
