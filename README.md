@@ -8,8 +8,8 @@ A comprehensive mobile-first web application for climbers to annotate climbing r
 
 <br/>
 
-<video src="https://github.com/adrianlzt/CRAg/raw/refs/heads/main/demo.mp4" controls="controls" style="max-width: 720px;">
-</video>
+https://github.com/user-attachments/assets/8230c702-89f7-4492-a03b-5327a462e97f
+
 
 ## 📱 Features
 
