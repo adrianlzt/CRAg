@@ -13,6 +13,7 @@ const initialState: AppState = {
   selectedHoldType: null,
   selectedHandColor: 'red',
   selectedFootColor: 'blue',
+  selectedKneeColor: 'purple',
   selectedLineColor: '#f97316',
   selectedLineWidth: 3,
   isDrawing: false,
@@ -37,6 +38,7 @@ export function useAppState() {
             url: URL.createObjectURL(p.file),
           }));
           setState({
+            ...initialState,
             ...savedState,
             photos: photosWithUrls,
             projectDescription: savedState.projectDescription || '',

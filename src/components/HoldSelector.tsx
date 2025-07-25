@@ -5,9 +5,11 @@ interface HoldSelectorProps {
   selectedHoldType: HoldType | null;
   selectedHandColor: 'red' | 'green';
   selectedFootColor: 'blue' | 'yellow';
+  selectedKneeColor: 'purple' | 'pink';
   onHoldTypeSelect: (holdType: HoldType) => void;
   onHandColorSelect: (color: 'red' | 'green') => void;
   onFootColorSelect: (color: 'blue' | 'yellow') => void;
+  onKneeColorSelect: (color: 'purple' | 'pink') => void;
 }
 
 // Define climbing hold types with their visual representations
@@ -22,15 +24,18 @@ export const HOLD_TYPES: HoldType[] = [
   { id: 'two_finger', name: '2F', icon: '/icons/two_finger.png', category: 'hand' },
   { id: 'three_finger', name: '3F', icon: '/icons/three_finger.png', category: 'hand' },
   { id: 'foothold', name: 'Foot', icon: '/icons/foothold.png', category: 'foot' },
+  { id: 'knee', name: 'Knee', icon: '/icons/knee.png', category: 'knee' },
 ];
 
 export const HoldSelector: React.FC<HoldSelectorProps> = ({
   selectedHoldType,
   selectedHandColor,
   selectedFootColor,
+  selectedKneeColor,
   onHoldTypeSelect,
   onHandColorSelect,
   onFootColorSelect,
+  onKneeColorSelect,
 }) => {
   return (
     <div className="grid grid-cols-6 gap-2">
@@ -59,6 +64,25 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
         R
       </button>
 
+      <button
+        onClick={() => onKneeColorSelect('purple')}
+        className={`flex aspect-square items-center justify-center rounded-lg border text-sm font-medium transition-all duration-200 ${selectedKneeColor === 'purple'
+            ? 'border-purple-400 bg-purple-400/20 text-purple-300'
+            : 'border-slate-600 text-slate-400 hover:border-purple-400/50 hover:text-purple-300'
+          }`}
+      >
+        K
+      </button>
+      <button
+        onClick={() => onKneeColorSelect('pink')}
+        className={`flex aspect-square items-center justify-center rounded-lg border text-sm font-medium transition-all duration-200 ${selectedKneeColor === 'pink'
+            ? 'border-pink-400 bg-pink-400/20 text-pink-300'
+            : 'border-slate-600 text-slate-400 hover:border-pink-400/50 hover:text-pink-300'
+          }`}
+      >
+        K
+      </button>
+
       {HOLD_TYPES.map((hold) => (
         <button
           key={hold.id}
@@ -66,7 +90,9 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
           className={`group flex flex-col aspect-square items-center justify-center rounded-lg border p-1.5 transition-all duration-200 ${selectedHoldType?.id === hold.id
             ? hold.category === 'hand'
               ? `border-${selectedHandColor}-400 bg-${selectedHandColor}-400/20`
-              : `border-${selectedFootColor}-400 bg-${selectedFootColor}-400/20`
+              : hold.category === 'foot'
+                ? `border-${selectedFootColor}-400 bg-${selectedFootColor}-400/20`
+                : `border-${selectedKneeColor}-400 bg-${selectedKneeColor}-400/20`
             : 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/30'
             }`}
         >
