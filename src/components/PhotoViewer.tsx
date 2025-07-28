@@ -562,7 +562,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                       height={24}
                       offsetX={12}
                       offsetY={12}
-                      scaleX={(annotation.data.handColor === 'green' || annotation.data.handColor === 'yellow') ? -1 : 1}
+                      scaleX={(annotation.data.handColor === 'green' || annotation.data.handColor === 'yellow' || annotation.data.handColor === 'purple') ? -1 : 1}
                     />
                   )}
                 </Group>

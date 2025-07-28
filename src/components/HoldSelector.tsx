@@ -43,6 +43,7 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
         onClick={() => {
           onHandColorSelect('green');
           onFootColorSelect('yellow');
+          onKneeColorSelect('purple');
         }}
         className={`flex aspect-square items-center justify-center rounded-lg border text-sm font-medium transition-all duration-200 ${selectedHandColor === 'green'
           ? 'border-green-400 bg-green-400/20 text-green-300'
@@ -55,6 +56,7 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
         onClick={() => {
           onHandColorSelect('red');
           onFootColorSelect('blue');
+          onKneeColorSelect('pink');
         }}
         className={`flex aspect-square items-center justify-center rounded-lg border text-sm font-medium transition-all duration-200 ${selectedHandColor === 'red'
           ? 'border-red-400 bg-red-400/20 text-red-300'
@@ -62,25 +64,6 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
           }`}
       >
         R
-      </button>
-
-      <button
-        onClick={() => onKneeColorSelect('purple')}
-        className={`flex aspect-square items-center justify-center rounded-lg border text-sm font-medium transition-all duration-200 ${selectedKneeColor === 'purple'
-            ? 'border-purple-400 bg-purple-400/20 text-purple-300'
-            : 'border-slate-600 text-slate-400 hover:border-purple-400/50 hover:text-purple-300'
-          }`}
-      >
-        K
-      </button>
-      <button
-        onClick={() => onKneeColorSelect('pink')}
-        className={`flex aspect-square items-center justify-center rounded-lg border text-sm font-medium transition-all duration-200 ${selectedKneeColor === 'pink'
-            ? 'border-pink-400 bg-pink-400/20 text-pink-300'
-            : 'border-slate-600 text-slate-400 hover:border-pink-400/50 hover:text-pink-300'
-          }`}
-      >
-        K
       </button>
 
       {HOLD_TYPES.map((hold) => (
