@@ -83,9 +83,7 @@ export const HoldSelector: React.FC<HoldSelectorProps> = ({
             <img
               src={hold.icon}
               alt={hold.name}
-              className={`max-h-full max-w-full object-contain transform transition-transform duration-200 ${
-                selectedHandColor === 'green' ? '-scale-x-100' : ''
-              }`}
+              className={`max-h-full max-w-full object-contain transform transition-transform duration-200 ${((hold.category === 'hand' && selectedHandColor === 'green') || (hold.category === 'foot' && selectedFootColor === 'yellow') || (hold.category === 'knee' && selectedKneeColor === 'purple')) ? '-scale-x-100' : ''}`}
             />
           </div>
           <span className="mt-1 text-center text-[10px] leading-tight">{hold.name}</span>
