@@ -19,7 +19,7 @@ export interface HoldType {
   id: string;
   name: string;
   icon: string;
-  category: 'hand' | 'foot';
+  category: 'hand' | 'foot' | 'knee';
 }
 
 export interface AppState {
@@ -32,6 +32,7 @@ export interface AppState {
   selectedHoldType: HoldType | null;
   selectedHandColor: 'red' | 'green';
   selectedFootColor: 'blue' | 'yellow';
+  selectedKneeColor: 'purple' | 'pink';
   selectedLineColor: string;
   selectedLineWidth: number;
   isDrawing: boolean;

@@ -160,7 +160,7 @@ export async function exportAsImage(
           ctx.translate(x, y);
           ctx.rotate(rotation);
 
-          if (annotation.data.handColor === 'green' || annotation.data.handColor === 'yellow') {
+          if (annotation.data.handColor === 'green' || annotation.data.handColor === 'yellow' || annotation.data.handColor === 'purple') {
             ctx.scale(-1, 1);
           }
 

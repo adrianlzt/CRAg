@@ -12,6 +12,7 @@ interface PhotoViewerProps {
   selectedHoldType: HoldType | null;
   selectedHandColor: 'red' | 'green';
   selectedFootColor: 'blue' | 'yellow';
+  selectedKneeColor: 'purple' | 'pink';
   selectedLineColor: string;
   selectedLineWidth: number;
   onAnnotationAdd: (annotation: Annotation) => void;
@@ -26,6 +27,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   selectedHoldType,
   selectedHandColor,
   selectedFootColor,
+  selectedKneeColor,
   selectedLineColor,
   selectedLineWidth,
   onAnnotationAdd,
@@ -295,7 +297,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
           holdType: selectedHoldType.id,
           holdName: selectedHoldType.name,
           icon: selectedHoldType.icon,
-          handColor: selectedHoldType.category === 'foot' ? selectedFootColor : selectedHandColor,
+          handColor: selectedHoldType.category === 'foot' ? selectedFootColor : (selectedHoldType.category === 'knee' ? selectedKneeColor : selectedHandColor),
           category: selectedHoldType.category,
           scale: imageScale,
         },
@@ -305,7 +307,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       if (isDraggingAnnotation) return;
       setEditingText({ x: imageX, y: imageY, value: '' });
     }
-  }, [editingText, handleTextEditEnd, image, isDraggingAnnotation, onAnnotationAdd, photo.id, selectedFootColor, selectedHandColor, selectedHoldType, selectedTool, stageConfig]);
+  }, [editingText, handleTextEditEnd, image, isDraggingAnnotation, onAnnotationAdd, photo.id, selectedFootColor, selectedHandColor, selectedKneeColor, selectedHoldType, selectedTool, stageConfig]);
 
   const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
     // Deselect when clicked on empty area is handled by handleStageClick for consistency
@@ -439,6 +441,8 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       case 'green': return '#10b981';
       case 'blue': return '#3b82f6';
       case 'yellow': return '#eab308';
+      case 'purple': return '#8b5cf6';
+      case 'pink': return '#ec4899';
       default: return '#f97316';
     }
   };
@@ -558,7 +562,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                       height={24}
                       offsetX={12}
                       offsetY={12}
-                      scaleX={(annotation.data.handColor === 'green' || annotation.data.handColor === 'yellow') ? -1 : 1}
+                      scaleX={(annotation.data.handColor === 'green' || annotation.data.handColor === 'yellow' || annotation.data.handColor === 'purple') ? -1 : 1}
                     />
                   )}
                 </Group>

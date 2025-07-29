@@ -199,6 +199,7 @@ function App() {
               selectedHoldType={state.selectedHoldType}
               selectedHandColor={state.selectedHandColor}
               selectedFootColor={state.selectedFootColor}
+              selectedKneeColor={state.selectedKneeColor}
               selectedLineColor={state.selectedLineColor}
               selectedLineWidth={state.selectedLineWidth}
               onAnnotationAdd={addAnnotation}
@@ -229,9 +230,11 @@ function App() {
                   selectedHoldType={state.selectedHoldType}
                   selectedHandColor={state.selectedHandColor}
                   selectedFootColor={state.selectedFootColor}
+                  selectedKneeColor={state.selectedKneeColor}
                   onHoldTypeSelect={(holdType) => updateState({ selectedHoldType: holdType, selectedTool: 'hold' })}
                   onHandColorSelect={(color) => updateState({ selectedHandColor: color })}
                   onFootColorSelect={(color) => updateState({ selectedFootColor: color })}
+                  onKneeColorSelect={(color) => updateState({ selectedKneeColor: color })}
                 />
               </div>
             </div>
