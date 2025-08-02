@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { get, set, del } from 'idb-keyval';
 import { AppState, Photo, Annotation } from '../types';
 import { useToast } from './use-toast';
+import { processProjectZip } from '../components/ProjectImporter';
 
 const initialState: AppState = {
   projectName: 'Climbing Route Project',
@@ -26,26 +27,73 @@ export function useAppState() {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Load state from IndexedDB on startup
+  // Load state from IndexedDB or URL on startup
   useEffect(() => {
     const loadState = async () => {
       try {
-        const savedState = await get('app-state');
-        if (savedState) {
-          // Recreate photo URLs from stored File objects
-          const photosWithUrls = savedState.photos.map((p: Omit<Photo, 'url'>) => ({
-            ...p,
-            url: URL.createObjectURL(p.file),
-          }));
-          setState({
-            ...initialState,
-            ...savedState,
-            photos: photosWithUrls,
-            projectDescription: savedState.projectDescription || '',
-            // Reset transient state that shouldn't be persisted across reloads
-            selectedTool: 'hold',
-            isDrawing: false,
-          });
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectUrl = urlParams.get('load');
+
+        if (projectUrl) {
+          setIsLoading(true);
+          try {
+            const response = await fetch(projectUrl);
+            if (!response.ok) {
+              throw new Error(`Failed to fetch project file: ${response.statusText}`);
+            }
+            const zipBlob = await response.blob();
+            const projectData = await processProjectZip(zipBlob);
+            handleProjectImport(projectData);
+            toast({
+              title: 'Project Loaded from URL',
+              description: 'The project has been successfully loaded.',
+            });
+            // Clean the URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } catch (error) {
+            console.error('Failed to load project from URL:', error);
+            toast({
+              title: 'Failed to Load Project from URL',
+              description: `${(error as Error).message || 'An unknown error occurred.'}. Falling back to local project.`,
+              variant: 'destructive',
+            });
+            // Fallback to loading from IndexedDB
+            const savedState = await get('app-state');
+            if (savedState) {
+              // Recreate photo URLs from stored File objects
+              const photosWithUrls = savedState.photos.map((p: Omit<Photo, 'url'>) => ({
+                ...p,
+                url: URL.createObjectURL(p.file),
+              }));
+              setState({
+                ...initialState,
+                ...savedState,
+                photos: photosWithUrls,
+                projectDescription: savedState.projectDescription || '',
+                // Reset transient state that shouldn't be persisted across reloads
+                selectedTool: 'hold',
+                isDrawing: false,
+              });
+            }
+          }
+        } else {
+          const savedState = await get('app-state');
+          if (savedState) {
+            // Recreate photo URLs from stored File objects
+            const photosWithUrls = savedState.photos.map((p: Omit<Photo, 'url'>) => ({
+              ...p,
+              url: URL.createObjectURL(p.file),
+            }));
+            setState({
+              ...initialState,
+              ...savedState,
+              photos: photosWithUrls,
+              projectDescription: savedState.projectDescription || '',
+              // Reset transient state that shouldn't be persisted across reloads
+              selectedTool: 'hold',
+              isDrawing: false,
+            });
+          }
         }
       } catch (error) {
         console.error("Failed to load state from IndexedDB", error);
@@ -60,7 +108,7 @@ export function useAppState() {
       }
     };
     loadState();
-  }, [toast]);
+  }, [toast, handleProjectImport]);
 
   // Save state to IndexedDB on change
   useEffect(() => {
@@ -208,6 +256,7 @@ export function useAppState() {
       const { projectName, photos: importedPhotos, annotations: importedAnnotations } = data;
 
       return {
+        ...initialState,
         ...prev,
         projectName: projectName !== undefined ? projectName : prev.projectName,
         photos: importedPhotos,
