@@ -27,6 +27,27 @@ export function useAppState() {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
+  const handleProjectImport = useCallback((data: { projectName?: string; photos: Photo[]; annotations: Annotation[] }) => {
+    setState(prev => {
+      // Clean up old photo URLs to prevent memory leaks
+      prev.photos.forEach(p => URL.revokeObjectURL(p.url));
+
+      const { projectName, photos: importedPhotos, annotations: importedAnnotations } = data;
+
+      return {
+        ...initialState,
+        ...prev,
+        projectName: projectName !== undefined ? projectName : prev.projectName,
+        photos: importedPhotos,
+        annotations: importedAnnotations,
+        currentPhotoIndex: importedPhotos.length > 0 ? 0 : 0,
+        history: [importedAnnotations],
+        historyIndex: 0,
+        selectedTool: 'hold',
+      };
+    });
+  }, []);
+
   // Load state from IndexedDB or URL on startup
   useEffect(() => {
     const loadState = async () => {
@@ -245,27 +266,6 @@ export function useAppState() {
         };
       }
       return prev;
-    });
-  }, []);
-
-  const handleProjectImport = useCallback((data: { projectName?: string; photos: Photo[]; annotations: Annotation[] }) => {
-    setState(prev => {
-      // Clean up old photo URLs to prevent memory leaks
-      prev.photos.forEach(p => URL.revokeObjectURL(p.url));
-
-      const { projectName, photos: importedPhotos, annotations: importedAnnotations } = data;
-
-      return {
-        ...initialState,
-        ...prev,
-        projectName: projectName !== undefined ? projectName : prev.projectName,
-        photos: importedPhotos,
-        annotations: importedAnnotations,
-        currentPhotoIndex: importedPhotos.length > 0 ? 0 : 0,
-        history: [importedAnnotations],
-        historyIndex: 0,
-        selectedTool: 'hold',
-      };
     });
   }, []);
 
