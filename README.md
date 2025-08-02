@@ -54,6 +54,7 @@ https://github.com/user-attachments/assets/8230c702-89f7-4492-a03b-5327a462e97f
 - **Project Export**: Export the entire project (photos, annotations, metadata) as a `.zip` file.
 - **Image Export**: Export the current view (photo with annotations) as an image.
 - **Project Import**: Import a `.zip` project file to continue working.
+- **URL-based Import**: Share projects via a URL. Just append `?load=<URL_to_your_zip_file>` to the app's URL.
 - **Annotation Preservation**: All data is preserved during export/import.
 
 ### Works offline
@@ -83,6 +84,7 @@ https://github.com/user-attachments/assets/8230c702-89f7-4492-a03b-5327a462e97f
    - Export the current photo with annotations as an image.
    - Export the entire project as a `.zip` file for backup or sharing.
    - Import a project `.zip` file to continue your work.
+   - Share a project by uploading the `.zip` file to a public host and creating a shareable link like `https://crag-one.vercel.app/?load=URL_TO_ZIP`.
 
 ## 🔧 Development
 
