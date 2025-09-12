@@ -221,8 +221,6 @@ async def create_project(
 
     file_upload_count = 0
     for key, value in form.items():
-        print(f"Form items Key: {key}, Value: {
-              value}, type value: {type(value)}")
         if isinstance(value, UploadFile):
             file_upload_count += 1
             file = value
@@ -266,105 +264,6 @@ async def create_project(
                 project_id=project_id,
             )
             new_project_db.photos.append(new_photo_db)
-
-    photo_meta_map = {p["id"]: p for p in project_data.get("photos", [])}
-    logger.info(f"Photo metadata from JSON: {list(photo_meta_map.keys())}")
-    temp_to_new_photo_id = {}
-
-    file_upload_count = 0
-    for key, value in form.items():
-        if isinstance(value, UploadFile):
-            file_upload_count += 1
-            file = value
-            temp_id = key
-            logger.info(
-                f"Processing uploaded file. Form key (temp_id): {temp_id}, Filename: {
-                    file.filename
-                }"
-            )
-
-            photo_id = f"photo_{uuid.uuid4()}"
-            temp_to_new_photo_id[temp_id] = photo_id
-
-            original_filename = photo_meta_map.get(temp_id, {}).get(
-                "name", file.filename or ""
-            )
-            file_extension = Path(original_filename).suffix
-            file_path = UPLOAD_DIR / f"{photo_id}{file_extension}"
-            logger.info(f"Saving file to: {file_path}")
-
-            try:
-                with open(file_path, "wb") as buffer:
-                    content = await file.read()
-                    buffer.write(content)
-                logger.info(
-                    f"Successfully saved {file_path}, size: {
-                        len(content)} bytes."
-                )
-            except Exception as e:
-                logger.error(f"Error saving file {file_path}: {e}")
-                raise HTTPException(
-                    status_code=500, detail=f"Could not save file {original_filename}."
-                )
-
-            photo_meta = photo_meta_map.get(temp_id, {})
-            new_photo_db = PhotoDB(
-                id=photo_id,
-                name=original_filename,
-                url=f"{base_url}/uploads/{file_path.name}",
-                description=photo_meta.get("description"),
-                project_id=project_id,
-            )
-            new_project_db.photos.append(new_photo_db)
-
-        temp_to_new_photo_id = {}
-
-    file_upload_count = 0
-    # Add new photos
-    for key, value in form.items():
-        if isinstance(value, UploadFile):
-            file_upload_count += 1
-            file = value
-            temp_id = key
-            logger.info(
-                f"Processing uploaded file. Form key (temp_id): {temp_id}, Filename: {
-                    file.filename
-                }"
-            )
-
-            photo_id = f"photo_{uuid.uuid4()}"
-            temp_to_new_photo_id[temp_id] = photo_id
-
-            original_filename = client_photo_map.get(temp_id, {}).get(
-                "name", file.filename or ""
-            )
-            file_extension = Path(original_filename).suffix
-            file_path = UPLOAD_DIR / f"{photo_id}{file_extension}"
-            logger.info(f"Saving file to: {file_path}")
-
-            try:
-                with open(file_path, "wb") as buffer:
-                    content = await file.read()
-                    buffer.write(content)
-                logger.info(
-                    f"Successfully saved {file_path}, size: {
-                        len(content)} bytes."
-                )
-            except Exception as e:
-                logger.error(f"Error saving file {file_path}: {e}")
-                raise HTTPException(
-                    status_code=500, detail=f"Could not save file {original_filename}."
-                )
-
-            photo_meta = client_photo_map.get(temp_id, {})
-            new_photo_db = PhotoDB(
-                id=photo_id,
-                name=original_filename,
-                url=f"{base_url}/uploads/{file_path.name}",
-                description=photo_meta.get("description"),
-                project_id=project_id,
-            )
-            project_db.photos.append(new_photo_db)
 
     if file_upload_count == 0:
         logger.warning("No new files were found in the form to upload.")
