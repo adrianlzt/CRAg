@@ -57,6 +57,10 @@ https://github.com/user-attachments/assets/8230c702-89f7-4492-a03b-5327a462e97f
 - **URL-based Import**: Share projects via a URL. Just append `?load=<URL_to_your_zip_file>` to the app's URL.
 - **Annotation Preservation**: All data is preserved during export/import.
 
+### Cloud Storage
+- **Save to Cloud**: Save your entire project (photos, annotations, metadata) to a cloud backend.
+- **Load from Cloud**: Load projects from the cloud to continue your work on any device.
+
 ### Works offline
 - **PWA**: Install the app locally and use it offline (Progressive Web App)
 
@@ -101,3 +105,15 @@ pnpm run build
 # Preview production build
 pnpm run preview
 ```
+
+### API Configuration
+
+The application can be connected to a cloud backend for saving and loading projects. The API for this backend is specified in the `openapi.yaml` file.
+
+To configure the frontend to communicate with your backend, create a `.env.local` file in the root of the project and set the `VITE_API_URL` variable:
+
+```
+VITE_API_URL=https://your-api-endpoint.com/api
+```
+
+If `VITE_API_URL` is not set, it will default to `/api`, expecting a relative path for the API calls.
