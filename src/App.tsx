@@ -9,6 +9,7 @@ import { RouteDescription } from './components/RouteDescription';
 import { ProjectImporter } from './components/ProjectImporter';
 import { ProjectLoader } from './components/ProjectLoader';
 import { Button } from './components/ui/button';
+import { Toaster } from './components/ui/sonner';
 import { Upload, Redo, Undo, FilePlus, Menu, Save, FolderOpen } from 'lucide-react';
 import { useToast } from './hooks/use-toast';
 import { useAppState } from './hooks/useAppState';
@@ -406,6 +407,7 @@ function App() {
         onClose={() => setIsProjectLoaderOpen(false)}
         onProjectSelect={handleLoadProject}
       />
+      <Toaster />
     </div>
   );
 }
