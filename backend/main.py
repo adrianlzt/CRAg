@@ -1,4 +1,5 @@
 import json
+import os
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -15,8 +16,8 @@ from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 from sqlalchemy.sql import func
 
 # --- Configuration ---
-DATABASE_URL = "sqlite+aiosqlite:///projects.db"
-UPLOAD_DIR = Path("uploads")
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite+aiosqlite:///projects.db")
+UPLOAD_DIR = Path(os.environ.get("UPLOAD_DIR", "uploads"))
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 # --- Database Setup ---
