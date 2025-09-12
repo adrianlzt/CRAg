@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import AsyncGenerator, Dict, List, Optional
 
 import uvicorn
-from fastapi import Depends, FastAPI, Form, HTTPException, Request, UploadFile
+from fastapi import Depends, FastAPI, Form, HTTPException, Request
+from starlette.datastructures import UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -17,7 +18,8 @@ from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 from sqlalchemy.sql import func
 
 # --- Configuration ---
-DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite+aiosqlite:///projects.db")
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL", "sqlite+aiosqlite:///projects.db")
 UPLOAD_DIR = Path(os.environ.get("UPLOAD_DIR", "uploads"))
 UPLOAD_DIR.mkdir(exist_ok=True)
 
@@ -180,7 +182,6 @@ async def list_projects(db: AsyncSession = Depends(get_db)):
 @app.post("/api/projects", response_model=Project, status_code=201)
 async def create_project(
     request: Request,
-    project_json: str = Form(..., alias="project"),
     db: AsyncSession = Depends(get_db),
 ):
     """Create a new project."""
@@ -188,10 +189,18 @@ async def create_project(
     form = await request.form()
     logger.info(f"Form fields received: {list(form.keys())}")
 
+    project_json = form.get("project")
+    if not project_json or not isinstance(project_json, str):
+        raise HTTPException(
+            status_code=400, detail="Missing or invalid 'project' form field."
+        )
+
     try:
         project_data = json.loads(project_json)
         logger.info(
-            f"Project JSON parsed successfully. Project name: {project_data.get('projectName')}"
+            f"Project JSON parsed successfully. Project name: {
+                project_data.get('projectName')
+            }"
         )
     except json.JSONDecodeError:
         logger.error(f"Failed to parse project JSON: {project_json}")
@@ -211,49 +220,154 @@ async def create_project(
     temp_to_new_photo_id = {}
 
     file_upload_count = 0
-    for temp_id, value in form.items():
-        if temp_id == "project" or not isinstance(value, UploadFile):
-            continue
-
-        file_upload_count += 1
-        file = value
-        logger.info(
-            f"Processing uploaded file. Form key (temp_id): {temp_id}, Filename: {file.filename}"
-        )
-
-        photo_id = f"photo_{uuid.uuid4()}"
-        temp_to_new_photo_id[temp_id] = photo_id
-
-        original_filename = photo_meta_map.get(temp_id, {}).get(
-            "name", file.filename or ""
-        )
-        file_extension = Path(original_filename).suffix
-        file_path = UPLOAD_DIR / f"{photo_id}{file_extension}"
-        logger.info(f"Saving file to: {file_path}")
-
-        try:
-            with open(file_path, "wb") as buffer:
-                content = await file.read()
-                buffer.write(content)
-            logger.info(f"Successfully saved {file_path}, size: {len(content)} bytes.")
-        except Exception as e:
-            logger.error(f"Error saving file {file_path}: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"Could not save file {original_filename}."
+    for key, value in form.items():
+        print(f"Form items Key: {key}, Value: {
+              value}, type value: {type(value)}")
+        if isinstance(value, UploadFile):
+            file_upload_count += 1
+            file = value
+            temp_id = key
+            logger.info(
+                f"Processing uploaded file. Form key (temp_id): {temp_id}, Filename: {
+                    file.filename
+                }"
             )
 
-        photo_meta = photo_meta_map.get(temp_id, {})
-        new_photo_db = PhotoDB(
-            id=photo_id,
-            name=original_filename,
-            url=f"{base_url}/uploads/{file_path.name}",
-            description=photo_meta.get("description"),
-            project_id=project_id,
-        )
-        new_project_db.photos.append(new_photo_db)
+            photo_id = f"photo_{uuid.uuid4()}"
+            temp_to_new_photo_id[temp_id] = photo_id
+
+            original_filename = photo_meta_map.get(temp_id, {}).get(
+                "name", file.filename or ""
+            )
+            file_extension = Path(original_filename).suffix
+            file_path = UPLOAD_DIR / f"{photo_id}{file_extension}"
+            logger.info(f"Saving file to: {file_path}")
+
+            try:
+                with open(file_path, "wb") as buffer:
+                    content = await file.read()
+                    buffer.write(content)
+                logger.info(
+                    f"Successfully saved {file_path}, size: {
+                        len(content)} bytes."
+                )
+            except Exception as e:
+                logger.error(f"Error saving file {file_path}: {e}")
+                raise HTTPException(
+                    status_code=500, detail=f"Could not save file {original_filename}."
+                )
+
+            photo_meta = photo_meta_map.get(temp_id, {})
+            new_photo_db = PhotoDB(
+                id=photo_id,
+                name=original_filename,
+                url=f"{base_url}/uploads/{file_path.name}",
+                description=photo_meta.get("description"),
+                project_id=project_id,
+            )
+            new_project_db.photos.append(new_photo_db)
+
+    photo_meta_map = {p["id"]: p for p in project_data.get("photos", [])}
+    logger.info(f"Photo metadata from JSON: {list(photo_meta_map.keys())}")
+    temp_to_new_photo_id = {}
+
+    file_upload_count = 0
+    for key, value in form.items():
+        if isinstance(value, UploadFile):
+            file_upload_count += 1
+            file = value
+            temp_id = key
+            logger.info(
+                f"Processing uploaded file. Form key (temp_id): {temp_id}, Filename: {
+                    file.filename
+                }"
+            )
+
+            photo_id = f"photo_{uuid.uuid4()}"
+            temp_to_new_photo_id[temp_id] = photo_id
+
+            original_filename = photo_meta_map.get(temp_id, {}).get(
+                "name", file.filename or ""
+            )
+            file_extension = Path(original_filename).suffix
+            file_path = UPLOAD_DIR / f"{photo_id}{file_extension}"
+            logger.info(f"Saving file to: {file_path}")
+
+            try:
+                with open(file_path, "wb") as buffer:
+                    content = await file.read()
+                    buffer.write(content)
+                logger.info(
+                    f"Successfully saved {file_path}, size: {
+                        len(content)} bytes."
+                )
+            except Exception as e:
+                logger.error(f"Error saving file {file_path}: {e}")
+                raise HTTPException(
+                    status_code=500, detail=f"Could not save file {original_filename}."
+                )
+
+            photo_meta = photo_meta_map.get(temp_id, {})
+            new_photo_db = PhotoDB(
+                id=photo_id,
+                name=original_filename,
+                url=f"{base_url}/uploads/{file_path.name}",
+                description=photo_meta.get("description"),
+                project_id=project_id,
+            )
+            new_project_db.photos.append(new_photo_db)
+
+        temp_to_new_photo_id = {}
+
+    file_upload_count = 0
+    # Add new photos
+    for key, value in form.items():
+        if isinstance(value, UploadFile):
+            file_upload_count += 1
+            file = value
+            temp_id = key
+            logger.info(
+                f"Processing uploaded file. Form key (temp_id): {temp_id}, Filename: {
+                    file.filename
+                }"
+            )
+
+            photo_id = f"photo_{uuid.uuid4()}"
+            temp_to_new_photo_id[temp_id] = photo_id
+
+            original_filename = client_photo_map.get(temp_id, {}).get(
+                "name", file.filename or ""
+            )
+            file_extension = Path(original_filename).suffix
+            file_path = UPLOAD_DIR / f"{photo_id}{file_extension}"
+            logger.info(f"Saving file to: {file_path}")
+
+            try:
+                with open(file_path, "wb") as buffer:
+                    content = await file.read()
+                    buffer.write(content)
+                logger.info(
+                    f"Successfully saved {file_path}, size: {
+                        len(content)} bytes."
+                )
+            except Exception as e:
+                logger.error(f"Error saving file {file_path}: {e}")
+                raise HTTPException(
+                    status_code=500, detail=f"Could not save file {original_filename}."
+                )
+
+            photo_meta = client_photo_map.get(temp_id, {})
+            new_photo_db = PhotoDB(
+                id=photo_id,
+                name=original_filename,
+                url=f"{base_url}/uploads/{file_path.name}",
+                description=photo_meta.get("description"),
+                project_id=project_id,
+            )
+            project_db.photos.append(new_photo_db)
 
     if file_upload_count == 0:
-        logger.warning("No files were found in the form to upload.")
+        logger.warning("No new files were found in the form to upload.")
 
     for annotation_data in project_data.get("annotations", []):
         temp_photo_id = annotation_data.get("photoId")
@@ -268,7 +382,10 @@ async def create_project(
     await db.commit()
     await db.refresh(new_project_db)
 
-    logger.info(f"--- create_project finished successfully for project {project_id} ---")
+    logger.info(
+        f"--- create_project finished successfully for project {
+            project_id} ---"
+    )
     return Project.from_orm(new_project_db)
 
 
@@ -286,11 +403,11 @@ async def get_project_by_id(project_id: str, db: AsyncSession = Depends(get_db))
 async def update_project(
     project_id: str,
     request: Request,
-    project_json: str = Form(..., alias="project"),
     db: AsyncSession = Depends(get_db),
 ):
     """Update an existing project."""
-    logger.info(f"--- update_project endpoint called for project_id: {project_id} ---")
+    logger.info(
+        f"--- update_project endpoint called for project_id: {project_id} ---")
     result = await db.execute(select(ProjectDB).where(ProjectDB.id == project_id))
     project_db = result.scalar_one_or_none()
     if not project_db:
@@ -300,10 +417,18 @@ async def update_project(
     form = await request.form()
     logger.info(f"Form fields received: {list(form.keys())}")
 
+    project_json = form.get("project")
+    if not project_json or not isinstance(project_json, str):
+        raise HTTPException(
+            status_code=400, detail="Missing or invalid 'project' form field."
+        )
+
     try:
         project_data = json.loads(project_json)
         logger.info(
-            f"Project JSON parsed successfully. Project name: {project_data.get('projectName')}"
+            f"Project JSON parsed successfully. Project name: {
+                project_data.get('projectName')
+            }"
         )
     except json.JSONDecodeError:
         logger.error(f"Failed to parse project JSON: {project_json}")
@@ -341,46 +466,50 @@ async def update_project(
 
     file_upload_count = 0
     # Add new photos
-    for temp_id, value in form.items():
-        if temp_id == "project" or not isinstance(value, UploadFile):
-            continue
-
-        file_upload_count += 1
-        file = value
-        logger.info(
-            f"Processing uploaded file. Form key (temp_id): {temp_id}, Filename: {file.filename}"
-        )
-
-        photo_id = f"photo_{uuid.uuid4()}"
-        temp_to_new_photo_id[temp_id] = photo_id
-
-        original_filename = client_photo_map.get(temp_id, {}).get(
-            "name", file.filename or ""
-        )
-        file_extension = Path(original_filename).suffix
-        file_path = UPLOAD_DIR / f"{photo_id}{file_extension}"
-        logger.info(f"Saving file to: {file_path}")
-
-        try:
-            with open(file_path, "wb") as buffer:
-                content = await file.read()
-                buffer.write(content)
-            logger.info(f"Successfully saved {file_path}, size: {len(content)} bytes.")
-        except Exception as e:
-            logger.error(f"Error saving file {file_path}: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"Could not save file {original_filename}."
+    for key, value in form.items():
+        if isinstance(value, UploadFile):
+            file_upload_count += 1
+            file = value
+            temp_id = key
+            logger.info(
+                f"Processing uploaded file. Form key (temp_id): {temp_id}, Filename: {
+                    file.filename
+                }"
             )
 
-        photo_meta = client_photo_map.get(temp_id, {})
-        new_photo_db = PhotoDB(
-            id=photo_id,
-            name=original_filename,
-            url=f"{base_url}/uploads/{file_path.name}",
-            description=photo_meta.get("description"),
-            project_id=project_id,
-        )
-        project_db.photos.append(new_photo_db)
+            photo_id = f"photo_{uuid.uuid4()}"
+            temp_to_new_photo_id[temp_id] = photo_id
+
+            original_filename = client_photo_map.get(temp_id, {}).get(
+                "name", file.filename or ""
+            )
+            file_extension = Path(original_filename).suffix
+            file_path = UPLOAD_DIR / f"{photo_id}{file_extension}"
+            logger.info(f"Saving file to: {file_path}")
+
+            try:
+                with open(file_path, "wb") as buffer:
+                    content = await file.read()
+                    buffer.write(content)
+                logger.info(
+                    f"Successfully saved {file_path}, size: {
+                        len(content)} bytes."
+                )
+            except Exception as e:
+                logger.error(f"Error saving file {file_path}: {e}")
+                raise HTTPException(
+                    status_code=500, detail=f"Could not save file {original_filename}."
+                )
+
+            photo_meta = client_photo_map.get(temp_id, {})
+            new_photo_db = PhotoDB(
+                id=photo_id,
+                name=original_filename,
+                url=f"{base_url}/uploads/{file_path.name}",
+                description=photo_meta.get("description"),
+                project_id=project_id,
+            )
+            project_db.photos.append(new_photo_db)
 
     if file_upload_count == 0:
         logger.warning("No new files were found in the form to upload.")
@@ -399,7 +528,10 @@ async def update_project(
     await db.commit()
     await db.refresh(project_db)
 
-    logger.info(f"--- update_project finished successfully for project {project_id} ---")
+    logger.info(
+        f"--- update_project finished successfully for project {
+            project_id} ---"
+    )
     return Project.from_orm(project_db)
 
 
