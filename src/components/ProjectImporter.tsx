@@ -4,7 +4,7 @@ import { useToast } from '../hooks/use-toast';
 import type { Photo, Annotation } from '../types';
 
 interface ProjectImporterProps {
-  onProjectImport: (data: { projectName?: string; photos: Photo[]; annotations: Annotation[] }) => void;
+  onProjectImport: (data: { projectName?: string; projectDescription?: string; photos: Photo[]; annotations: Annotation[] }) => void;
   children: (importProject: () => void) => React.ReactNode;
 }
 
@@ -12,7 +12,7 @@ type PhotoMetadata = Omit<Photo, 'file' | 'url'> & {
   fileName: string;
 };
 
-export async function processProjectZip(zipFile: Blob): Promise<{ projectName?: string; photos: Photo[]; annotations: Annotation[] }> {
+export async function processProjectZip(zipFile: Blob): Promise<{ projectName?: string; projectDescription?: string; photos: Photo[]; annotations: Annotation[] }> {
   const zip = await JSZip.loadAsync(zipFile);
   const projectFile = zip.file('project.json');
   if (!projectFile) {
@@ -20,7 +20,7 @@ export async function processProjectZip(zipFile: Blob): Promise<{ projectName?: 
   }
 
   const projectDataStr = await projectFile.async('string');
-  const projectData: { projectName?: string, photos: PhotoMetadata[], annotations: Annotation[] } = JSON.parse(projectDataStr);
+  const projectData: { projectName?: string, projectDescription?: string, photos: PhotoMetadata[], annotations: Annotation[] } = JSON.parse(projectDataStr);
 
   const imagesFolder = zip.folder('images');
   if (!imagesFolder) {
@@ -46,7 +46,7 @@ export async function processProjectZip(zipFile: Blob): Promise<{ projectName?: 
     })
   );
 
-  return { projectName: projectData.projectName, photos: importedPhotos, annotations: projectData.annotations };
+  return { projectName: projectData.projectName, projectDescription: projectData.projectDescription, photos: importedPhotos, annotations: projectData.annotations };
 }
 
 export const ProjectImporter: React.FC<ProjectImporterProps> = ({ onProjectImport, children }) => {

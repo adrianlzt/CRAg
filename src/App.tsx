@@ -219,10 +219,15 @@ function App() {
                   <h2 className="text-lg font-semibold mb-4 text-orange-400">Export / Import</h2>
                   <ExportImport
                     projectName={state.projectName}
+                    projectDescription={state.projectDescription}
                     photos={state.photos}
                     annotations={state.annotations}
                     onProjectImport={(data) => {
-                      handleProjectImport(data);
+                      const { projectDescription, ...rest } = data;
+                      handleProjectImport(rest);
+                      if (projectDescription) {
+                        updateState({ projectDescription });
+                      }
                       setProjectId(null);
                     }}
                     onExportAsImage={handleExportAsImage}
@@ -307,7 +312,11 @@ function App() {
                 <p className="text-slate-400 mb-6">Upload photos or import an existing project to get started.</p>
                 <div className="flex justify-center gap-4">
                   <ProjectImporter onProjectImport={(data) => {
-                    handleProjectImport(data);
+                    const { projectDescription, ...rest } = data;
+                    handleProjectImport(rest);
+                    if (projectDescription) {
+                      updateState({ projectDescription });
+                    }
                     setProjectId(null);
                   }}>
                     {(importProject) => (
