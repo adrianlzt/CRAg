@@ -1,0 +1,243 @@
+openapi: 3.0.3
+info:
+  title: Climbing Route Editor API
+  version: 1.0.0
+  description: API for saving and loading climbing route projects.
+
+paths:
+  /api/projects:
+    get:
+      summary: List all projects
+      operationId: listProjects
+      tags:
+        - projects
+      responses:
+        '200':
+          description: A list of project summaries.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectSummary'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a new project
+      operationId: createProject
+      tags:
+        - projects
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                project:
+                  type: string
+                  format: json
+                  description: A JSON string representing the project metadata. New photos should have a client-generated temporary ID.
+              required:
+                - project
+            encoding:
+              project:
+                contentType: application/json
+      responses:
+        '201':
+          description: Project created successfully. Returns the full project data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/projects/{projectId}:
+    get:
+      summary: Get a single project by ID
+      operationId: getProjectById
+      tags:
+        - projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: ID of the project to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The full project data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: Project not found.
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update an existing project
+      operationId: updateProject
+      tags:
+        - projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: ID of the project to update.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                project:
+                  type: string
+                  format: json
+                  description: A JSON string of the complete, updated project state. New photos should have a client-generated temporary ID.
+              required:
+                - project
+            encoding:
+              project:
+                contentType: application/json
+      responses:
+        '200':
+          description: Project updated successfully. Returns the full updated project data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: Project not found.
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    ProjectSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the project.
+        name:
+          type: string
+          description: The name of the project.
+        updatedAt:
+          type: string
+          format: date-time
+          description: The last time the project was updated.
+      required:
+        - id
+        - name
+        - updatedAt
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the project.
+        projectName:
+          type: string
+        projectDescription:
+          type: string
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Photo'
+        annotations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Annotation'
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - projectName
+        - photos
+        - annotations
+        - updatedAt
+
+    Photo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the photo.
+        name:
+          type: string
+          description: Original filename of the photo.
+        url:
+          type: string
+          format: uri
+          description: URL to access the image file.
+        description:
+          type: string
+      required:
+        - id
+        - name
+        - url
+
+    Annotation:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: ['hold', 'line', 'text']
+        photoId:
+          type: string
+        x:
+          type: number
+          format: float
+        y:
+          type: number
+          format: float
+        data:
+          type: object
+          description: Annotation-specific data.
+      required:
+        - id
+        - type
+        - photoId
+        - x
+        - y
+        - data
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+      required:
+        - code
+        - message
