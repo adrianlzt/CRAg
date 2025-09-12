@@ -114,26 +114,6 @@ function App() {
               />
             </div>
 
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-              <h2 className="text-lg font-semibold mb-4 text-orange-400">Cloud Storage</h2>
-              <div className="flex space-x-2">
-                <Button
-                  className="flex-1"
-                  onClick={handleSaveProject}
-                  disabled={!currentPhoto}
-                >
-                  <Save className="mr-2 h-4 w-4" /> Save Project
-                </Button>
-                <Button
-                  variant="secondary"
-                  className="flex-1"
-                  onClick={() => setIsProjectLoaderOpen(true)}
-                >
-                  <FolderOpen className="mr-2 h-4 w-4" /> Load Project
-                </Button>
-              </div>
-            </div>
-
             {/* Tools Section */}
             {currentPhoto && (
               <>
@@ -202,6 +182,24 @@ function App() {
                     <FilePlus className="mr-2 h-4 w-4" />
                     New Project
                   </Button>
+                </div>
+
+                <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+                  <h2 className="text-lg font-semibold mb-4 text-orange-400">Cloud Storage</h2>
+                  <div className="flex flex-col space-y-2">
+                    <Button
+                      onClick={handleSaveProject}
+                      disabled={!currentPhoto}
+                    >
+                      <Save className="mr-2 h-4 w-4" /> Save Project
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setIsProjectLoaderOpen(true)}
+                    >
+                      <FolderOpen className="mr-2 h-4 w-4" /> Load Project
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
