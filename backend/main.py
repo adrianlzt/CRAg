@@ -86,7 +86,7 @@ class Photo(BaseModel):
     description: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class Annotation(BaseModel):
@@ -98,7 +98,7 @@ class Annotation(BaseModel):
     data: Dict
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class Project(BaseModel):
@@ -110,7 +110,7 @@ class Project(BaseModel):
     updatedAt: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ProjectSummary(BaseModel):
