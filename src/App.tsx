@@ -7,8 +7,9 @@ import { ExportImport } from './components/ExportImport';
 import { Header } from './components/Header';
 import { RouteDescription } from './components/RouteDescription';
 import { ProjectImporter } from './components/ProjectImporter';
+import { ProjectLoader } from './components/ProjectLoader';
 import { Button } from './components/ui/button';
-import { Upload, Redo, Undo, FilePlus, Menu } from 'lucide-react';
+import { Upload, Redo, Undo, FilePlus, Menu, Save, FolderOpen } from 'lucide-react';
 import { useToast } from './hooks/use-toast';
 import { useAppState } from './hooks/useAppState';
 import { exportAsImage } from './lib/image-export';
@@ -36,6 +37,24 @@ function App() {
   const { toast } = useToast();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProjectLoaderOpen, setIsProjectLoaderOpen] = useState(false);
+
+  const handleSaveProject = async () => {
+    // TODO: Implement actual save logic
+    toast({
+      title: "Project Saved (mock)",
+      description: "This is a placeholder for the save functionality.",
+    });
+  };
+
+  const handleLoadProject = async (projectId: string) => {
+    // TODO: Implement actual load logic
+    toast({
+      title: "Loading Project (mock)",
+      description: `This is a placeholder for loading project ${projectId}.`,
+    });
+    setIsProjectLoaderOpen(false);
+  };
 
   const handleExportAsImage = useCallback(async () => {
     await exportAsImage(state, toast);
@@ -93,6 +112,26 @@ function App() {
                   setIsMenuOpen(false);
                 }}
               />
+            </div>
+
+            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+              <h2 className="text-lg font-semibold mb-4 text-orange-400">Cloud Storage</h2>
+              <div className="flex space-x-2">
+                <Button
+                  className="flex-1"
+                  onClick={handleSaveProject}
+                  disabled={!currentPhoto}
+                >
+                  <Save className="mr-2 h-4 w-4" /> Save Project
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="flex-1"
+                  onClick={() => setIsProjectLoaderOpen(true)}
+                >
+                  <FolderOpen className="mr-2 h-4 w-4" /> Load Project
+                </Button>
+              </div>
             </div>
 
             {/* Tools Section */}
@@ -287,7 +326,119 @@ function App() {
             </div>
           )}
         </div>
+
+        {/* Main Content - Photo Viewer */}
+        <div className="flex-1 relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 left-4 z-30 lg:hidden bg-slate-900/70 hover:bg-slate-800/80 text-white rounded-full"
+            onClick={() => setIsMenuOpen(true)}
+          >
+            <Menu className="h-6 w-6" />
+          </Button>
+          {currentPhoto ? (
+            <PhotoViewer
+              photo={currentPhoto}
+              annotations={currentPhotoAnnotations}
+              selectedTool={state.selectedTool}
+              selectedHoldType={state.selectedHoldType}
+              selectedHandColor={state.selectedHandColor}
+              selectedFootColor={state.selectedFootColor}
+              selectedKneeColor={state.selectedKneeColor}
+              selectedLineColor={state.selectedLineColor}
+              selectedLineWidth={state.selectedLineWidth}
+              onAnnotationAdd={addAnnotation}
+              onAnnotationUpdate={updateAnnotation}
+              onAnnotationRemove={removeAnnotation}
+            />
+          ) : (
+            <div className="h-full flex items-center justify-center bg-slate-800/30">
+              <div className="text-center p-8">
+                <div className="text-6xl mb-4">🧗‍♂️</div>
+                <h2 className="text-2xl font-bold mb-2 text-slate-300">Ready to Annotate Routes</h2>
+                <p className="text-slate-400 mb-6">Upload photos or import an existing project to get started.</p>
+                <ProjectImporter onProjectImport={handleProjectImport}>
+                  {(importProject) => (
+                    <Button onClick={importProject} variant="secondary">
+                      <Upload className="mr-2 h-4 w-4" />
+                      Import Project
+                    </Button>
+                  )}
+                </ProjectImporter>
+              </div>
+            </div>
+          )}
+          {currentPhoto && state.selectedTool === 'hold' && (
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm px-4 lg:max-w-md">
+              <div className="bg-slate-900/80 backdrop-blur-sm rounded-xl p-2 lg:p-4 border border-slate-700/50">
+                <HoldSelector
+                  selectedHoldType={state.selectedHoldType}
+                  selectedHandColor={state.selectedHandColor}
+                  selectedFootColor={state.selectedFootColor}
+                  selectedKneeColor={state.selectedKneeColor}
+                  onHoldTypeSelect={(holdType) => updateState({ selectedHoldType: holdType, selectedTool: 'hold' })}
+                  onHandColorSelect={(color) => updateState({ selectedHandColor: color })}
+                  onFootColorSelect={(color) => updateState({ selectedFootColor: color })}
+                  onKneeColorSelect={(color) => updateState({ selectedKneeColor: color })}
+                />
+              </div>
+            </div>
+          )}
+          {currentPhoto && state.selectedTool === 'line' && (
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm px-4 lg:max-w-md">
+              <div className="bg-slate-900/80 backdrop-blur-sm rounded-xl p-2 lg:p-4 border border-slate-700/50 flex items-center justify-center gap-6">
+                {/* Line Color Selection */}
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    '#f97316', // orange
+                    '#ef4444', // red
+                    '#10b981', // green
+                    '#3b82f6', // blue
+                    '#eab308', // yellow
+                    '#ec4899', // pink
+                  ].map(color => (
+                    <button
+                      key={color}
+                      onClick={() => updateState({ selectedLineColor: color })}
+                      className={`w-8 h-8 rounded-md border-2 transition-all ${state.selectedLineColor === color
+                        ? `border-white`
+                        : 'border-slate-600 hover:border-slate-400'
+                        }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+
+                {/* Line Width Selection */}
+                <div className="flex items-center gap-2">
+                  {[3, 5, 8, 12].map((width) => (
+                    <button
+                      key={width}
+                      onClick={() => updateState({ selectedLineWidth: width })}
+                      title={`${width}px`}
+                      className={`w-8 h-8 rounded-md border-2 flex items-center justify-center transition-all ${state.selectedLineWidth === width
+                        ? "border-white"
+                        : "border-slate-600 hover:border-slate-400"
+                        }`}
+                    >
+                      <div
+                        className="bg-white rounded-full"
+                        style={{ width: `${width}px`, height: `${width}px` }}
+                      ></div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
+      <ProjectLoader
+        isOpen={isProjectLoaderOpen}
+        onClose={() => setIsProjectLoaderOpen(false)}
+        onProjectSelect={handleLoadProject}
+      />
     </div>
   );
 }
