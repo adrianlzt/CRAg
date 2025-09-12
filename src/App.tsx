@@ -42,11 +42,11 @@ function App() {
   const [projectId, setProjectId] = useState<string | null>(null);
 
   const loadProjectDataIntoState = useCallback(async (projectData: any) => {
-    const photosWithFiles = await Promise.all(projectData.photos.map(async (p: Omit<Photo, 'file'>) => {
+    const photosWithFiles = await Promise.all(projectData.photos.map(async (p: Omit<Photo, 'file'> & { url: string }) => {
       const response = await fetch(p.url);
       const blob = await response.blob();
       const file = new File([blob], p.name, { type: blob.type });
-      return { ...p, file, url: URL.createObjectURL(file) };
+      return { ...p, file };
     }));
 
     handleProjectImport({
