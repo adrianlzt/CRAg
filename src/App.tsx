@@ -13,7 +13,8 @@ import { Upload, Redo, Undo, FilePlus, Menu, Save, FolderOpen } from 'lucide-rea
 import { useToast } from './hooks/use-toast';
 import { useAppState } from './hooks/useAppState';
 import { exportAsImage } from './lib/image-export';
-export type { Photo, Annotation, HoldType } from './types';
+import { saveProject, getProject } from './lib/api';
+import { Photo, Annotation, HoldType } from './types';
 import './index.css';
 
 function App() {
@@ -38,22 +39,58 @@ function App() {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProjectLoaderOpen, setIsProjectLoaderOpen] = useState(false);
+  const [projectId, setProjectId] = useState<string | null>(null);
+
+  const loadProjectDataIntoState = useCallback(async (projectData: any) => {
+    const photosWithFiles = await Promise.all(projectData.photos.map(async (p: Omit<Photo, 'file'>) => {
+      const response = await fetch(p.url);
+      const blob = await response.blob();
+      const file = new File([blob], p.name, { type: blob.type });
+      return { ...p, file, url: URL.createObjectURL(file) };
+    }));
+
+    handleProjectImport({
+      projectName: projectData.projectName,
+      photos: photosWithFiles,
+      annotations: projectData.annotations,
+    });
+    updateState({ projectDescription: projectData.projectDescription });
+    setProjectId(projectData.id);
+  }, [handleProjectImport, updateState]);
 
   const handleSaveProject = async () => {
-    // TODO: Implement actual save logic
-    toast({
-      title: "Project Saved (mock)",
-      description: "This is a placeholder for the save functionality.",
-    });
+    try {
+      const savedProject = await saveProject(state, projectId);
+      await loadProjectDataIntoState(savedProject);
+      toast({
+        title: "Project Saved",
+        description: "Your project has been saved to the cloud.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error Saving Project",
+        description: (error as Error).message,
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleLoadProject = async (projectId: string) => {
-    // TODO: Implement actual load logic
-    toast({
-      title: "Loading Project (mock)",
-      description: `This is a placeholder for loading project ${projectId}.`,
-    });
-    setIsProjectLoaderOpen(false);
+  const handleLoadProject = async (id: string) => {
+    try {
+      const projectData = await getProject(id);
+      await loadProjectDataIntoState(projectData);
+      setIsProjectLoaderOpen(false);
+      toast({
+        title: "Project Loaded",
+        description: `Project "${projectData.projectName}" has been loaded.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error Loading Project",
+        description: (error as Error).message,
+        variant: "destructive",
+      });
+    }
   };
 
   const handleExportAsImage = useCallback(async () => {
@@ -171,13 +208,19 @@ function App() {
                     projectName={state.projectName}
                     photos={state.photos}
                     annotations={state.annotations}
-                    onProjectImport={handleProjectImport}
+                    onProjectImport={(data) => {
+                      handleProjectImport(data);
+                      setProjectId(null);
+                    }}
                     onExportAsImage={handleExportAsImage}
                   />
                   <Button
                     variant="destructive"
                     className="w-full mt-4"
-                    onClick={handleNewProject}
+                    onClick={() => {
+                      handleNewProject();
+                      setProjectId(null);
+                    }}
                   >
                     <FilePlus className="mr-2 h-4 w-4" />
                     New Project
@@ -249,7 +292,10 @@ function App() {
                 <div className="text-6xl mb-4">🧗‍♂️</div>
                 <h2 className="text-2xl font-bold mb-2 text-slate-300">Ready to Annotate Routes</h2>
                 <p className="text-slate-400 mb-6">Upload photos or import an existing project to get started.</p>
-                <ProjectImporter onProjectImport={handleProjectImport}>
+                <ProjectImporter onProjectImport={(data) => {
+                  handleProjectImport(data);
+                  setProjectId(null);
+                }}>
                   {(importProject) => (
                     <Button onClick={importProject} variant="secondary">
                       <Upload className="mr-2 h-4 w-4" />
@@ -356,7 +402,10 @@ function App() {
                 <div className="text-6xl mb-4">🧗‍♂️</div>
                 <h2 className="text-2xl font-bold mb-2 text-slate-300">Ready to Annotate Routes</h2>
                 <p className="text-slate-400 mb-6">Upload photos or import an existing project to get started.</p>
-                <ProjectImporter onProjectImport={handleProjectImport}>
+                <ProjectImporter onProjectImport={(data) => {
+                  handleProjectImport(data);
+                  setProjectId(null);
+                }}>
                   {(importProject) => (
                     <Button onClick={importProject} variant="secondary">
                       <Upload className="mr-2 h-4 w-4" />

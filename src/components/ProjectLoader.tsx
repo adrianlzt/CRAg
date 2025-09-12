@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from './ui/button';
 import { X, Folder, ChevronRight } from 'lucide-react';
+import { listProjects } from '../lib/api';
 
 interface ProjectSummary {
   id: string;
@@ -26,17 +27,10 @@ export const ProjectLoader: React.FC<ProjectLoaderProps> = ({ isOpen, onClose, o
         setIsLoading(true);
         setError(null);
         try {
-          // TODO: Replace with actual API call: const response = await fetch('/api/projects');
-          // For now, using mock data.
-          await new Promise(resolve => setTimeout(resolve, 500)); // simulate network delay
-          const mockProjects: ProjectSummary[] = [
-            { id: 'proj_1', name: 'Project Alpha', updatedAt: '2023-10-26T10:00:00Z' },
-            { id: 'proj_2', name: 'Beta Boulder Session', updatedAt: '2023-10-25T15:30:00Z' },
-            { id: 'proj_3', name: 'Weekend Trip to Font', updatedAt: '2023-10-22T08:45:00Z' },
-          ];
-          setProjects(mockProjects);
+          const projects = await listProjects();
+          setProjects(projects);
         } catch (err) {
-          setError('Failed to load projects.');
+          setError((err as Error).message || 'Failed to load projects.');
           console.error(err);
         } finally {
           setIsLoading(false);
