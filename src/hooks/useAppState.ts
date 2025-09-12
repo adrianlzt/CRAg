@@ -58,7 +58,8 @@ export function useAppState() {
         if (projectUrl) {
           setIsLoading(true);
           try {
-            const response = await fetch(projectUrl);
+            const proxiedUrl = `https://cors.k8s.adrianlzt.com/${projectUrl}`;
+            const response = await fetch(proxiedUrl);
             if (!response.ok) {
               throw new Error(`Failed to fetch project file: ${response.statusText}`);
             }
