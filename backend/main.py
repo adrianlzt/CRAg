@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import uuid
 from datetime import datetime
@@ -19,6 +20,9 @@ from sqlalchemy.sql import func
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite+aiosqlite:///projects.db")
 UPLOAD_DIR = Path(os.environ.get("UPLOAD_DIR", "uploads"))
 UPLOAD_DIR.mkdir(exist_ok=True)
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # --- Database Setup ---
 engine = create_async_engine(DATABASE_URL, connect_args={
@@ -176,21 +180,30 @@ async def list_projects(db: AsyncSession = Depends(get_db)):
 @app.post("/api/projects", response_model=Project, status_code=201)
 async def create_project(request: Request, db: AsyncSession = Depends(get_db)):
     """Create a new project."""
+    logger.info("--- create_project endpoint called ---")
     form = await request.form()
+    logger.info(f"Form fields received: {list(form.keys())}")
+
     project_form_part = form.get("project")
     if not project_form_part:
+        logger.error("'project' field is missing from the form.")
         raise HTTPException(status_code=400, detail="Missing 'project' field.")
 
     project_json: str
     if isinstance(project_form_part, str):
         project_json = project_form_part
     else:  # it's an UploadFile
+        logger.info("'project' field is an UploadFile, reading content.")
         project_json_bytes = await project_form_part.read()
         project_json = project_json_bytes.decode("utf-8")
 
     try:
         project_data = json.loads(project_json)
+        logger.info(
+            f"Project JSON parsed successfully. Project name: {project_data.get('projectName')}"
+        )
     except json.JSONDecodeError:
+        logger.error(f"Failed to parse project JSON: {project_json}")
         raise HTTPException(status_code=400, detail="Invalid project JSON.")
 
     project_id = f"proj_{uuid.uuid4()}"
@@ -203,13 +216,20 @@ async def create_project(request: Request, db: AsyncSession = Depends(get_db)):
     )
 
     photo_meta_map = {p["id"]: p for p in project_data.get("photos", [])}
+    logger.info(f"Photo metadata from JSON: {list(photo_meta_map.keys())}")
     temp_to_new_photo_id = {}
 
+    file_upload_count = 0
     for temp_id, value in form.items():
         if temp_id == "project" or not isinstance(value, UploadFile):
             continue
 
+        file_upload_count += 1
         file = value
+        logger.info(
+            f"Processing uploaded file. Form key (temp_id): {temp_id}, Filename: {file.filename}"
+        )
+
         photo_id = f"photo_{uuid.uuid4()}"
         temp_to_new_photo_id[temp_id] = photo_id
 
@@ -218,10 +238,18 @@ async def create_project(request: Request, db: AsyncSession = Depends(get_db)):
         )
         file_extension = Path(original_filename).suffix
         file_path = UPLOAD_DIR / f"{photo_id}{file_extension}"
+        logger.info(f"Saving file to: {file_path}")
 
-        with open(file_path, "wb") as buffer:
-            content = await file.read()
-            buffer.write(content)
+        try:
+            with open(file_path, "wb") as buffer:
+                content = await file.read()
+                buffer.write(content)
+            logger.info(f"Successfully saved {file_path}, size: {len(content)} bytes.")
+        except Exception as e:
+            logger.error(f"Error saving file {file_path}: {e}")
+            raise HTTPException(
+                status_code=500, detail=f"Could not save file {original_filename}."
+            )
 
         photo_meta = photo_meta_map.get(temp_id, {})
         new_photo_db = PhotoDB(
@@ -232,6 +260,9 @@ async def create_project(request: Request, db: AsyncSession = Depends(get_db)):
             project_id=project_id,
         )
         new_project_db.photos.append(new_photo_db)
+
+    if file_upload_count == 0:
+        logger.warning("No files were found in the form to upload.")
 
     for annotation_data in project_data.get("annotations", []):
         temp_photo_id = annotation_data.get("photoId")
@@ -246,6 +277,7 @@ async def create_project(request: Request, db: AsyncSession = Depends(get_db)):
     await db.commit()
     await db.refresh(new_project_db)
 
+    logger.info(f"--- create_project finished successfully for project {project_id} ---")
     return Project.from_orm(new_project_db)
 
 
@@ -264,26 +296,35 @@ async def update_project(
     project_id: str, request: Request, db: AsyncSession = Depends(get_db)
 ):
     """Update an existing project."""
+    logger.info(f"--- update_project endpoint called for project_id: {project_id} ---")
     result = await db.execute(select(ProjectDB).where(ProjectDB.id == project_id))
     project_db = result.scalar_one_or_none()
     if not project_db:
+        logger.error(f"Project with id {project_id} not found.")
         raise HTTPException(status_code=404, detail="Project not found.")
 
     form = await request.form()
+    logger.info(f"Form fields received: {list(form.keys())}")
     project_form_part = form.get("project")
     if not project_form_part:
+        logger.error("'project' field is missing from the form.")
         raise HTTPException(status_code=400, detail="Missing 'project' field.")
 
     project_json: str
     if isinstance(project_form_part, str):
         project_json = project_form_part
     else:  # it's an UploadFile
+        logger.info("'project' field is an UploadFile, reading content.")
         project_json_bytes = await project_form_part.read()
         project_json = project_json_bytes.decode("utf-8")
 
     try:
         project_data = json.loads(project_json)
+        logger.info(
+            f"Project JSON parsed successfully. Project name: {project_data.get('projectName')}"
+        )
     except json.JSONDecodeError:
+        logger.error(f"Failed to parse project JSON: {project_json}")
         raise HTTPException(status_code=400, detail="Invalid project JSON.")
 
     base_url = get_base_url(request)
@@ -296,26 +337,38 @@ async def update_project(
     # Sync photos
     client_photo_map = {p["id"]: p for p in project_data.get("photos", [])}
     db_photo_map = {p.id: p for p in project_db.photos}
+    logger.info(f"Client photo IDs: {list(client_photo_map.keys())}")
+    logger.info(f"DB photo IDs: {list(db_photo_map.keys())}")
 
     # Delete photos not in client data
     photos_to_remove = [
         p for p_id, p in db_photo_map.items() if p_id not in client_photo_map
     ]
     for photo_db in photos_to_remove:
+        logger.info(f"Removing photo {photo_db.id} ({photo_db.url})")
         project_db.photos.remove(photo_db)
         try:
-            (UPLOAD_DIR / Path(photo_db.url).name).unlink(missing_ok=True)
+            file_to_delete = UPLOAD_DIR / Path(photo_db.url).name
+            logger.info(f"Deleting file from disk: {file_to_delete}")
+            file_to_delete.unlink(missing_ok=True)
         except Exception as e:
+            logger.error(f"Error deleting file {photo_db.url}: {e}")
             print(f"Error deleting file {photo_db.url}: {e}")
 
     temp_to_new_photo_id = {}
 
+    file_upload_count = 0
     # Add new photos
     for temp_id, value in form.items():
         if temp_id == "project" or not isinstance(value, UploadFile):
             continue
 
+        file_upload_count += 1
         file = value
+        logger.info(
+            f"Processing uploaded file. Form key (temp_id): {temp_id}, Filename: {file.filename}"
+        )
+
         photo_id = f"photo_{uuid.uuid4()}"
         temp_to_new_photo_id[temp_id] = photo_id
 
@@ -324,10 +377,18 @@ async def update_project(
         )
         file_extension = Path(original_filename).suffix
         file_path = UPLOAD_DIR / f"{photo_id}{file_extension}"
+        logger.info(f"Saving file to: {file_path}")
 
-        with open(file_path, "wb") as buffer:
-            content = await file.read()
-            buffer.write(content)
+        try:
+            with open(file_path, "wb") as buffer:
+                content = await file.read()
+                buffer.write(content)
+            logger.info(f"Successfully saved {file_path}, size: {len(content)} bytes.")
+        except Exception as e:
+            logger.error(f"Error saving file {file_path}: {e}")
+            raise HTTPException(
+                status_code=500, detail=f"Could not save file {original_filename}."
+            )
 
         photo_meta = client_photo_map.get(temp_id, {})
         new_photo_db = PhotoDB(
@@ -338,6 +399,9 @@ async def update_project(
             project_id=project_id,
         )
         project_db.photos.append(new_photo_db)
+
+    if file_upload_count == 0:
+        logger.warning("No new files were found in the form to upload.")
 
     # Sync annotations (delete all and re-add)
     project_db.annotations.clear()
@@ -353,6 +417,7 @@ async def update_project(
     await db.commit()
     await db.refresh(project_db)
 
+    logger.info(f"--- update_project finished successfully for project {project_id} ---")
     return Project.from_orm(project_db)
 
 
