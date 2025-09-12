@@ -178,24 +178,15 @@ async def list_projects(db: AsyncSession = Depends(get_db)):
 
 
 @app.post("/api/projects", response_model=Project, status_code=201)
-async def create_project(request: Request, db: AsyncSession = Depends(get_db)):
+async def create_project(
+    request: Request,
+    project_json: str = Form(..., alias="project"),
+    db: AsyncSession = Depends(get_db),
+):
     """Create a new project."""
     logger.info("--- create_project endpoint called ---")
     form = await request.form()
     logger.info(f"Form fields received: {list(form.keys())}")
-
-    project_form_part = form.get("project")
-    if not project_form_part:
-        logger.error("'project' field is missing from the form.")
-        raise HTTPException(status_code=400, detail="Missing 'project' field.")
-
-    project_json: str
-    if isinstance(project_form_part, str):
-        project_json = project_form_part
-    else:  # it's an UploadFile
-        logger.info("'project' field is an UploadFile, reading content.")
-        project_json_bytes = await project_form_part.read()
-        project_json = project_json_bytes.decode("utf-8")
 
     try:
         project_data = json.loads(project_json)
@@ -293,7 +284,10 @@ async def get_project_by_id(project_id: str, db: AsyncSession = Depends(get_db))
 
 @app.put("/api/projects/{project_id}", response_model=Project)
 async def update_project(
-    project_id: str, request: Request, db: AsyncSession = Depends(get_db)
+    project_id: str,
+    request: Request,
+    project_json: str = Form(..., alias="project"),
+    db: AsyncSession = Depends(get_db),
 ):
     """Update an existing project."""
     logger.info(f"--- update_project endpoint called for project_id: {project_id} ---")
@@ -305,18 +299,6 @@ async def update_project(
 
     form = await request.form()
     logger.info(f"Form fields received: {list(form.keys())}")
-    project_form_part = form.get("project")
-    if not project_form_part:
-        logger.error("'project' field is missing from the form.")
-        raise HTTPException(status_code=400, detail="Missing 'project' field.")
-
-    project_json: str
-    if isinstance(project_form_part, str):
-        project_json = project_form_part
-    else:  # it's an UploadFile
-        logger.info("'project' field is an UploadFile, reading content.")
-        project_json_bytes = await project_form_part.read()
-        project_json = project_json_bytes.decode("utf-8")
 
     try:
         project_data = json.loads(project_json)
