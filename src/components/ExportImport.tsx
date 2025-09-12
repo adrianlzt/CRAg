@@ -10,9 +10,10 @@ import { ProjectImporter } from './ProjectImporter';
 
 interface ExportImportProps {
   projectName: string;
+  projectDescription: string;
   photos: Photo[];
   annotations: Annotation[];
-  onProjectImport: (data: { projectName?: string; photos: Photo[]; annotations: Annotation[] }) => void;
+  onProjectImport: (data: { projectName?: string; projectDescription?: string; photos: Photo[]; annotations: Annotation[] }) => void;
   onExportAsImage: () => void;
 }
 
@@ -22,6 +23,7 @@ type PhotoMetadata = Omit<Photo, 'file' | 'url'> & {
 
 export const ExportImport: React.FC<ExportImportProps> = ({
   projectName,
+  projectDescription,
   photos,
   annotations,
   onProjectImport,
@@ -53,6 +55,7 @@ export const ExportImport: React.FC<ExportImportProps> = ({
         version: '1.1-zip',
         timestamp: new Date().toISOString(),
         projectName,
+        projectDescription,
         photos: photosMetadata,
         annotations,
       };
