@@ -2,17 +2,63 @@ import json
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import AsyncGenerator, Dict, List, Optional
 
 import uvicorn
-from fastapi import FastAPI, Form, HTTPException, Request, UploadFile
+from fastapi import Depends, FastAPI, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from sqlalchemy import (JSON, Column, DateTime, Float, ForeignKey, String,
+                        select)
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import declarative_base, relationship, sessionmaker
+from sqlalchemy.sql import func
 
 # --- Configuration ---
+DATABASE_URL = "sqlite+aiosqlite:///backend/projects.db"
 UPLOAD_DIR = Path("backend/uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
+
+# --- Database Setup ---
+engine = create_async_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+Base = declarative_base()
+
+
+# --- Database Models ---
+class ProjectDB(Base):
+    __tablename__ = "projects"
+    id = Column(String, primary_key=True, index=True)
+    projectName = Column(String, index=True)
+    projectDescription = Column(String, nullable=True)
+    updatedAt = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    photos = relationship("PhotoDB", back_populates="project", cascade="all, delete-orphan", lazy="selectin")
+    annotations = relationship("AnnotationDB", back_populates="project", cascade="all, delete-orphan", lazy="selectin")
+
+class PhotoDB(Base):
+    __tablename__ = "photos"
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String)
+    url = Column(String)
+    description = Column(String, nullable=True)
+    project_id = Column(String, ForeignKey("projects.id"))
+    
+    project = relationship("ProjectDB", back_populates="photos")
+
+class AnnotationDB(Base):
+    __tablename__ = "annotations"
+    id = Column(String, primary_key=True, index=True)
+    type = Column(String)
+    photoId = Column(String)
+    x = Column(Float)
+    y = Column(Float)
+    data = Column(JSON)
+    project_id = Column(String, ForeignKey("projects.id"))
+
+    project = relationship("ProjectDB", back_populates="annotations")
+
 
 # --- Pydantic Models (from openapi.yaml) ---
 
@@ -21,6 +67,8 @@ class Photo(BaseModel):
     name: str
     url: str
     description: Optional[str] = None
+    class Config:
+        orm_mode = True
 
 class Annotation(BaseModel):
     id: str
@@ -29,6 +77,8 @@ class Annotation(BaseModel):
     x: float
     y: float
     data: Dict
+    class Config:
+        orm_mode = True
 
 class Project(BaseModel):
     id: str
@@ -37,20 +87,29 @@ class Project(BaseModel):
     photos: List[Photo]
     annotations: List[Annotation]
     updatedAt: datetime
+    class Config:
+        orm_mode = True
 
 class ProjectSummary(BaseModel):
     id: str
     name: str
     updatedAt: datetime
 
-# --- In-memory Database ---
-db: Dict[str, Project] = {}
-
 # --- FastAPI App ---
 app = FastAPI(
     title="Climbing Route Editor API",
     version="1.0.0",
 )
+
+@app.on_event("startup")
+async def startup():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+# --- Database Dependency ---
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    async with async_session() as session:
+        yield session
 
 # --- CORS Middleware ---
 # Allow all origins for development
@@ -75,17 +134,15 @@ def get_base_url(request: Request) -> str:
 # --- API Endpoints ---
 
 @app.get("/api/projects", response_model=List[ProjectSummary])
-async def list_projects():
+async def list_projects(db: AsyncSession = Depends(get_db)):
     """List all projects."""
-    summaries = [
-        ProjectSummary(id=p.id, name=p.projectName, updatedAt=p.updatedAt)
-        for p in db.values()
-    ]
-    return sorted(summaries, key=lambda p: p.updatedAt, reverse=True)
+    result = await db.execute(select(ProjectDB).order_by(ProjectDB.updatedAt.desc()))
+    projects = result.scalars().all()
+    return [ProjectSummary(id=p.id, name=p.projectName, updatedAt=p.updatedAt) for p in projects]
 
 
 @app.post("/api/projects", response_model=Project, status_code=201)
-async def create_project(request: Request):
+async def create_project(request: Request, db: AsyncSession = Depends(get_db)):
     """Create a new project."""
     form = await request.form()
     project_json = form.get("project")
@@ -99,8 +156,15 @@ async def create_project(request: Request):
 
     project_id = f"proj_{uuid.uuid4()}"
     base_url = get_base_url(request)
-    new_photos = []
+    
+    new_project_db = ProjectDB(
+        id=project_id,
+        projectName=project_data["projectName"],
+        projectDescription=project_data.get("projectDescription"),
+    )
+
     photo_meta_map = {p["id"]: p for p in project_data.get("photos", [])}
+    temp_to_new_photo_id = {}
 
     for temp_id, value in form.items():
         if temp_id == "project" or not isinstance(value, UploadFile):
@@ -108,6 +172,7 @@ async def create_project(request: Request):
 
         file = value
         photo_id = f"photo_{uuid.uuid4()}"
+        temp_to_new_photo_id[temp_id] = photo_id
         
         original_filename = photo_meta_map.get(temp_id, {}).get("name", file.filename or "")
         file_extension = Path(original_filename).suffix
@@ -118,43 +183,49 @@ async def create_project(request: Request):
             buffer.write(content)
         
         photo_meta = photo_meta_map.get(temp_id, {})
-        new_photos.append(
-            Photo(
-                id=photo_id,
-                name=original_filename,
-                url=f"{base_url}/uploads/{file_path.name}",
-                description=photo_meta.get("description"),
-            )
+        new_photo_db = PhotoDB(
+            id=photo_id,
+            name=original_filename,
+            url=f"{base_url}/uploads/{file_path.name}",
+            description=photo_meta.get("description"),
+            project_id=project_id,
         )
-        for annotation in project_data.get("annotations", []):
-            if annotation.get("photoId") == temp_id:
-                annotation["photoId"] = photo_id
+        new_project_db.photos.append(new_photo_db)
 
-    new_project = Project(
-        id=project_id,
-        projectName=project_data["projectName"],
-        projectDescription=project_data.get("projectDescription"),
-        photos=new_photos,
-        annotations=project_data.get("annotations", []),
-        updatedAt=datetime.now(),
-    )
+    for annotation_data in project_data.get("annotations", []):
+        temp_photo_id = annotation_data.get("photoId")
+        if temp_photo_id in temp_to_new_photo_id:
+            annotation_data["photoId"] = temp_to_new_photo_id[temp_photo_id]
+        
+        new_annotation_db = AnnotationDB(
+            project_id=project_id,
+            **annotation_data
+        )
+        new_project_db.annotations.append(new_annotation_db)
 
-    db[project_id] = new_project
-    return new_project
+    db.add(new_project_db)
+    await db.commit()
+    await db.refresh(new_project_db)
+
+    return Project.from_orm(new_project_db)
 
 
 @app.get("/api/projects/{project_id}", response_model=Project)
-async def get_project_by_id(project_id: str):
+async def get_project_by_id(project_id: str, db: AsyncSession = Depends(get_db)):
     """Get a single project by ID."""
-    if project_id not in db:
+    result = await db.execute(select(ProjectDB).where(ProjectDB.id == project_id))
+    project = result.scalar_one_or_none()
+    if not project:
         raise HTTPException(status_code=404, detail="Project not found.")
-    return db[project_id]
+    return Project.from_orm(project)
 
 
 @app.put("/api/projects/{project_id}", response_model=Project)
-async def update_project(project_id: str, request: Request):
+async def update_project(project_id: str, request: Request, db: AsyncSession = Depends(get_db)):
     """Update an existing project."""
-    if project_id not in db:
+    result = await db.execute(select(ProjectDB).where(ProjectDB.id == project_id))
+    project_db = result.scalar_one_or_none()
+    if not project_db:
         raise HTTPException(status_code=404, detail="Project not found.")
 
     form = await request.form()
@@ -169,30 +240,36 @@ async def update_project(project_id: str, request: Request):
 
     base_url = get_base_url(request)
     
-    existing_project = db[project_id]
-    client_photo_ids = {p["id"] for p in project_data.get("photos", [])}
-    for old_photo in existing_project.photos:
-        if old_photo.id not in client_photo_ids:
-            try:
-                (UPLOAD_DIR / Path(old_photo.url).name).unlink(missing_ok=True)
-            except Exception as e:
-                print(f"Error deleting file {old_photo.url}: {e}")
+    # Update project fields
+    project_db.projectName = project_data["projectName"]
+    project_db.projectDescription = project_data.get("projectDescription")
+    project_db.updatedAt = datetime.now()
 
-    updated_photos = []
-    photo_meta_map = {p["id"]: p for p in project_data.get("photos", [])}
+    # Sync photos
+    client_photo_map = {p["id"]: p for p in project_data.get("photos", [])}
+    db_photo_map = {p.id: p for p in project_db.photos}
     
-    for photo_meta in project_data.get("photos", []):
-        if "url" in photo_meta and photo_meta["url"]:
-            updated_photos.append(Photo(**photo_meta))
+    # Delete photos not in client data
+    photos_to_remove = [p for p_id, p in db_photo_map.items() if p_id not in client_photo_map]
+    for photo_db in photos_to_remove:
+        project_db.photos.remove(photo_db)
+        try:
+            (UPLOAD_DIR / Path(photo_db.url).name).unlink(missing_ok=True)
+        except Exception as e:
+            print(f"Error deleting file {photo_db.url}: {e}")
 
+    temp_to_new_photo_id = {}
+    
+    # Add new photos
     for temp_id, value in form.items():
         if temp_id == "project" or not isinstance(value, UploadFile):
             continue
 
         file = value
         photo_id = f"photo_{uuid.uuid4()}"
+        temp_to_new_photo_id[temp_id] = photo_id
         
-        original_filename = photo_meta_map.get(temp_id, {}).get("name", file.filename or "")
+        original_filename = client_photo_map.get(temp_id, {}).get("name", file.filename or "")
         file_extension = Path(original_filename).suffix
         file_path = UPLOAD_DIR / f"{photo_id}{file_extension}"
 
@@ -200,30 +277,33 @@ async def update_project(project_id: str, request: Request):
             content = await file.read()
             buffer.write(content)
 
-        photo_meta = photo_meta_map.get(temp_id, {})
-        updated_photos.append(
-            Photo(
-                id=photo_id,
-                name=original_filename,
-                url=f"{base_url}/uploads/{file_path.name}",
-                description=photo_meta.get("description"),
-            )
+        photo_meta = client_photo_map.get(temp_id, {})
+        new_photo_db = PhotoDB(
+            id=photo_id,
+            name=original_filename,
+            url=f"{base_url}/uploads/{file_path.name}",
+            description=photo_meta.get("description"),
+            project_id=project_id,
         )
-        for annotation in project_data.get("annotations", []):
-            if annotation.get("photoId") == temp_id:
-                annotation["photoId"] = photo_id
+        project_db.photos.append(new_photo_db)
 
-    updated_project = Project(
-        id=project_id,
-        projectName=project_data["projectName"],
-        projectDescription=project_data.get("projectDescription"),
-        photos=updated_photos,
-        annotations=project_data.get("annotations", []),
-        updatedAt=datetime.now(),
-    )
+    # Sync annotations (delete all and re-add)
+    project_db.annotations.clear()
+    for annotation_data in project_data.get("annotations", []):
+        temp_photo_id = annotation_data.get("photoId")
+        if temp_photo_id in temp_to_new_photo_id:
+            annotation_data["photoId"] = temp_to_new_photo_id[temp_photo_id]
+        
+        new_annotation_db = AnnotationDB(
+            project_id=project_id,
+            **annotation_data
+        )
+        project_db.annotations.append(new_annotation_db)
 
-    db[project_id] = updated_project
-    return updated_project
+    await db.commit()
+    await db.refresh(project_db)
+    
+    return Project.from_orm(project_db)
 
 
 if __name__ == "__main__":
