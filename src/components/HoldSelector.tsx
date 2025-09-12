@@ -1,5 +1,5 @@
 import React from 'react';
-import { HoldType } from '../App';
+import type { HoldType } from '../types';
 
 interface HoldSelectorProps {
   selectedHoldType: HoldType | null;

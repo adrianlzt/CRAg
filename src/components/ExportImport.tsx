@@ -5,7 +5,7 @@ import { Download, Upload, Image as ImageIcon } from 'lucide-react';
 
 import { Button } from './ui/button';
 import { useToast } from '../hooks/use-toast';
-import type { Photo, Annotation } from '../App';
+import type { Photo, Annotation } from '../types';
 import { ProjectImporter } from './ProjectImporter';
 
 interface ExportImportProps {

@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useRef } from 'react';
 import { Upload, X, GripVertical, Image as ImageIcon, Plus, Camera } from 'lucide-react';
-import { Photo } from '../App';
+import type { Photo } from '../types';
 
 interface PhotoUploadProps {
   photos: Photo[];

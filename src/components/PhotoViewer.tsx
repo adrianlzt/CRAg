@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Stage, Layer, Image as KonvaImage, Circle, Line, Text, Group, Transformer, Label, Tag } from 'react-konva';
 import { useGesture } from '@use-gesture/react';
 import Konva from 'konva';
-import { Photo, Annotation, HoldType } from '../App';
+import type { Photo, Annotation, HoldType } from '../types';
 import { HOLD_TYPES } from './HoldSelector';
 
 interface PhotoViewerProps {

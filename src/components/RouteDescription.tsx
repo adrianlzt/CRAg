@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Textarea } from './ui/textarea';
-import { Photo } from '../App';
+import type { Photo } from '../types';
 import { Button } from './ui/button';
 import { Maximize, Minimize } from 'lucide-react';
 import { cn } from '../lib/utils';
