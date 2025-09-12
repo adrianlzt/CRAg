@@ -60,7 +60,20 @@ function App() {
 
   const handleSaveProject = async () => {
     try {
-      const savedProject = await saveProject(state, projectId);
+      const processedPhotos = await Promise.all(state.photos.map(async (photo) => {
+        // If photo url is a relative path, it's a sample photo that needs to be uploaded.
+        // Fetch it, create a blob and a file, and generate a blob URL.
+        if (!photo.url.startsWith('blob:') && !photo.url.startsWith('http')) {
+          const response = await fetch(photo.url);
+          const blob = await response.blob();
+          const file = new File([blob], photo.name, { type: blob.type });
+          return { ...photo, file, url: URL.createObjectURL(file) };
+        }
+        return photo;
+      }));
+      const stateToSave = { ...state, photos: processedPhotos };
+
+      const savedProject = await saveProject(stateToSave, projectId);
       await loadProjectDataIntoState(savedProject);
       toast({
         title: "Project Saved",
