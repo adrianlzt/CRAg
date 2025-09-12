@@ -52,8 +52,9 @@ export function useAppState() {
   useEffect(() => {
     const loadState = async () => {
       try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const projectUrl = urlParams.get('load');
+        const search = window.location.search;
+        const loadIndex = search.indexOf('load=');
+        const projectUrl = loadIndex !== -1 ? search.substring(loadIndex + 5) : null;
 
         if (projectUrl) {
           setIsLoading(true);
