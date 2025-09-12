@@ -1,8 +1,8 @@
-# 🧗‍♂️ Climbing Route Annotator
+# 🧗‍♂️ Crag - The Ultimate Climbing Route Annotator
 
-A comprehensive mobile-first web application for climbers to annotate climbing routes with advanced interactive features.
+Crag is a modern, mobile-first web application designed for climbers to create, annotate, and share climbing routes with ease. Whether you're mapping out a new problem at your local gym or documenting a classic outdoor route, Crag provides an intuitive and powerful set of tools for the job.
 
-**[Open the App](https://crag-one.vercel.app/)**
+**[🚀 Launch the App](https://crag-one.vercel.app/)**
 
 <br/>
 
@@ -14,106 +14,90 @@ A comprehensive mobile-first web application for climbers to annotate climbing r
 https://github.com/user-attachments/assets/8230c702-89f7-4492-a03b-5327a462e97f
 
 
-## 📱 Features
+## ✨ Key Features
 
-### Photo Management
-- **Multiple Photo Upload**: Drag & drop + file picker support
-- **Vertical Photo Stacking**: Organize photos vertically in sidebar
-- **Photo Reordering**: Drag to reorder photo sequence
-- **Mobile-Optimized Display**: Responsive photo gallery
+-   **📸 Multi-Photo Management**: Upload multiple photos via drag & drop or file picker. Easily reorder them to create a sequence.
+-   **✍️ Powerful Annotation Tools**:
+    -   **Holds**: Place various types of holds (Jugs, Crimps, Slopers, etc.) with color-coding for hands and feet.
+    -   **Lines**: Draw lines to illustrate the route's path.
+    -   **Text**: Add notes and beta directly onto the photo.
+    -   **Route Description**: Write detailed descriptions for the entire route.
+-   **📱 Mobile-First & Touch-Friendly**:
+    -   **Responsive Design**: A seamless experience on both mobile and desktop.
+    -   **Gesture Controls**: Use two-finger pinch-to-zoom and pan for easy navigation.
+-   **💾 Project Portability**:
+    -   **Export**: Save your entire project (photos, annotations, metadata) as a single `.zip` file.
+    -   **Import**: Load a project from a `.zip` file to continue your work.
+    -   **Share via URL**: Host your project file and share it with a simple URL parameter (`?load=<URL_to_zip>`).
+-   **☁️ Cloud Sync**:
+    -   Save projects to the cloud and access them from any device.
+    -   Load projects directly from your cloud account.
+-   **🌐 Offline Support**:
+    -   Works as a Progressive Web App (PWA), allowing you to use it even without an internet connection.
 
-### Touch & Gesture Controls
-- **Two-Finger Pinch Zoom**: Smooth pinch-to-zoom functionality
-- **Pan/Move Gestures**: Two-finger pan for photo navigation
-- **Touch-Optimized Interface**: Mobile-first design with touch targets
-- **Responsive Controls**: Works seamlessly on desktop and mobile
+## 🛠️ Tech Stack
 
-### Hold Annotation System
-- **9 Hold Types**: 
-  - 🤲 Jugs
-  - ✊ Crimps
-  - 🙌 Undercling
-  - 🤏 Pinch
-  - 🖐️ Sloper
-  - ☝️ One-finger pocket
-  - ✌️ Two-finger pocket
-  - 🤟 Three-finger pocket
-  - 🦶 Foot holds
-- **Color Coding**: Red (right hand), Green (left hand), Blue/Yellow (feet)
-- **Interactive Placement**: Click/tap to place holds on photos
-- **Icon Manipulation**: Move, select, and remove holds
+-   **Frontend**: React, TypeScript, Vite, Tailwind CSS, Shadcn UI
+-   **Backend**: Python, FastAPI, SQLAlchemy
+-   **Database**: SQLite (default), compatible with PostgreSQL, etc.
 
-### Drawing & Annotation
-- **Free Drawing Tool**: Draw route lines for path marking
-- **Text Annotations**: Add text notes
-- **Route description**: Long text explainin the route
-- **Undo/Redo Functionality**: Full history management
-- **Visual Route Mapping**: Clear route visualization
+## 🚀 Getting Started
 
-### Export/Import Features
-- **Project Export**: Export the entire project (photos, annotations, metadata) as a `.zip` file.
-- **Image Export**: Export the current view (photo with annotations) as an image.
-- **Project Import**: Import a `.zip` project file to continue working.
-- **URL-based Import**: Share projects via a URL. Just append `?load=<URL_to_your_zip_file>` to the app's URL.
-- **Annotation Preservation**: All data is preserved during export/import.
+1.  **Upload Photos**: Drag and drop your climbing wall photos or use the file picker.
+2.  **Select a Tool**: Choose from holds, lines, or text tools in the sidebar.
+3.  **Annotate**: Click or tap on the photo to place holds, draw paths, or add notes.
+4.  **Navigate**: Use pinch-to-zoom and two-finger pan on mobile, or your mouse/trackpad on desktop.
+5.  **Save & Share**:
+    -   Export the current view as an image.
+    -   Export the whole project as a `.zip` file.
+    -   Save your project to the cloud to access it later.
 
-### Cloud Storage
-- **Save to Cloud**: Save your entire project (photos, annotations, metadata) to a cloud backend.
-- **Load from Cloud**: Load projects from the cloud to continue your work on any device.
+## 💻 Development Setup
 
-### Works offline
-- **PWA**: Install the app locally and use it offline (Progressive Web App)
+To run this project locally, follow these steps:
 
-## 📖 How to Use
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/your-username/crag.git
+    cd crag
+    ```
 
-1. **Upload Photos**: 
-   - Drag & drop climbing photos or click to select
+2.  **Install dependencies**:
+    ```bash
+    pnpm install
+    ```
 
-2. **Select Tools**:
-   - Choose hold types from the climbing holds panel
-   - Select hand color (red/green) for hand holds
-   - Use drawing tool for route lines
+3.  **Run the development server**:
+    ```bash
+    pnpm run dev
+    ```
 
-3. **Annotate Routes**:
-   - Tap/click to place holds on climbing features
-   - Draw lines to mark climbing paths
-   - Add text annotations for beta notes
+4.  **Build for production**:
+    ```bash
+    pnpm run build
+    ```
 
-4. **Navigate Photos**:
-   - Pinch to zoom in/out
-   - Two-finger drag to pan
-   - Use photo list to switch between images
+5.  **Preview the production build**:
+    ```bash
+    pnpm run preview
+    ```
 
-5. **Export & Share**:
-   - Export the current photo with annotations as an image.
-   - Export the entire project as a `.zip` file for backup or sharing.
-   - Import a project `.zip` file to continue your work.
-   - Share a project by uploading the `.zip` file to a public host and creating a shareable link like `https://crag-one.vercel.app/?load=URL_TO_ZIP`.
+### Backend Configuration
 
-## 🔧 Development
+The frontend connects to a backend API to save and load projects from the cloud.
 
-```bash
-# Install dependencies
-pnpm install
-
-# Start development server
-pnpm run dev
-
-# Build for production
-pnpm run build
-
-# Preview production build
-pnpm run preview
-```
-
-### API Configuration
-
-The application can be connected to a cloud backend for saving and loading projects. The API for this backend is specified in the `openapi.yaml` file.
-
-To configure the frontend to communicate with your backend, create a `.env.local` file in the root of the project and set the `VITE_API_URL` variable:
+To configure the API endpoint, create a `.env.local` file in the root of the project and set the `VITE_API_URL` variable:
 
 ```
 VITE_API_URL=https://your-api-endpoint.com/api
 ```
 
-If `VITE_API_URL` is not set, it will default to `/api`, expecting a relative path for the API calls.
+If `VITE_API_URL` is not set, it defaults to `/api`, which is suitable for running the frontend and backend on the same server.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a pull request or open an issue for any bugs or feature requests.
+
+## 📄 License
+
+This project is licensed under the MIT License.
