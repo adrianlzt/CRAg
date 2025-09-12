@@ -9,9 +9,7 @@ import { RouteDescription } from './components/RouteDescription';
 import { ProjectImporter } from './components/ProjectImporter';
 import { ProjectLoader } from './components/ProjectLoader';
 import { Button } from './components/ui/button';
-import { Toaster } from './components/ui/sonner';
 import { Upload, Redo, Undo, FilePlus, Menu, Save, FolderOpen } from 'lucide-react';
-import { useToast } from './hooks/use-toast';
 import { useAppState } from './hooks/useAppState';
 import { exportAsImage } from './lib/image-export';
 import { saveProject, getProject } from './lib/api';
@@ -36,7 +34,9 @@ function App() {
     handleNewProject,
   } = useAppState();
 
-  const { toast } = useToast();
+  const toast = ({ title, description }: { title: string; description?: string; variant?: string }) => {
+    window.alert(`${title}${description ? `\n${description}` : ''}`);
+  };
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProjectLoaderOpen, setIsProjectLoaderOpen] = useState(false);
@@ -407,7 +407,6 @@ function App() {
         onClose={() => setIsProjectLoaderOpen(false)}
         onProjectSelect={handleLoadProject}
       />
-      <Toaster />
     </div>
   );
 }
