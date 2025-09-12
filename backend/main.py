@@ -177,9 +177,16 @@ async def list_projects(db: AsyncSession = Depends(get_db)):
 async def create_project(request: Request, db: AsyncSession = Depends(get_db)):
     """Create a new project."""
     form = await request.form()
-    project_json = form.get("project")
-    if not project_json or not isinstance(project_json, str):
-        raise HTTPException(status_code=400, detail="Invalid 'project' field.")
+    project_form_part = form.get("project")
+    if not project_form_part:
+        raise HTTPException(status_code=400, detail="Missing 'project' field.")
+
+    project_json: str
+    if isinstance(project_form_part, str):
+        project_json = project_form_part
+    else:  # it's an UploadFile
+        project_json_bytes = await project_form_part.read()
+        project_json = project_json_bytes.decode("utf-8")
 
     try:
         project_data = json.loads(project_json)
@@ -263,9 +270,16 @@ async def update_project(
         raise HTTPException(status_code=404, detail="Project not found.")
 
     form = await request.form()
-    project_json = form.get("project")
-    if not project_json or not isinstance(project_json, str):
-        raise HTTPException(status_code=400, detail="Invalid 'project' field.")
+    project_form_part = form.get("project")
+    if not project_form_part:
+        raise HTTPException(status_code=400, detail="Missing 'project' field.")
+
+    project_json: str
+    if isinstance(project_form_part, str):
+        project_json = project_form_part
+    else:  # it's an UploadFile
+        project_json_bytes = await project_form_part.read()
+        project_json = project_json_bytes.decode("utf-8")
 
     try:
         project_data = json.loads(project_json)
