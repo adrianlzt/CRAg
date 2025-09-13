@@ -15,89 +15,22 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: routemapper-app
+  name: crag
 
 ---
 
-# PostgreSQL Database resources
-
-# Secret for PostgreSQL credentials
-apiVersion: v1
-kind: Secret
-metadata:
-  name: postgres-secret
-  namespace: routemapper-app
-type: Opaque
-stringData:
-  # IMPORTANT: Change this password for production environments
-  POSTGRES_PASSWORD: "supersecretpassword"
-  POSTGRES_USER: "routemapper"
-  POSTGRES_DB: "routemapper_db"
-
----
-
-# PersistentVolumeClaim for PostgreSQL data storage
+# PersistentVolumeClaim for backend data (SQLite DB and uploads)
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: postgres-pvc
-  namespace: routemapper-app
+  name: backend-data-pvc
+  namespace: crag
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi # Adjust storage size as needed
-
----
-
-# Service to expose PostgreSQL within the cluster
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres-service
-  namespace: routemapper-app
-spec:
-  selector:
-    app: postgres
-  ports:
-    - protocol: TCP
-      port: 5432
-      targetPort: 5432
-
----
-
-# Deployment for PostgreSQL
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: postgres-deployment
-  namespace: routemapper-app
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgres
-  template:
-    metadata:
-      labels:
-        app: postgres
-    spec:
-      containers:
-        - name: postgres
-          image: postgres:15-alpine
-          ports:
-            - containerPort: 5432
-          envFrom:
-            - secretRef:
-                name: postgres-secret
-          volumeMounts:
-            - name: postgres-storage
-              mountPath: /var/lib/postgresql/data
-      volumes:
-        - name: postgres-storage
-          persistentVolumeClaim:
-            claimName: postgres-pvc
 
 ---
 
@@ -108,7 +41,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: backend-service
-  namespace: routemapper-app
+  namespace: crag
 spec:
   selector:
     app: backend
@@ -124,7 +57,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-deployment
-  namespace: routemapper-app
+  namespace: crag
 spec:
   replicas: 1
   selector:
@@ -135,73 +68,26 @@ spec:
       labels:
         app: backend
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret # IMPORTANT: Create this secret in your cluster
       containers:
         - name: backend
           # IMPORTANT: Replace with your backend Docker image
-          image: your-backend-image:latest
+          image: ghcr.io/adrianlzt/crag-backend:main
           ports:
             - containerPort: 8000
           env:
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_PASSWORD
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_DB
             - name: DATABASE_URL
-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/$(POSTGRES_DB)"
-
----
-
-# Frontend application resources
-
-# Service to expose the frontend within the cluster
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend-service
-  namespace: routemapper-app
-spec:
-  selector:
-    app: frontend
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80 # Assuming frontend is served on port 80 (e.g., by Nginx)
-
----
-
-# Deployment for the frontend
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: frontend-deployment
-  namespace: routemapper-app
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: frontend
-  template:
-    metadata:
-      labels:
-        app: frontend
-    spec:
-      containers:
-        - name: frontend
-          # IMPORTANT: Replace with your frontend Docker image
-          image: your-frontend-image:latest
-          ports:
-            - containerPort: 80
+              value: "sqlite+aiosqlite:////data/projects.db"
+            - name: UPLOAD_DIR
+              value: "/data/uploads"
+          volumeMounts:
+            - name: backend-data
+              mountPath: /data
+      volumes:
+        - name: backend-data
+          persistentVolumeClaim:
+            claimName: backend-data-pvc
 
 ---
 
@@ -209,34 +95,26 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: routemapper-ingress
-  namespace: routemapper-app
+  name: crag-ingress
+  namespace: crag
   annotations:
-    # This assumes you are using the NGINX Ingress Controller.
-    # If you use a different one, you might need to change the annotation.
-    kubernetes.io/ingress.class: "nginx"
-    # The following annotation rewrites requests from /api/path to /path.
-    # This is useful if your backend doesn't expect the /api prefix.
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
 spec:
+  ingressClassName: traefik
   rules:
-  # You can specify a host here, e.g., routemapper.yourdomain.com
-  # - host: routemapper.yourdomain.com
-  - http:
+  - host: "crag.k8s.adrianlzt.com"
+    http:
       paths:
       # Route API requests to the backend service
-      - path: /api(/|$)(.*)
+      - path: /
         pathType: Prefix
         backend:
           service:
             name: backend-service
             port:
               number: 80
-      # Route all other requests to the frontend service
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend-service
-            port:
-              number: 80
+  tls:
+    - hosts:
+        - "crag.k8s.adrianlzt.com"
