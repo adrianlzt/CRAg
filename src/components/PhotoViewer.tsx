@@ -55,7 +55,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   const [isTransforming, setIsTransforming] = useState(false);
   const longPressTimeout = useRef<number | null>(null);
   const longPressOccurred = useRef(false);
-  const [editingText, setEditingText] = useState<{ x: number; y: number; value: string } | null>(null);
+  const [editingText, setEditingText] = useState<{ x: number; y: number; value: string; annotation?: Annotation } | null>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [holdIcons, setHoldIcons] = useState<Record<string, HTMLImageElement>>({});
 
@@ -234,22 +234,32 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   });
 
   const handleTextEditEnd = useCallback((value: string) => {
-    if (editingText && image) {
-      if (value.trim()) {
-        const imageScale = image.width / 1000; // Base width of 1000px
-        const annotation: Annotation = {
-          id: `annotation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          type: 'text',
-          photoId: photo.id,
-          x: editingText.x,
-          y: editingText.y,
-          data: { text: value, color: '#000000', fontSize: 16 * imageScale, rotation: 0 },
-        };
-        onAnnotationAdd(annotation);
-      }
+    if (!editingText) {
       setEditingText(null);
+      return;
     }
-  }, [editingText, onAnnotationAdd, photo.id, image]);
+    if (editingText.annotation) {
+      if (value.trim()) {
+        onAnnotationUpdate(editingText.annotation.id, {
+          data: { ...editingText.annotation.data, text: value },
+        });
+      } else {
+        onAnnotationRemove(editingText.annotation.id);
+      }
+    } else if (value.trim() && image) {
+      const imageScale = image.width / 1000; // Base width of 1000px
+      const annotation: Annotation = {
+        id: `annotation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        type: 'text',
+        photoId: photo.id,
+        x: editingText.x,
+        y: editingText.y,
+        data: { text: value, color: '#000000', fontSize: 16 * imageScale, rotation: 0 },
+      };
+      onAnnotationAdd(annotation);
+    }
+    setEditingText(null);
+  }, [editingText, onAnnotationAdd, onAnnotationUpdate, onAnnotationRemove, photo.id, image]);
 
   const handleStageClick = useCallback(() => {
     if (longPressOccurred.current) {
@@ -412,6 +422,11 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
   }, [selectedTool]);
 
   const handleAnnotationDoubleClick = useCallback((annotation: Annotation) => {
+    if (annotation.type === 'text') {
+      setSelectedAnnotation(null);
+      setEditingText({ x: annotation.x, y: annotation.y, value: annotation.data.text, annotation });
+      return;
+    }
     if (confirm('Delete this annotation?')) {
       onAnnotationRemove(annotation.id);
     }
@@ -511,9 +526,10 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   scaleX={annotation.data.scale || 1}
                   scaleY={annotation.data.scale || 1}
                   rotation={(annotation.data.rotation || 0) * 180 / Math.PI}
-                  onClick={() => handleAnnotationClick(annotation)}
-                  onDblClick={() => handleAnnotationDoubleClick(annotation)}
-                  onDblTap={() => handleAnnotationDoubleClick(annotation)}
+                  onClick={(e) => { e.cancelBubble = true; handleAnnotationClick(annotation); }}
+                  onTap={(e) => { e.cancelBubble = true; }}
+                  onDblClick={(e) => { e.cancelBubble = true; handleAnnotationDoubleClick(annotation); }}
+                  onDblTap={(e) => { e.cancelBubble = true; handleAnnotationDoubleClick(annotation); }}
                   onTouchStart={() => handleHoldTouchStart(annotation)}
                   onTouchEnd={handleHoldTouchEnd}
                   draggable={(selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation === annotation.id}
@@ -595,9 +611,10 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
                   x={annotation.x}
                   y={annotation.y}
                   rotation={(annotation.data.rotation || 0) * 180 / Math.PI}
-                  onClick={() => handleAnnotationClick(annotation)}
-                  onDblClick={() => handleAnnotationDoubleClick(annotation)}
-                  onDblTap={() => handleAnnotationDoubleClick(annotation)}
+                  onClick={(e) => { e.cancelBubble = true; handleAnnotationClick(annotation); }}
+                  onTap={(e) => { e.cancelBubble = true; }}
+                  onDblClick={(e) => { e.cancelBubble = true; handleAnnotationDoubleClick(annotation); }}
+                  onDblTap={(e) => { e.cancelBubble = true; handleAnnotationDoubleClick(annotation); }}
                   onTouchStart={() => handleHoldTouchStart(annotation)}
                   onTouchEnd={handleHoldTouchEnd}
                   draggable={(selectedTool === 'hold' || selectedTool === 'text') && selectedAnnotation === annotation.id}
@@ -689,7 +706,10 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
             border: '2px solid #f97316',
             borderRadius: '4px',
             color: 'black',
-            fontSize: '16px',
+            fontSize: editingText.annotation
+              ? `${(editingText.annotation.data.fontSize || 16) * stageConfig.scale}px`
+              : '16px',
+            fontWeight: 'bold',
             padding: '5px',
             minWidth: '150px',
             minHeight: '50px',

@@ -270,7 +270,7 @@ function App() {
                     <ul className="list-disc list-inside space-y-1 pl-2">
                       <li>To add a hold, text or draw a line, select the appropiate tool and touch, or drag for lines, in the image.</li>
                       <li>Long press to select holds or text to move, resize or rotate.</li>
-                      <li>Double tap to delete holds, texts or lines.</li>
+                      <li>Double tap to edit texts or delete holds and lines. Deleting a text by clearing its content on edit.</li>
                       <li>Pinch to zoom.</li>
                     </ul>
                   </div>
