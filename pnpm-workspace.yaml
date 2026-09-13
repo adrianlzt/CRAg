@@ -1,5 +1,3 @@
-ignoredBuiltDependencies:
-  - esbuild
-
-onlyBuiltDependencies:
-  - '@sentry/cli'
+allowBuilds:
+  '@sentry/cli': true
+  esbuild: true

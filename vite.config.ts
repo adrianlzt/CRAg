@@ -59,8 +59,12 @@ export default defineConfig({
     allowedHosts: [
       '.ts.net',
       '.ngrok-free.app',
+      '.trycloudflare.com',
     ],
+    proxy: {
+      '/api': 'http://localhost:8000',
+      '/uploads': 'http://localhost:8000',
+    },
   },
 
 })
-
