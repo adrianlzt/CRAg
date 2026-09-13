@@ -11,7 +11,7 @@ export const Header: React.FC<HeaderProps> = ({ isVisible, projectName, onProjec
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   return (
-    <header className={`fixed lg:static top-0 w-full z-10 bg-slate-900/95 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 transition-transform duration-300 ease-in-out ${!isVisible ? '-translate-y-full' : ''}`}>
+    <header className={`fixed lg:static top-0 w-full z-10 bg-slate-900/95 backdrop-blur-md border-b border-slate-700/50 px-4 py-3 transition-transform duration-300 ease-in-out touch-manipulation ${!isVisible ? '-translate-y-full' : ''}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2">

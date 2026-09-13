@@ -733,14 +733,14 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
           ref={textAreaRef}
           style={{
             position: 'absolute',
-            top: `${editingText.y * stageConfig.scale + stageConfig.y}px`,
-            left: `${editingText.x * stageConfig.scale + stageConfig.x}px`,
+            top: `${Math.min(Math.max(editingText.y * stageConfig.scale + stageConfig.y, 0), stageConfig.height - 70)}px`,
+            left: `${Math.min(Math.max(editingText.x * stageConfig.scale + stageConfig.x, 0), stageConfig.width - 170)}px`,
             background: 'white',
             border: '2px solid #f97316',
             borderRadius: '4px',
             color: 'black',
             fontSize: editingText.annotation
-              ? `${(editingText.annotation.data.fontSize || 16) * stageConfig.scale}px`
+              ? `${Math.max(16, (editingText.annotation.data.fontSize || 16) * stageConfig.scale)}px`
               : '16px',
             fontWeight: 'bold',
             padding: '5px',
@@ -767,8 +767,8 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
           title="Delete annotation"
           className="absolute z-[1000] flex h-10 w-10 items-center justify-center rounded-full bg-red-500/90 text-white shadow-lg transition-colors hover:bg-red-500"
           style={{
-            top: `${selectedAnnotationObj.y * stageConfig.scale + stageConfig.y - 48 * stageConfig.scale}px`,
-            left: `${selectedAnnotationObj.x * stageConfig.scale + stageConfig.x + 26 * stageConfig.scale}px`,
+            top: `${Math.min(Math.max(selectedAnnotationObj.y * stageConfig.scale + stageConfig.y - 48 * stageConfig.scale, 0), stageConfig.height - 40)}px`,
+            left: `${Math.min(Math.max(selectedAnnotationObj.x * stageConfig.scale + stageConfig.x + 26 * stageConfig.scale, 0), stageConfig.width - 40)}px`,
           }}
           onClick={() => handleAnnotationDelete(selectedAnnotationObj)}
         >

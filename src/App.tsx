@@ -138,14 +138,14 @@ function App() {
       <div className={`flex-1 flex overflow-hidden transition-all duration-300 ease-in-out pt-[73px] lg:pt-0`}>
         {isMenuOpen && (
           <div
-            className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/60 z-40 lg:hidden touch-manipulation"
             onClick={() => setIsMenuOpen(false)}
           />
         )}
         {/* Sidebar - Tools and Controls */}
         <div
           ref={sidebarRef}
-          className={`fixed lg:static inset-y-0 left-0 z-50 w-80 bg-slate-900/95 backdrop-blur-md border-r border-slate-700/50 p-4 overflow-y-auto transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          className={`fixed lg:static inset-y-0 left-0 z-50 w-80 bg-slate-900/95 backdrop-blur-md border-r border-slate-700/50 p-4 overflow-y-auto transition-transform duration-300 ease-in-out touch-manipulation ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'
             } lg:translate-x-0`}
         >
           <div className="space-y-6">
@@ -339,7 +339,7 @@ function App() {
             </div>
           )}
           {currentPhoto && state.selectedTool === 'hold' && (
-            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm px-4 lg:max-w-md">
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm px-4 lg:max-w-md touch-manipulation">
               <div className="bg-slate-900/80 backdrop-blur-sm rounded-xl p-2 lg:p-4 border border-slate-700/50">
                 <HoldSelector
                   selectedHoldType={state.selectedHoldType}
@@ -355,7 +355,7 @@ function App() {
             </div>
           )}
           {currentPhoto && state.selectedTool === 'line' && (
-            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm px-4 lg:max-w-md">
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm px-4 lg:max-w-md touch-manipulation">
               <div className="bg-slate-900/80 backdrop-blur-sm rounded-xl p-2 lg:p-4 border border-slate-700/50 flex items-center justify-center gap-6">
                 {/* Line Color Selection */}
                 <div className="flex flex-wrap gap-2">
