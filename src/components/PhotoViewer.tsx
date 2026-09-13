@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Stage, Layer, Image as KonvaImage, Circle, Line, Text, Group, Transformer, Label, Tag } from 'react-konva';
 import { useGesture } from '@use-gesture/react';
+import { Trash2 } from 'lucide-react';
 import Konva from 'konva';
 import type { Photo, Annotation, HoldType } from '../types';
 import { HOLD_TYPES } from './HoldSelector';
@@ -297,6 +298,17 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
 
     if (selectedTool === 'hold' && selectedHoldType) {
       const imageScale = image.width / 1000; // Base width of 1000px
+      // A tap missing a small hold would otherwise place a duplicate next
+      // to it; treat it as a selection of the closest hold instead
+      const nearby = annotations
+        .filter(a => a.type === 'hold')
+        .map(a => ({ annotation: a, distance: Math.hypot(a.x - imageX, a.y - imageY) }))
+        .filter(x => x.distance <= 26 * imageScale)
+        .sort((p, q) => p.distance - q.distance)[0];
+      if (nearby) {
+        setSelectedAnnotation(nearby.annotation.id);
+        return;
+      }
       const annotation: Annotation = {
         id: `annotation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         type: 'hold',
@@ -317,7 +329,7 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       if (isDraggingAnnotation) return;
       setEditingText({ x: imageX, y: imageY, value: '' });
     }
-  }, [editingText, handleTextEditEnd, image, isDraggingAnnotation, onAnnotationAdd, photo.id, selectedFootColor, selectedHandColor, selectedKneeColor, selectedHoldType, selectedTool, stageConfig]);
+  }, [editingText, handleTextEditEnd, image, isDraggingAnnotation, onAnnotationAdd, photo.id, selectedAnnotation, selectedFootColor, selectedHandColor, selectedKneeColor, selectedHoldType, selectedTool, stageConfig, annotations]);
 
   const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
     // Deselect when clicked on empty area is handled by handleStageClick for consistency
@@ -421,16 +433,21 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
     }
   }, [selectedTool]);
 
+  const handleAnnotationDelete = useCallback((annotation: Annotation) => {
+    if (confirm('Delete this annotation?')) {
+      onAnnotationRemove(annotation.id);
+      setSelectedAnnotation(null);
+    }
+  }, [onAnnotationRemove]);
+
   const handleAnnotationDoubleClick = useCallback((annotation: Annotation) => {
     if (annotation.type === 'text') {
       setSelectedAnnotation(null);
       setEditingText({ x: annotation.x, y: annotation.y, value: annotation.data.text, annotation });
       return;
     }
-    if (confirm('Delete this annotation?')) {
-      onAnnotationRemove(annotation.id);
-    }
-  }, [onAnnotationRemove]);
+    handleAnnotationDelete(annotation);
+  }, [handleAnnotationDelete]);
 
   const handleHoldTouchStart = useCallback((annotation: Annotation) => {
     if (selectedTool !== 'hold' && selectedTool !== 'text') return;
@@ -461,6 +478,22 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
       default: return '#f97316';
     }
   };
+
+  const selectedAnnotationObj = selectedAnnotation
+    ? annotations.find(a => a.id === selectedAnnotation) ?? null
+    : null;
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedAnnotationObj) {
+        handleAnnotationDelete(selectedAnnotationObj);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedAnnotationObj, handleAnnotationDelete]);
 
   return (
     <div
@@ -727,6 +760,20 @@ export const PhotoViewer: React.FC<PhotoViewerProps> = ({
             }
           }}
         />
+      )}
+
+      {selectedAnnotationObj && (selectedTool === 'hold' || selectedTool === 'text') && (
+        <button
+          title="Delete annotation"
+          className="absolute z-[1000] flex h-10 w-10 items-center justify-center rounded-full bg-red-500/90 text-white shadow-lg transition-colors hover:bg-red-500"
+          style={{
+            top: `${selectedAnnotationObj.y * stageConfig.scale + stageConfig.y - 48 * stageConfig.scale}px`,
+            left: `${selectedAnnotationObj.x * stageConfig.scale + stageConfig.x + 26 * stageConfig.scale}px`,
+          }}
+          onClick={() => handleAnnotationDelete(selectedAnnotationObj)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
       )}
     </div>
   );
